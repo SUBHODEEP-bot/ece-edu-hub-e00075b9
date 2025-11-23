@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FileText, BookOpen, GraduationCap, Calendar, User, LogOut, Download } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { EditableProfile } from '@/components/EditableProfile';
 
 const StudentDashboard = () => {
   const { user, signOut } = useAuth();
@@ -289,35 +290,7 @@ const StudentDashboard = () => {
           {/* Profile Tab */}
           <TabsContent value="profile" className="space-y-4 animate-fade-in">
             <h2 className="text-2xl font-bold text-foreground mb-4">My Profile</h2>
-            <Card className="max-w-2xl">
-              <CardHeader className="gradient-primary text-white rounded-t-lg">
-                <CardTitle>Profile Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4 pt-6">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-muted-foreground">Name</label>
-                  <p className="text-lg font-semibold">{profile?.name}</p>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-muted-foreground">College Email</label>
-                  <p className="text-lg font-semibold">{profile?.college_email}</p>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-muted-foreground">Mobile Number</label>
-                  <p className="text-lg font-semibold">{profile?.mobile_number}</p>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-muted-foreground">Account Status</label>
-                  <p className="text-lg font-semibold">
-                    {profile?.is_active ? (
-                      <span className="text-green-600">Active</span>
-                    ) : (
-                      <span className="text-destructive">Inactive</span>
-                    )}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+            {profile && <EditableProfile profile={profile} />}
           </TabsContent>
         </Tabs>
       </div>
