@@ -69,7 +69,15 @@ const NotesManager = () => {
       } else {
         const { error } = await supabase
           .from('notes')
-          .insert([{ ...values, uploaded_by: user?.id }]);
+          .insert([{ 
+            title: values.title,
+            subject: values.subject,
+            semester: values.semester,
+            description: values.description,
+            file_url: values.file_url,
+            file_name: values.file_name,
+            uploaded_by: user?.id 
+          }]);
         if (error) throw error;
         toast.success('Note added successfully');
       }
