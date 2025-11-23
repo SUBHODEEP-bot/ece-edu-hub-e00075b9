@@ -143,7 +143,7 @@ const Landing = () => {
             {/* Main Heading */}
             <div className="mb-8 animate-slide-up-delayed">
               <h1 className="text-6xl md:text-8xl font-heading font-black mb-4 leading-tight">
-                <span className="inline-block bg-gradient-to-r from-gold via-yellow-200 to-gold bg-clip-text text-transparent animate-shimmer" style={{ backgroundSize: '200% auto' }}>
+                <span className="inline-block text-white drop-shadow-2xl">
                   ECE EDU
                 </span>
               </h1>
@@ -280,49 +280,6 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Stats Section - Gold & Navy Theme */}
-      <section className="py-24 px-4 gradient-gold text-navy relative overflow-hidden">
-        <div className="absolute inset-0 bg-grid-pattern-dark opacity-5"></div>
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-white/20 rounded-full blur-3xl animate-pulse-slow"></div>
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-navy/10 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '1.5s' }}></div>
-        
-        {/* Tech Pattern Overlay */}
-        <div className="absolute inset-0 opacity-5">
-          <CircuitBoard className="absolute top-10 left-10 w-64 h-64 animate-float" />
-          <Cpu className="absolute bottom-10 right-10 w-48 h-48 animate-float-delayed" />
-        </div>
-        
-        <div className="container mx-auto max-w-7xl relative z-10">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-heading font-bold mb-4">
-              Our Impact in Numbers
-            </h2>
-            <p className="text-navy/70 text-lg font-semibold">
-              Trusted by thousands of students and faculty members
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <div
-                key={index}
-                className="text-center group animate-slide-up bg-navy/80 backdrop-blur-sm rounded-3xl p-8 border-2 border-navy hover:bg-navy hover:scale-105 transition-all duration-500 shadow-navy"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <div className="inline-flex items-center justify-center w-20 h-20 bg-gold/20 rounded-3xl mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 relative border-2 border-gold/40">
-                  <stat.icon className="w-10 h-10 text-gold" />
-                  <div className="absolute inset-0 bg-gold/30 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                </div>
-                <div className="text-6xl font-heading font-black mb-3 group-hover:scale-110 transition-transform text-white">
-                  {stat.value}
-                </div>
-                <div className="text-lg font-semibold mb-2 text-gold">{stat.label}</div>
-                <div className="text-sm text-silver">{stat.desc}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Benefits Section - Modern Grid */}
       <section className="py-28 px-4 bg-gradient-to-b from-background via-muted/20 to-background relative">
