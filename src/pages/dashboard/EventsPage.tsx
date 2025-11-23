@@ -18,13 +18,13 @@ export const EventsPage = () => {
   });
 
   return (
-    <div className="space-y-4 animate-fade-in">
-      <h2 className="text-2xl font-bold text-foreground">Upcoming Events & Activities</h2>
-      <div className="grid md:grid-cols-2 gap-6">
+    <div className="space-y-3 sm:space-y-4 animate-fade-in">
+      <h2 className="text-xl sm:text-2xl font-bold text-foreground">Upcoming Events & Activities</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         {events?.map((event) => (
           <Card key={event.id} className="hover:shadow-lg transition-smooth hover:border-primary/30">
             {event.image_url && (
-              <div className="h-48 overflow-hidden rounded-t-lg">
+              <div className="h-40 sm:h-48 overflow-hidden rounded-t-lg">
                 <img
                   src={event.image_url}
                   alt={event.title}
@@ -32,11 +32,11 @@ export const EventsPage = () => {
                 />
               </div>
             )}
-            <CardHeader>
-              <CardTitle className="text-xl">{event.title}</CardTitle>
-              <CardDescription className="space-y-1">
+            <CardHeader className="p-4 sm:p-6">
+              <CardTitle className="text-lg sm:text-xl">{event.title}</CardTitle>
+              <CardDescription className="space-y-1 text-xs sm:text-sm">
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4" />
+                  <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
                   {new Date(event.event_date).toLocaleDateString()}
                   {event.event_time && ` • ${event.event_time}`}
                 </div>
@@ -44,8 +44,8 @@ export const EventsPage = () => {
                 <div>Organized by: {event.organizer}</div>
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">{event.description}</p>
+            <CardContent className="p-4 sm:p-6 pt-0">
+              <p className="text-xs sm:text-sm text-muted-foreground">{event.description}</p>
             </CardContent>
           </Card>
         ))}

@@ -31,24 +31,24 @@ const StudentDashboard = () => {
   });
 
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={false}>
       <div className="min-h-screen flex w-full bg-gradient-to-br from-background via-muted/20 to-background">
         {/* Header */}
         <header className="fixed top-0 left-0 right-0 z-50 bg-card border-b shadow-sm backdrop-blur-sm bg-card/95">
-          <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
+          <div className="px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">
+            <div className="flex items-center gap-2 sm:gap-3">
               <SidebarTrigger />
-              <div className="w-10 h-10 gradient-primary rounded-lg flex items-center justify-center">
-                <GraduationCap className="w-6 h-6 text-white" />
+              <div className="w-8 h-8 sm:w-10 sm:h-10 gradient-primary rounded-lg flex items-center justify-center">
+                <GraduationCap className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-foreground">ECE EDU PORTAL</h1>
-                <p className="text-xs text-muted-foreground">Student Dashboard</p>
+                <h1 className="text-sm sm:text-lg md:text-xl font-bold text-foreground">ECE EDU PORTAL</h1>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">Student Dashboard</p>
               </div>
             </div>
-            <Button onClick={signOut} variant="outline" size="sm" className="gap-2">
-              <LogOut className="w-4 h-4" />
-              Logout
+            <Button onClick={signOut} variant="outline" size="sm" className="gap-1 sm:gap-2 text-xs sm:text-sm">
+              <LogOut className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">Logout</span>
             </Button>
           </div>
         </header>
@@ -57,13 +57,13 @@ const StudentDashboard = () => {
         <StudentSidebar />
 
         {/* Main Content */}
-        <main className="flex-1 pt-20 pb-8">
-          <div className="container mx-auto px-4">
+        <main className="flex-1 pt-16 sm:pt-20 pb-6 sm:pb-8">
+          <div className="px-3 sm:px-4 md:px-6 lg:px-8 max-w-7xl mx-auto">
             {/* Welcome Section */}
-            <Card className="mb-8 border-2 border-primary/20 shadow-lg animate-slide-up">
-              <CardHeader className="gradient-primary text-white rounded-t-lg">
-                <CardTitle className="text-2xl">Welcome back, {profile?.name}!</CardTitle>
-                <CardDescription className="text-blue-50">
+            <Card className="mb-4 sm:mb-6 md:mb-8 border-2 border-primary/20 shadow-lg animate-slide-up">
+              <CardHeader className="gradient-primary text-white rounded-t-lg p-4 sm:p-6">
+                <CardTitle className="text-lg sm:text-xl md:text-2xl">Welcome back, {profile?.name}!</CardTitle>
+                <CardDescription className="text-blue-50 text-xs sm:text-sm">
                   Access your study materials and stay updated with departmental activities
                 </CardDescription>
               </CardHeader>

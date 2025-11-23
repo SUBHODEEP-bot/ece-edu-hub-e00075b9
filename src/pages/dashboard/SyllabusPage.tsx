@@ -22,27 +22,27 @@ export const SyllabusPage = () => {
   };
 
   return (
-    <div className="space-y-4 animate-fade-in">
-      <h2 className="text-2xl font-bold text-foreground">Course Syllabus</h2>
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="space-y-3 sm:space-y-4 animate-fade-in">
+      <h2 className="text-xl sm:text-2xl font-bold text-foreground">Course Syllabus</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         {syllabus?.map((item) => (
           <Card key={item.id} className="hover:shadow-lg transition-smooth hover:border-primary/30">
-            <CardHeader>
-              <CardTitle className="text-lg">{item.title}</CardTitle>
-              <CardDescription>
+            <CardHeader className="p-4 sm:p-6">
+              <CardTitle className="text-base sm:text-lg">{item.title}</CardTitle>
+              <CardDescription className="text-xs sm:text-sm">
                 {item.semester} • {item.academic_year}
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-3 p-4 sm:p-6 pt-0">
               {item.description && (
-                <p className="text-sm text-muted-foreground line-clamp-2">{item.description}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">{item.description}</p>
               )}
               <Button
                 onClick={() => handleDownload(item.file_url, item.file_name)}
-                className="w-full gradient-primary text-white"
+                className="w-full gradient-primary text-white text-xs sm:text-sm"
                 size="sm"
               >
-                <Download className="w-4 h-4 mr-2" />
+                <Download className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
                 Download PDF
               </Button>
             </CardContent>
