@@ -1,0 +1,283 @@
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Camera, Save, X } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
+
+const profileSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters').max(100, 'Name too long'),
+  mobile_number: z.string().min(10, 'Mobile number must be at least 10 digits').max(15, 'Mobile number too long'),
+});
+
+type ProfileFormData = z.infer<typeof profileSchema>;
+
+interface EditableProfileProps {
+  profile: {
+    id: string;
+    name: string;
+    college_email: string;
+    mobile_number: string;
+    avatar_url?: string | null;
+    is_active?: boolean;
+  };
+}
+
+export const EditableProfile = ({ profile }: EditableProfileProps) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url);
+  const queryClient = useQueryClient();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<ProfileFormData>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: {
+      name: profile.name,
+      mobile_number: profile.mobile_number,
+    },
+  });
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      // Validate file size (max 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        toast.error('Image size must be less than 2MB');
+        return;
+      }
+
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast.error('Please upload an image file');
+        return;
+      }
+
+      setUploading(true);
+
+      // Delete old avatar if exists
+      if (avatarUrl) {
+        const oldPath = avatarUrl.split('/').pop();
+        if (oldPath) {
+          await supabase.storage.from('avatars').remove([`${profile.id}/${oldPath}`]);
+        }
+      }
+
+      // Upload new avatar
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}.${fileExt}`;
+      const filePath = `${profile.id}/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      // Update profile with new avatar URL
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('id', profile.id);
+
+      if (updateError) throw updateError;
+
+      setAvatarUrl(publicUrl);
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
+      toast.success('Profile picture updated successfully');
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+      toast.error('Failed to upload profile picture');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const onSubmit = async (data: ProfileFormData) => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          name: data.name,
+          mobile_number: data.mobile_number,
+        })
+        .eq('id', profile.id);
+
+      if (error) throw error;
+
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
+      toast.success('Profile updated successfully');
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast.error('Failed to update profile');
+    }
+  };
+
+  const handleCancel = () => {
+    reset();
+    setIsEditing(false);
+  };
+
+  return (
+    <Card className="max-w-2xl">
+      <CardHeader className="gradient-primary text-white rounded-t-lg">
+        <div className="flex items-center justify-between">
+          <CardTitle>Profile Information</CardTitle>
+          {!isEditing && (
+            <Button
+              onClick={() => setIsEditing(true)}
+              variant="secondary"
+              size="sm"
+            >
+              Edit Profile
+            </Button>
+          )}
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-6 pt-6">
+        {/* Avatar Section */}
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative">
+            <Avatar className="w-32 h-32 border-4 border-primary/20">
+              <AvatarImage src={avatarUrl || undefined} alt={profile.name} />
+              <AvatarFallback className="text-2xl font-bold bg-gradient-primary text-white">
+                {getInitials(profile.name)}
+              </AvatarFallback>
+            </Avatar>
+            {isEditing && (
+              <label
+                htmlFor="avatar-upload"
+                className="absolute bottom-0 right-0 p-2 bg-primary rounded-full cursor-pointer hover:bg-primary/90 transition-colors shadow-lg"
+              >
+                <Camera className="w-5 h-5 text-white" />
+                <input
+                  id="avatar-upload"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleAvatarUpload}
+                  disabled={uploading}
+                />
+              </label>
+            )}
+          </div>
+          {uploading && <p className="text-sm text-muted-foreground">Uploading...</p>}
+        </div>
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {/* Name Field */}
+          <div className="space-y-2">
+            <Label htmlFor="name">Name</Label>
+            {isEditing ? (
+              <>
+                <Input
+                  id="name"
+                  {...register('name')}
+                  placeholder="Enter your name"
+                  disabled={isSubmitting}
+                />
+                {errors.name && (
+                  <p className="text-sm text-destructive">{errors.name.message}</p>
+                )}
+              </>
+            ) : (
+              <p className="text-lg font-semibold">{profile.name}</p>
+            )}
+          </div>
+
+          {/* Email Field (Read-only) */}
+          <div className="space-y-2">
+            <Label htmlFor="email">College Email</Label>
+            <p className="text-lg font-semibold text-muted-foreground">{profile.college_email}</p>
+            {isEditing && (
+              <p className="text-xs text-muted-foreground">Email cannot be changed</p>
+            )}
+          </div>
+
+          {/* Mobile Number Field */}
+          <div className="space-y-2">
+            <Label htmlFor="mobile_number">Mobile Number</Label>
+            {isEditing ? (
+              <>
+                <Input
+                  id="mobile_number"
+                  {...register('mobile_number')}
+                  placeholder="Enter your mobile number"
+                  disabled={isSubmitting}
+                />
+                {errors.mobile_number && (
+                  <p className="text-sm text-destructive">{errors.mobile_number.message}</p>
+                )}
+              </>
+            ) : (
+              <p className="text-lg font-semibold">{profile.mobile_number}</p>
+            )}
+          </div>
+
+          {/* Account Status (Read-only) */}
+          <div className="space-y-2">
+            <Label>Account Status</Label>
+            <p className="text-lg font-semibold">
+              {profile.is_active ? (
+                <span className="text-green-600">Active</span>
+              ) : (
+                <span className="text-destructive">Inactive</span>
+              )}
+            </p>
+          </div>
+
+          {/* Action Buttons */}
+          {isEditing && (
+            <div className="flex gap-3 pt-4">
+              <Button
+                type="submit"
+                className="flex-1 gradient-primary text-white"
+                disabled={isSubmitting}
+              >
+                <Save className="w-4 h-4 mr-2" />
+                {isSubmitting ? 'Saving...' : 'Save Changes'}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleCancel}
+                disabled={isSubmitting}
+              >
+                <X className="w-4 h-4 mr-2" />
+                Cancel
+              </Button>
+            </div>
+          )}
+        </form>
+      </CardContent>
+    </Card>
+  );
+};
