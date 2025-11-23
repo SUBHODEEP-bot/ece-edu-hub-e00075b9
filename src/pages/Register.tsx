@@ -9,7 +9,8 @@ import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { GraduationCap, ArrowLeft, Loader2 } from 'lucide-react';
+import { GraduationCap, ArrowLeft, Loader2, Mail, Lock, User, Phone, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 const registerSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').max(100),
@@ -77,20 +78,67 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen gradient-hero flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjA1IiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-40"></div>
+    <div className="min-h-screen gradient-hero flex items-center justify-center p-4 py-12 relative overflow-hidden">
+      {/* Animated Background */}
+      <div className="absolute inset-0 gradient-mesh opacity-40"></div>
+      <div className="absolute inset-0 bg-grid-pattern-dark opacity-20"></div>
       
-      <Card className="w-full max-w-md relative z-10 shadow-2xl animate-scale-in">
-        <CardHeader className="space-y-1 text-center pb-6">
-          <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center shadow-glow">
-              <GraduationCap className="w-10 h-10 text-white" />
+      {/* Floating Orbs */}
+      <div className="absolute top-20 left-[10%] w-96 h-96 bg-primary-light/20 rounded-full blur-3xl animate-float"></div>
+      <div className="absolute bottom-20 right-[10%] w-96 h-96 bg-secondary/20 rounded-full blur-3xl animate-float-delayed"></div>
+      
+      {/* Animated Particles */}
+      {[...Array(15)].map((_, i) => (
+        <div
+          key={i}
+          className="absolute bg-white/20 rounded-full animate-pulse-slow"
+          style={{
+            width: Math.random() * 6 + 3 + 'px',
+            height: Math.random() * 6 + 3 + 'px',
+            top: Math.random() * 100 + '%',
+            left: Math.random() * 100 + '%',
+            animationDelay: Math.random() * 3 + 's',
+          }}
+        />
+      ))}
+      
+      <Card className="w-full max-w-lg relative z-10 shadow-2xl border-2 border-white/10 backdrop-blur-xl bg-white/95 animate-scale-in">
+        <CardHeader className="space-y-4 text-center pb-8">
+          <div className="flex justify-center mb-2">
+            <div className="relative">
+              <div className="w-20 h-20 gradient-primary rounded-3xl flex items-center justify-center shadow-glow animate-float">
+                <GraduationCap className="w-11 h-11 text-white" />
+              </div>
+              <div className="absolute -top-2 -right-2">
+                <Badge className="bg-success text-white border-0 shadow-lg animate-pulse-slow">
+                  <Sparkles className="w-3 h-3 mr-1" />
+                  New
+                </Badge>
+              </div>
             </div>
           </div>
-          <CardTitle className="text-3xl font-bold">Create Account</CardTitle>
-          <CardDescription className="text-base">
-            Register for ECE EDU PORTAL
-          </CardDescription>
+          
+          <div>
+            <CardTitle className="text-4xl font-heading font-bold mb-2 bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
+              Create Account
+            </CardTitle>
+            <CardDescription className="text-base text-muted-foreground">
+              Join the ECE EDU PORTAL community today
+            </CardDescription>
+          </div>
+          
+          <div className="flex flex-wrap justify-center gap-3 text-xs">
+            {[
+              { icon: CheckCircle2, text: 'Free Forever' },
+              { icon: CheckCircle2, text: 'Instant Access' },
+              { icon: CheckCircle2, text: 'No Credit Card' },
+            ].map((item, index) => (
+              <div key={index} className="flex items-center gap-1.5 text-success font-medium">
+                <item.icon className="w-4 h-4" />
+                <span>{item.text}</span>
+              </div>
+            ))}
+          </div>
         </CardHeader>
         
         <CardContent>
@@ -101,9 +149,16 @@ const Register = () => {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Full Name</FormLabel>
+                    <FormLabel className="text-sm font-semibold">Full Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="John Doe" {...field} />
+                      <div className="relative">
+                        <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                        <Input 
+                          placeholder="John Doe" 
+                          className="pl-11 h-12 border-2 focus:border-primary transition-colors" 
+                          {...field} 
+                        />
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -115,9 +170,17 @@ const Register = () => {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>College Email</FormLabel>
+                    <FormLabel className="text-sm font-semibold">College Email</FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="student@college.edu" {...field} />
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                        <Input 
+                          type="email" 
+                          placeholder="student@college.edu" 
+                          className="pl-11 h-12 border-2 focus:border-primary transition-colors" 
+                          {...field} 
+                        />
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -129,9 +192,17 @@ const Register = () => {
                 name="mobile"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Mobile Number</FormLabel>
+                    <FormLabel className="text-sm font-semibold">Mobile Number</FormLabel>
                     <FormControl>
-                      <Input type="tel" placeholder="1234567890" {...field} />
+                      <div className="relative">
+                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                        <Input 
+                          type="tel" 
+                          placeholder="1234567890" 
+                          className="pl-11 h-12 border-2 focus:border-primary transition-colors" 
+                          {...field} 
+                        />
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -143,9 +214,17 @@ const Register = () => {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel className="text-sm font-semibold">Password</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="••••••••" {...field} />
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                        <Input 
+                          type="password" 
+                          placeholder="••••••••" 
+                          className="pl-11 h-12 border-2 focus:border-primary transition-colors" 
+                          {...field} 
+                        />
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -157,9 +236,17 @@ const Register = () => {
                 name="confirmPassword"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Confirm Password</FormLabel>
+                    <FormLabel className="text-sm font-semibold">Confirm Password</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="••••••••" {...field} />
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                        <Input 
+                          type="password" 
+                          placeholder="••••••••" 
+                          className="pl-11 h-12 border-2 focus:border-primary transition-colors" 
+                          {...field} 
+                        />
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -168,31 +255,44 @@ const Register = () => {
 
               <Button
                 type="submit"
-                className="w-full gradient-primary text-white font-semibold hover:shadow-glow"
+                className="w-full gradient-primary text-white font-bold h-12 text-base rounded-xl hover:shadow-glow-hover transition-all duration-300 relative overflow-hidden group mt-6"
                 disabled={loading}
               >
                 {loading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                     Creating Account...
                   </>
                 ) : (
-                  'Register'
+                  <>
+                    <span className="relative z-10">Create My Account</span>
+                    <div className="absolute inset-0 bg-white/20 translate-y-[100%] group-hover:translate-y-0 transition-transform duration-500"></div>
+                  </>
                 )}
               </Button>
             </form>
           </Form>
 
-          <div className="mt-6 text-center space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Already have an account?{' '}
-              <Link to="/login" className="text-primary font-semibold hover:underline">
-                Login here
-              </Link>
-            </p>
+          <div className="mt-8 space-y-4">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-border" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-card px-3 text-muted-foreground font-medium">
+                  Already Have an Account?
+                </span>
+              </div>
+            </div>
+            
+            <Link to="/login" className="block">
+              <Button variant="outline" className="w-full h-12 border-2 hover:border-primary hover:bg-primary/5 font-semibold rounded-xl transition-all">
+                Sign In Instead
+              </Button>
+            </Link>
             
             <Link to="/">
-              <Button variant="ghost" className="w-full" type="button">
+              <Button variant="ghost" className="w-full hover:bg-muted/50 rounded-xl" type="button">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to Home
               </Button>

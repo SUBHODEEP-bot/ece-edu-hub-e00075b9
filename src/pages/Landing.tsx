@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
-import { BookOpen, FileText, Calendar, GraduationCap, Users, ArrowRight, Sparkles, Trophy, Target, TrendingUp, Zap, Shield } from 'lucide-react';
+import { BookOpen, FileText, Calendar, GraduationCap, Users, ArrowRight, Sparkles, Trophy, Target, TrendingUp, Zap, Shield, Award, Clock, CheckCircle2, Layers, Database, Cpu, CircuitBoard, Wifi } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 const Landing = () => {
   const features = [
@@ -11,6 +12,7 @@ const Landing = () => {
       description: 'Comprehensive collection of previous year question papers organized by subject and semester',
       color: 'text-primary',
       bgColor: 'bg-primary/10',
+      gradient: 'from-primary/20 to-primary/5',
     },
     {
       icon: BookOpen,
@@ -18,6 +20,7 @@ const Landing = () => {
       description: 'High-quality notes and study materials curated by faculty and top students',
       color: 'text-secondary',
       bgColor: 'bg-secondary/10',
+      gradient: 'from-secondary/20 to-secondary/5',
     },
     {
       icon: GraduationCap,
@@ -25,6 +28,7 @@ const Landing = () => {
       description: 'Always up-to-date curriculum and syllabus for all semesters with detailed breakdowns',
       color: 'text-accent',
       bgColor: 'bg-accent/10',
+      gradient: 'from-accent/20 to-accent/5',
     },
     {
       icon: Calendar,
@@ -32,131 +36,332 @@ const Landing = () => {
       description: 'Stay connected with departmental activities, workshops, and technical events',
       color: 'text-success',
       bgColor: 'bg-success/10',
+      gradient: 'from-success/20 to-success/5',
     },
   ];
 
   const stats = [
-    { icon: BookOpen, label: 'Study Resources', value: '500+', color: 'text-primary' },
-    { icon: Users, label: 'Active Students', value: '1000+', color: 'text-secondary' },
-    { icon: Trophy, label: 'Success Rate', value: '95%', color: 'text-accent' },
-    { icon: TrendingUp, label: 'Annual Events', value: '50+', color: 'text-success' },
+    { icon: Database, label: 'Study Resources', value: '500+', color: 'text-primary', desc: 'Quality Materials' },
+    { icon: Users, label: 'Active Students', value: '1000+', color: 'text-secondary', desc: 'Engaged Learners' },
+    { icon: Trophy, label: 'Success Rate', value: '95%', color: 'text-accent', desc: 'Pass Percentage' },
+    { icon: TrendingUp, label: 'Annual Events', value: '50+', color: 'text-success', desc: 'Technical Programs' },
   ];
 
   const benefits = [
     {
       icon: Zap,
-      title: 'Fast Access',
-      description: 'Instant access to all resources anytime, anywhere',
+      title: 'Lightning Fast',
+      description: 'Instant access to all resources with optimized loading times',
+      color: 'from-yellow-500 to-orange-500',
     },
     {
       icon: Shield,
       title: 'Verified Content',
-      description: 'All materials verified by department faculty',
+      description: 'All materials verified and approved by department faculty',
+      color: 'from-green-500 to-emerald-500',
     },
     {
       icon: Target,
       title: 'Exam Focused',
-      description: 'Resources tailored for exam preparation',
+      description: 'Resources tailored specifically for exam preparation',
+      color: 'from-blue-500 to-cyan-500',
+    },
+    {
+      icon: Award,
+      title: 'Quality Assured',
+      description: 'Premium content curated by experienced educators',
+      color: 'from-purple-500 to-pink-500',
+    },
+    {
+      icon: Clock,
+      title: '24/7 Access',
+      description: 'Study anytime, anywhere with unlimited access',
+      color: 'from-indigo-500 to-blue-500',
+    },
+    {
+      icon: Layers,
+      title: 'Organized Content',
+      description: 'Well-structured materials by semester and subject',
+      color: 'from-red-500 to-rose-500',
     },
   ];
 
+  const techIcons = [
+    { icon: Cpu, label: 'Microprocessors', delay: '0s' },
+    { icon: CircuitBoard, label: 'Digital Circuits', delay: '0.5s' },
+    { icon: Wifi, label: 'Communication', delay: '1s' },
+    { icon: Database, label: 'Embedded Systems', delay: '1.5s' },
+  ];
+
   return (
-    <div className="min-h-screen">
-      {/* Hero Section with Gradient Mesh */}
-      <section className="relative gradient-hero text-white py-32 px-4 overflow-hidden">
-        <div className="absolute inset-0 gradient-mesh opacity-30"></div>
+    <div className="min-h-screen bg-background">
+      {/* Animated Circuit Pattern Background */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden opacity-5">
+        <div className="absolute top-0 left-0 w-full h-full">
+          {[...Array(20)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute bg-primary rounded-full animate-pulse-slow"
+              style={{
+                width: Math.random() * 4 + 2 + 'px',
+                height: Math.random() * 4 + 2 + 'px',
+                top: Math.random() * 100 + '%',
+                left: Math.random() * 100 + '%',
+                animationDelay: Math.random() * 3 + 's',
+              }}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Hero Section - Engineering Theme */}
+      <section className="relative gradient-hero text-white pt-20 pb-32 px-4 overflow-hidden">
+        <div className="absolute inset-0 gradient-mesh opacity-40"></div>
         <div className="absolute inset-0 bg-grid-pattern-dark opacity-20"></div>
         
-        {/* Floating Elements */}
-        <div className="absolute top-20 left-[10%] w-72 h-72 bg-primary-light/10 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute bottom-20 right-[10%] w-96 h-96 bg-secondary/10 rounded-full blur-3xl animate-float-delayed"></div>
+        {/* Animated Tech Icons */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-10 left-10 w-20 h-20 border-2 border-white/10 rounded-lg rotate-12 animate-float"></div>
+          <div className="absolute top-40 right-20 w-16 h-16 border-2 border-white/10 rounded-full animate-float-delayed"></div>
+          <div className="absolute bottom-40 left-1/4 w-12 h-12 border-2 border-white/10 rounded-lg -rotate-12 animate-float"></div>
+          <CircuitBoard className="absolute top-1/4 right-1/4 w-32 h-32 text-white/5 animate-pulse-slow" />
+          <Cpu className="absolute bottom-1/4 left-1/3 w-24 h-24 text-white/5 animate-pulse-slow" style={{ animationDelay: '1s' }} />
+        </div>
+        
+        {/* Floating Orbs */}
+        <div className="absolute top-20 left-[10%] w-96 h-96 bg-primary-light/20 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-20 right-[10%] w-[500px] h-[500px] bg-secondary/20 rounded-full blur-3xl animate-float-delayed"></div>
         
         <div className="container mx-auto max-w-7xl relative z-10">
-          <div className="text-center animate-slide-up">
-            <div className="inline-flex items-center gap-2 glass px-6 py-3 rounded-full mb-8 hover:scale-105 transition-smooth">
-              <Sparkles className="w-5 h-5 text-accent" />
-              <span className="text-sm font-medium">Welcome to ECE Department Portal</span>
+          <div className="text-center">
+            {/* Top Badge */}
+            <div className="inline-flex items-center gap-2 glass px-6 py-3 rounded-full mb-8 hover:scale-105 transition-smooth animate-slide-up border border-white/20">
+              <Sparkles className="w-5 h-5 text-accent animate-pulse-slow" />
+              <span className="text-sm font-medium">Electronics & Communication Engineering Department</span>
             </div>
             
-            <h1 className="text-5xl md:text-7xl font-heading font-bold mb-6 leading-tight">
-              ECE EDU PORTAL
-            </h1>
-            
-            <div className="inline-block glass-card px-8 py-4 rounded-2xl mb-8">
-              <p className="text-2xl md:text-3xl font-semibold bg-gradient-to-r from-primary-light to-secondary bg-clip-text text-transparent">
-                Electronics & Communication Engineering
-              </p>
+            {/* Main Heading */}
+            <div className="mb-8 animate-slide-up-delayed">
+              <h1 className="text-6xl md:text-8xl font-heading font-black mb-4 leading-tight">
+                <span className="inline-block bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent animate-shimmer" style={{ backgroundSize: '200% auto' }}>
+                  ECE EDU
+                </span>
+              </h1>
+              <div className="inline-block glass-card px-10 py-5 rounded-3xl shadow-2xl border border-white/20">
+                <p className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-accent via-white to-accent bg-clip-text text-transparent">
+                  PORTAL
+                </p>
+              </div>
             </div>
             
-            <p className="text-lg md:text-xl text-blue-50 mb-12 max-w-3xl mx-auto leading-relaxed">
-              Your comprehensive digital platform for academic excellence. Access curated study materials, 
-              previous year papers, and stay updated with departmental activities.
+            {/* Subtitle */}
+            <p className="text-xl md:text-2xl text-blue-50 mb-6 max-w-4xl mx-auto leading-relaxed animate-slide-up" style={{ animationDelay: '0.3s' }}>
+              Your Comprehensive Digital Platform for Academic Excellence
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-slide-up-delayed">
+            {/* Tech Badges */}
+            <div className="flex flex-wrap justify-center gap-3 mb-12 animate-scale-in" style={{ animationDelay: '0.4s' }}>
+              {techIcons.map((tech, index) => (
+                <Badge 
+                  key={index} 
+                  variant="outline" 
+                  className="glass border-white/20 text-white px-4 py-2 text-sm font-medium hover:scale-110 transition-smooth"
+                  style={{ animationDelay: tech.delay }}
+                >
+                  <tech.icon className="w-4 h-4 mr-2" />
+                  {tech.label}
+                </Badge>
+              ))}
+            </div>
+            
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-slide-up" style={{ animationDelay: '0.5s' }}>
               <Link to="/login">
-                <Button size="lg" className="bg-white text-primary hover:bg-blue-50 font-semibold shadow-xl hover:shadow-glow-hover px-8 py-6 text-lg rounded-xl group transition-smooth">
-                  Student Portal
-                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                <Button size="lg" className="bg-white text-primary hover:bg-blue-50 font-bold shadow-2xl hover:shadow-glow-hover px-10 py-7 text-lg rounded-2xl group transition-smooth relative overflow-hidden">
+                  <span className="relative z-10 flex items-center">
+                    Access Student Portal
+                    <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-2 transition-transform" />
+                  </span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/10 to-primary/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
                 </Button>
               </Link>
               
               <Link to="/register">
-                <Button size="lg" variant="outline" className="glass border-2 border-white text-white hover:bg-white hover:text-primary font-semibold px-8 py-6 text-lg rounded-xl transition-smooth">
+                <Button size="lg" variant="outline" className="glass border-2 border-white text-white hover:bg-white hover:text-primary font-bold px-10 py-7 text-lg rounded-2xl transition-smooth backdrop-blur-md">
                   Register Now
                 </Button>
               </Link>
             </div>
+            
+            {/* Quick Stats */}
+            <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto animate-scale-in" style={{ animationDelay: '0.6s' }}>
+              {[
+                { icon: CheckCircle2, label: 'Verified Resources', value: '100%' },
+                { icon: Users, label: 'Active Users', value: '1K+' },
+                { icon: Award, label: 'Success Rate', value: '95%' },
+                { icon: Zap, label: 'Quick Access', value: '24/7' },
+              ].map((stat, index) => (
+                <div key={index} className="glass-card p-4 rounded-2xl text-center border border-white/10 hover:scale-105 transition-smooth">
+                  <stat.icon className="w-8 h-8 mx-auto mb-2 text-accent" />
+                  <div className="text-2xl font-bold mb-1">{stat.value}</div>
+                  <div className="text-xs text-blue-100">{stat.label}</div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
         
-        {/* Wave Separator */}
+        {/* Advanced Wave Separator */}
         <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 120" className="w-full">
-            <path fill="hsl(var(--background))" d="M0,64L80,69.3C160,75,320,85,480,80C640,75,800,53,960,48C1120,43,1280,53,1360,58.7L1440,64L1440,120L1360,120C1280,120,1120,120,960,120C800,120,640,120,480,120C320,120,160,120,80,120L0,120Z"></path>
+          <svg viewBox="0 0 1440 120" className="w-full" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="wave-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="hsl(var(--background))" stopOpacity="0.8" />
+                <stop offset="50%" stopColor="hsl(var(--background))" stopOpacity="1" />
+                <stop offset="100%" stopColor="hsl(var(--background))" stopOpacity="0.8" />
+              </linearGradient>
+            </defs>
+            <path fill="url(#wave-gradient)" d="M0,64L48,69.3C96,75,192,85,288,80C384,75,480,53,576,48C672,43,768,53,864,58.7C960,64,1056,64,1152,58.7C1248,53,1344,43,1392,37.3L1440,32L1440,120L1392,120C1344,120,1248,120,1152,120C1056,120,960,120,864,120C768,120,672,120,576,120C480,120,384,120,288,120C192,120,96,120,48,120L0,120Z"></path>
           </svg>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-24 px-4 bg-gradient-to-b from-background to-muted/30 relative">
-        <div className="absolute inset-0 bg-grid-pattern opacity-40"></div>
+      {/* Features Section - Modern Cards */}
+      <section className="py-28 px-4 relative">
+        <div className="absolute inset-0 bg-grid-pattern opacity-30"></div>
         
         <div className="container mx-auto max-w-7xl relative z-10">
-          <div className="text-center mb-16 animate-slide-up">
-            <div className="inline-block mb-4">
-              <span className="px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-semibold">
-                FEATURES
+          <div className="text-center mb-20 animate-slide-up">
+            <Badge className="mb-4 px-6 py-2 bg-primary/10 text-primary border-primary/20">
+              FEATURES
+            </Badge>
+            <h2 className="text-5xl md:text-6xl font-heading font-bold mb-6 text-foreground">
+              Everything You Need to
+              <span className="block bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent mt-2">
+                Excel in Your Studies
               </span>
-            </div>
-            <h2 className="text-4xl md:text-5xl font-heading font-bold mb-4 text-foreground">
-              Everything You Need to Excel
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Comprehensive resources designed to support your academic journey
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+              Comprehensive resources and tools designed to support your academic journey from start to finish
             </p>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, index) => (
               <Card
                 key={index}
-                className="group hover:shadow-xl transition-smooth border-2 hover:border-primary/20 hover-lift animate-scale-in bg-card/50 backdrop-blur-sm overflow-hidden relative"
+                className="group hover:shadow-2xl transition-all duration-500 border-2 hover:border-primary/30 hover:-translate-y-2 animate-scale-in bg-gradient-to-br from-card to-card/50 backdrop-blur-sm overflow-hidden relative"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/5 to-transparent rounded-bl-[100px] group-hover:scale-150 transition-smooth"></div>
-                <CardHeader>
-                  <div className={`w-14 h-14 ${feature.bgColor} rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-smooth shadow-md`}>
-                    <feature.icon className={`w-7 h-7 ${feature.color}`} />
+                <div className={`absolute top-0 right-0 w-40 h-40 bg-gradient-to-br ${feature.gradient} rounded-bl-[120px] group-hover:scale-150 transition-all duration-500 opacity-50`}></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-primary/0 to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                
+                <CardHeader className="relative z-10">
+                  <div className={`w-16 h-16 ${feature.bgColor} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg relative`}>
+                    <feature.icon className={`w-8 h-8 ${feature.color}`} />
+                    <div className={`absolute inset-0 ${feature.bgColor} rounded-2xl blur-xl opacity-50 group-hover:opacity-100 transition-opacity`}></div>
                   </div>
-                  <CardTitle className="text-xl font-heading group-hover:text-primary transition-colors">
+                  <CardTitle className="text-2xl font-heading group-hover:text-primary transition-colors">
                     {feature.title}
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground leading-relaxed">
+                <CardContent className="relative z-10">
+                  <CardDescription className="text-base leading-relaxed">
                     {feature.description}
-                  </p>
+                  </CardDescription>
+                </CardContent>
+                
+                <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <ArrowRight className="w-6 h-6 text-primary" />
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Section - Engineering Style */}
+      <section className="py-24 px-4 gradient-primary text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-grid-pattern-dark opacity-10"></div>
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-white/5 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-secondary/10 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '1.5s' }}></div>
+        
+        {/* Tech Pattern Overlay */}
+        <div className="absolute inset-0 opacity-5">
+          <CircuitBoard className="absolute top-10 left-10 w-64 h-64 animate-float" />
+          <Cpu className="absolute bottom-10 right-10 w-48 h-48 animate-float-delayed" />
+        </div>
+        
+        <div className="container mx-auto max-w-7xl relative z-10">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-heading font-bold mb-4">
+              Our Impact in Numbers
+            </h2>
+            <p className="text-blue-100 text-lg">
+              Trusted by thousands of students and faculty members
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-4 gap-8">
+            {stats.map((stat, index) => (
+              <div
+                key={index}
+                className="text-center group animate-slide-up bg-white/5 backdrop-blur-sm rounded-3xl p-8 border border-white/10 hover:bg-white/10 hover:scale-105 transition-all duration-500"
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                <div className="inline-flex items-center justify-center w-20 h-20 bg-white/10 rounded-3xl mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 relative">
+                  <stat.icon className="w-10 h-10" />
+                  <div className="absolute inset-0 bg-white/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                </div>
+                <div className="text-6xl font-heading font-black mb-3 group-hover:scale-110 transition-transform">
+                  {stat.value}
+                </div>
+                <div className="text-lg font-semibold mb-2">{stat.label}</div>
+                <div className="text-sm text-blue-200">{stat.desc}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Benefits Section - Modern Grid */}
+      <section className="py-28 px-4 bg-gradient-to-b from-background via-muted/20 to-background relative">
+        <div className="absolute inset-0 bg-grid-pattern opacity-20"></div>
+        
+        <div className="container mx-auto max-w-7xl relative z-10">
+          <div className="text-center mb-20">
+            <Badge className="mb-4 px-6 py-2 bg-secondary/10 text-secondary border-secondary/20">
+              WHY CHOOSE US
+            </Badge>
+            <h2 className="text-5xl md:text-6xl font-heading font-bold mb-6">
+              Designed for <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Student Success</span>
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              Premium features that make learning easier and more effective
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {benefits.map((benefit, index) => (
+              <Card
+                key={index}
+                className="group hover:shadow-2xl transition-all duration-500 border-2 hover:border-primary/20 animate-scale-in bg-gradient-to-br from-card to-muted/20 overflow-hidden relative"
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/0 via-primary/5 to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                
+                <CardHeader className="relative z-10">
+                  <div className={`inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br ${benefit.color} rounded-2xl mb-6 group-hover:scale-110 group-hover:-rotate-6 transition-all duration-500 shadow-lg`}>
+                    <benefit.icon className="w-8 h-8 text-white" />
+                  </div>
+                  <CardTitle className="text-2xl font-heading">
+                    {benefit.title}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="relative z-10">
+                  <CardDescription className="text-base leading-relaxed">
+                    {benefit.description}
+                  </CardDescription>
                 </CardContent>
               </Card>
             ))}
@@ -164,100 +369,104 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-20 px-4 gradient-primary text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-grid-pattern-dark opacity-10"></div>
-        <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-secondary/10 rounded-full blur-3xl"></div>
+      {/* CTA Section - Premium Style */}
+      <section className="py-28 px-4 relative overflow-hidden">
+        <div className="absolute inset-0 gradient-mesh opacity-10"></div>
+        <div className="absolute inset-0 bg-grid-pattern opacity-20"></div>
+        
+        <div className="container mx-auto max-w-5xl text-center relative z-10">
+          <Card className="glass-card p-16 rounded-[3rem] shadow-2xl border-2 border-primary/10 animate-scale-in relative overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 group-hover:scale-110 transition-transform duration-1000"></div>
+            
+            <div className="relative z-10">
+              <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-primary rounded-[2rem] mb-8 shadow-glow group-hover:scale-110 group-hover:shadow-glow-hover transition-all duration-500 relative">
+                <Users className="w-12 h-12 text-white" />
+                <div className="absolute inset-0 bg-gradient-primary rounded-[2rem] blur-2xl opacity-50"></div>
+              </div>
+              
+              <h2 className="text-5xl md:text-6xl font-heading font-bold mb-6 text-foreground">
+                Ready to Start Your
+                <span className="block bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent mt-2">
+                  Learning Journey?
+                </span>
+              </h2>
+              
+              <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
+                Join thousands of successful students who have transformed their academic performance 
+                with our comprehensive learning platform.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <Link to="/register">
+                  <Button size="lg" className="gradient-primary text-white hover:shadow-glow-hover font-bold px-12 py-7 text-lg rounded-2xl group transition-smooth relative overflow-hidden">
+                    <span className="relative z-10 flex items-center">
+                      Create Free Account
+                      <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-2 transition-transform" />
+                    </span>
+                    <div className="absolute inset-0 bg-white/20 translate-y-[100%] group-hover:translate-y-0 transition-transform duration-500"></div>
+                  </Button>
+                </Link>
+                
+                <Link to="/login">
+                  <Button size="lg" variant="outline" className="border-2 font-bold px-12 py-7 text-lg rounded-2xl hover:bg-muted transition-smooth">
+                    Sign In
+                  </Button>
+                </Link>
+              </div>
+              
+              {/* Trust Badges */}
+              <div className="mt-12 flex flex-wrap justify-center gap-8 text-sm text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-success" />
+                  <span>No credit card required</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-success" />
+                  <span>Instant access</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-success" />
+                  <span>Free forever</span>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </section>
+
+      {/* Footer - Professional */}
+      <footer className="bg-sidebar text-sidebar-foreground py-16 px-4 relative overflow-hidden border-t border-sidebar-border">
+        <div className="absolute inset-0 bg-grid-pattern-dark opacity-5"></div>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
         
         <div className="container mx-auto max-w-7xl relative z-10">
-          <div className="grid md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <div
-                key={index}
-                className="text-center group animate-slide-up"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-white/10 rounded-2xl mb-4 group-hover:scale-110 transition-smooth">
-                  <stat.icon className="w-8 h-8" />
-                </div>
-                <div className="text-5xl font-heading font-bold mb-2 group-hover:scale-110 transition-smooth">
-                  {stat.value}
-                </div>
-                <div className="text-blue-100 font-medium">{stat.label}</div>
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-4 mb-6">
+              <div className="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center shadow-glow">
+                <GraduationCap className="w-9 h-9 text-white" />
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Benefits Section */}
-      <section className="py-24 px-4 bg-muted/30">
-        <div className="container mx-auto max-w-7xl">
-          <div className="grid md:grid-cols-3 gap-8">
-            {benefits.map((benefit, index) => (
-              <div
-                key={index}
-                className="text-center p-8 rounded-2xl hover:bg-card transition-smooth animate-scale-in group"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-primary rounded-2xl mb-6 group-hover:scale-110 group-hover:shadow-glow transition-smooth">
-                  <benefit.icon className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-2xl font-heading font-semibold mb-3 text-foreground">
-                  {benefit.title}
-                </h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  {benefit.description}
-                </p>
+              <div className="text-left">
+                <span className="text-3xl font-heading font-bold block">ECE EDU PORTAL</span>
+                <span className="text-sm text-muted-foreground">Electronics & Communication Engineering</span>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-24 px-4 relative overflow-hidden">
-        <div className="absolute inset-0 gradient-mesh opacity-10"></div>
-        
-        <div className="container mx-auto max-w-4xl text-center relative z-10">
-          <div className="glass-card p-12 rounded-3xl shadow-2xl animate-scale-in">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-primary rounded-3xl mb-6 shadow-glow">
-              <Users className="w-10 h-10 text-white" />
             </div>
-            <h2 className="text-4xl md:text-5xl font-heading font-bold mb-4 text-foreground">
-              Join Our Community
-            </h2>
-            <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
-              Be part of a thriving community of students and educators. Access premium study materials 
-              and stay ahead in your academic journey.
-            </p>
-            <Link to="/register">
-              <Button size="lg" className="gradient-primary text-white hover:shadow-glow-hover font-semibold px-10 py-6 text-lg rounded-xl group transition-smooth">
-                Get Started Today
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-sidebar text-sidebar-foreground py-12 px-4 relative overflow-hidden">
-        <div className="absolute inset-0 bg-grid-pattern-dark opacity-10"></div>
-        <div className="container mx-auto max-w-7xl text-center relative z-10">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center">
-              <GraduationCap className="w-7 h-7 text-white" />
+            
+            <div className="flex flex-wrap justify-center gap-6 mb-8 text-sm">
+              <Link to="/login" className="hover:text-primary transition-colors">Student Login</Link>
+              <Link to="/register" className="hover:text-primary transition-colors">Register</Link>
+              <a href="#features" className="hover:text-primary transition-colors">Features</a>
+              <a href="#stats" className="hover:text-primary transition-colors">About</a>
             </div>
-            <span className="text-2xl font-heading font-bold">ECE EDU PORTAL</span>
+            
+            <div className="border-t border-sidebar-border pt-8">
+              <p className="text-sm text-muted-foreground mb-2">
+                © 2025 ECE EDU PORTAL - Electronics & Communication Engineering Department
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Empowering students with quality education resources
+              </p>
+            </div>
           </div>
-          <p className="text-sm text-muted-foreground mb-2">
-            Electronics & Communication Engineering Department
-          </p>
-          <p className="text-xs text-muted-foreground">
-            © 2025 ECE EDU PORTAL. All Rights Reserved.
-          </p>
         </div>
       </footer>
     </div>
