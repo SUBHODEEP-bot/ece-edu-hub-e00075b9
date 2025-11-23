@@ -30,8 +30,8 @@ export const ProfilePage = () => {
   }
 
   return (
-    <div className="space-y-4 animate-fade-in">
-      <h2 className="text-2xl font-bold text-foreground">My Profile</h2>
+    <div className="space-y-3 sm:space-y-4 animate-fade-in">
+      <h2 className="text-xl sm:text-2xl font-bold text-foreground">My Profile</h2>
       {profile && <EditableProfile profile={profile} />}
     </div>
   );
