@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { BookOpen, FileText, Calendar, GraduationCap, Users, ArrowRight, Sparkles, Trophy, Target, TrendingUp, Zap, Shield, Award, Clock, CheckCircle2, Layers, Database, Cpu, CircuitBoard, Wifi } from 'lucide-react';
+import { BookOpen, FileText, Calendar, GraduationCap, Users, ArrowRight, Sparkles, Trophy, TrendingUp, CheckCircle2, Database, Cpu, CircuitBoard, Wifi, Award, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -45,45 +45,6 @@ const Landing = () => {
     { icon: Users, label: 'Active Students', value: '1000+', color: 'text-secondary', desc: 'Engaged Learners' },
     { icon: Trophy, label: 'Success Rate', value: '95%', color: 'text-accent', desc: 'Pass Percentage' },
     { icon: TrendingUp, label: 'Annual Events', value: '50+', color: 'text-success', desc: 'Technical Programs' },
-  ];
-
-  const benefits = [
-    {
-      icon: Zap,
-      title: 'Lightning Fast',
-      description: 'Instant access to all resources with optimized loading times',
-      color: 'from-yellow-500 to-orange-500',
-    },
-    {
-      icon: Shield,
-      title: 'Verified Content',
-      description: 'All materials verified and approved by department faculty',
-      color: 'from-green-500 to-emerald-500',
-    },
-    {
-      icon: Target,
-      title: 'Exam Focused',
-      description: 'Resources tailored specifically for exam preparation',
-      color: 'from-blue-500 to-cyan-500',
-    },
-    {
-      icon: Award,
-      title: 'Quality Assured',
-      description: 'Premium content curated by experienced educators',
-      color: 'from-purple-500 to-pink-500',
-    },
-    {
-      icon: Clock,
-      title: '24/7 Access',
-      description: 'Study anytime, anywhere with unlimited access',
-      color: 'from-indigo-500 to-blue-500',
-    },
-    {
-      icon: Layers,
-      title: 'Organized Content',
-      description: 'Well-structured materials by semester and subject',
-      color: 'from-red-500 to-rose-500',
-    },
   ];
 
   const techIcons = [
@@ -274,52 +235,6 @@ const Landing = () => {
                 <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
                   <ArrowRight className="w-5 h-5 md:w-6 md:h-6 text-primary" />
                 </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-
-      {/* Benefits Section - Modern Grid */}
-      <section className="py-16 md:py-28 px-4 bg-gradient-to-b from-background via-muted/20 to-background relative">
-        <div className="absolute inset-0 bg-grid-pattern opacity-20"></div>
-        
-        <div className="container mx-auto max-w-7xl relative z-10">
-          <div className="text-center mb-12 md:mb-20">
-            <Badge className="mb-3 md:mb-4 px-4 md:px-6 py-1.5 md:py-2 gradient-navy text-gold border-gold/20 text-xs md:text-sm">
-              WHY CHOOSE US
-            </Badge>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-heading font-bold mb-4 md:mb-6 px-4">
-              Designed for <span className="gradient-gold bg-clip-text text-transparent">Student Success</span>
-            </h2>
-            <p className="text-base md:text-xl text-muted-foreground max-w-3xl mx-auto px-4">
-              Premium features that make learning easier and more effective
-            </p>
-          </div>
-          
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-            {benefits.map((benefit, index) => (
-              <Card
-                key={index}
-                className="group hover:shadow-2xl transition-all duration-500 border-2 hover:border-primary/20 animate-scale-in bg-gradient-to-br from-card to-muted/20 overflow-hidden relative"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-t from-primary/0 to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                
-                <CardHeader className="relative z-10">
-                  <div className={`w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br ${benefit.color} rounded-xl md:rounded-2xl flex items-center justify-center mb-4 md:mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg`}>
-                    <benefit.icon className="w-6 h-6 md:w-7 md:h-7 text-white" />
-                  </div>
-                  <CardTitle className="text-lg md:text-xl font-heading group-hover:text-primary transition-colors">
-                    {benefit.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="relative z-10">
-                  <CardDescription className="text-sm md:text-base leading-relaxed">
-                    {benefit.description}
-                  </CardDescription>
-                </CardContent>
               </Card>
             ))}
           </div>
