@@ -11,34 +11,31 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { toast } from 'sonner';
 import { GraduationCap, ArrowLeft, Loader2, Mail, Lock, Sparkles, Shield } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
-  password: z.string().min(1, 'Password is required'),
+  password: z.string().min(1, 'Password is required')
 });
-
 type LoginFormValues = z.infer<typeof loginSchema>;
-
 const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: '',
-      password: '',
-    },
+      password: ''
+    }
   });
-
   const onSubmit = async (values: LoginFormValues) => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const {
+        data,
+        error
+      } = await supabase.auth.signInWithPassword({
         email: values.email,
-        password: values.password,
+        password: values.password
       });
-
       if (error) {
         if (error.message.includes('Invalid login credentials')) {
           toast.error('Invalid email or password. Please try again.');
@@ -49,18 +46,12 @@ const Login = () => {
         }
         return;
       }
-
       if (data.user) {
-        const { data: roleData } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', data.user.id)
-          .single();
-
+        const {
+          data: roleData
+        } = await supabase.from('user_roles').select('role').eq('user_id', data.user.id).single();
         const role = roleData?.role;
-
         toast.success('Login successful! Welcome back.');
-        
         if (role === 'admin') {
           navigate('/admin');
         } else {
@@ -74,9 +65,7 @@ const Login = () => {
       setLoading(false);
     }
   };
-
-  return (
-    <div className="min-h-screen gradient-secondary flex items-center justify-center p-3 md:p-4 relative overflow-hidden">
+  return <div className="min-h-screen gradient-secondary flex items-center justify-center p-3 md:p-4 relative overflow-hidden">
       {/* Animated Background */}
       <div className="absolute inset-0 gradient-mesh opacity-60"></div>
       <div className="absolute inset-0 bg-grid-pattern-dark opacity-10"></div>
@@ -86,19 +75,13 @@ const Login = () => {
       <div className="absolute bottom-20 right-[10%] w-48 h-48 md:w-96 md:h-96 bg-gold/15 rounded-full blur-3xl animate-float-delayed"></div>
       
       {/* Animated Particles - Hidden on small mobile */}
-      {[...Array(10)].map((_, i) => (
-        <div
-          key={i}
-          className="absolute bg-white/20 rounded-full animate-pulse-slow hidden sm:block"
-          style={{
-            width: Math.random() * 6 + 3 + 'px',
-            height: Math.random() * 6 + 3 + 'px',
-            top: Math.random() * 100 + '%',
-            left: Math.random() * 100 + '%',
-            animationDelay: Math.random() * 3 + 's',
-          }}
-        />
-      ))}
+      {[...Array(10)].map((_, i) => <div key={i} className="absolute bg-white/20 rounded-full animate-pulse-slow hidden sm:block" style={{
+      width: Math.random() * 6 + 3 + 'px',
+      height: Math.random() * 6 + 3 + 'px',
+      top: Math.random() * 100 + '%',
+      left: Math.random() * 100 + '%',
+      animationDelay: Math.random() * 3 + 's'
+    }} />)}
       
       <Card className="w-full max-w-md relative z-10 shadow-2xl border-2 border-gold/20 backdrop-blur-xl bg-white/95 animate-scale-in mx-4">
         <CardHeader className="space-y-3 md:space-y-4 text-center pb-6 md:pb-8">
@@ -134,66 +117,40 @@ const Login = () => {
         <CardContent className="px-4 md:px-6">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-5">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
+              <FormField control={form.control} name="email" render={({
+              field
+            }) => <FormItem>
                     <FormLabel className="text-sm font-semibold">Email Address</FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
-                        <Input 
-                          type="email" 
-                          placeholder="student@college.edu" 
-                          className="pl-10 md:pl-11 h-11 md:h-12 border-2 focus:border-gold transition-colors text-sm md:text-base" 
-                          {...field} 
-                        />
+                        <Input type="email" placeholder="student@college.edu" className="pl-10 md:pl-11 h-11 md:h-12 border-2 focus:border-gold transition-colors text-sm md:text-base" {...field} />
                       </div>
                     </FormControl>
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  </FormItem>} />
 
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
+              <FormField control={form.control} name="password" render={({
+              field
+            }) => <FormItem>
                     <FormLabel className="text-sm font-semibold">Password</FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
-                        <Input 
-                          type="password" 
-                          placeholder="••••••••" 
-                          className="pl-10 md:pl-11 h-11 md:h-12 border-2 focus:border-gold transition-colors text-sm md:text-base" 
-                          {...field} 
-                        />
+                        <Input type="password" placeholder="••••••••" className="pl-10 md:pl-11 h-11 md:h-12 border-2 focus:border-gold transition-colors text-sm md:text-base" {...field} />
                       </div>
                     </FormControl>
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  </FormItem>} />
 
-              <Button
-                type="submit"
-                className="w-full gradient-gold text-navy font-bold h-11 md:h-12 text-sm md:text-base rounded-xl hover:shadow-gold transition-all duration-300 relative overflow-hidden group border-2 border-gold/20"
-                disabled={loading}
-              >
-                {loading ? (
-                  <>
+              <Button type="submit" className="w-full gradient-gold text-navy font-bold h-11 md:h-12 text-sm md:text-base rounded-xl hover:shadow-gold transition-all duration-300 relative overflow-hidden group border-2 border-gold/20" disabled={loading}>
+                {loading ? <>
                     <Loader2 className="mr-2 h-4 w-4 md:h-5 md:w-5 animate-spin" />
                     Signing In...
-                  </>
-                ) : (
-                  <>
+                  </> : <>
                     <span className="relative z-10 font-bold">Sign In to Portal</span>
                     <div className="absolute inset-0 bg-white/20 translate-y-[100%] group-hover:translate-y-0 transition-transform duration-500"></div>
-                  </>
-                )}
+                  </>}
               </Button>
             </form>
           </Form>
@@ -205,7 +162,7 @@ const Login = () => {
               </div>
               <div className="relative flex justify-center text-xs uppercase">
                 <span className="bg-card px-3 text-muted-foreground font-medium">
-                  New to ECE Portal?
+                  NEW TO ECE PORTAL??
                 </span>
               </div>
             </div>
@@ -225,8 +182,6 @@ const Login = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>;
 };
-
 export default Login;
