@@ -147,8 +147,8 @@ const Landing = () => {
                   ECE EDU
                 </span>
               </h1>
-              <div className="inline-block px-10 py-5 rounded-3xl shadow-gold border-2 border-gold/50 bg-gold/20 backdrop-blur-md">
-                <p className="text-3xl md:text-4xl font-bold gradient-gold bg-clip-text text-transparent">
+              <div className="inline-block px-10 py-5 rounded-3xl shadow-gold border-2 border-gold bg-gold backdrop-blur-md">
+                <p className="text-3xl md:text-4xl font-bold text-navy">
                   PORTAL
                 </p>
               </div>
