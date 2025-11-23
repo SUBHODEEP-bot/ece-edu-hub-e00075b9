@@ -91,10 +91,7 @@ const Login = () => {
                 <GraduationCap className="w-9 h-9 md:w-11 md:h-11 text-navy" />
               </div>
               <div className="absolute -top-2 -right-2">
-                <Badge className="bg-accent text-navy border-0 shadow-lg animate-pulse-slow text-xs">
-                  <Sparkles className="w-3 h-3 mr-1" />
-                  ECE
-                </Badge>
+                
               </div>
             </div>
           </div>
