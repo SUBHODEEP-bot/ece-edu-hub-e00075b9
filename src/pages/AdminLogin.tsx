@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -26,6 +26,7 @@ const AdminLogin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [isSettingUp, setIsSettingUp] = useState(true);
   
   const {
     register,
@@ -34,6 +35,32 @@ const AdminLogin = () => {
   } = useForm<AdminLoginFormValues>({
     resolver: zodResolver(adminLoginSchema),
   });
+
+  // Setup admin user on component mount
+  useEffect(() => {
+    const setupAdmin = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('setup-admin');
+        
+        if (error) {
+          console.error('Setup error:', error);
+          toast({
+            title: 'Setup Notice',
+            description: 'Admin setup may need manual configuration.',
+            variant: 'default',
+          });
+        } else if (data?.success) {
+          console.log('Admin setup:', data.message);
+        }
+      } catch (error) {
+        console.error('Setup failed:', error);
+      } finally {
+        setIsSettingUp(false);
+      }
+    };
+
+    setupAdmin();
+  }, [toast]);
 
   const onSubmit = async (data: AdminLoginFormValues) => {
     setIsLoading(true);
@@ -99,6 +126,17 @@ const AdminLogin = () => {
       setIsLoading(false);
     }
   };
+
+  if (isSettingUp) {
+    return (
+      <div className="min-h-screen gradient-navy flex items-center justify-center p-4">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 sm:w-16 sm:h-16 animate-spin text-gold mx-auto mb-4" />
+          <p className="text-white text-sm sm:text-lg">Setting up admin account...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen gradient-navy flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden">
