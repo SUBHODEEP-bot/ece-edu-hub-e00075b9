@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { BookOpen, FileText, Calendar, GraduationCap, Users, ArrowRight, Sparkles, Trophy, TrendingUp, CheckCircle2, Database, Cpu, CircuitBoard, Wifi, Award, Zap } from 'lucide-react';
+import { BookOpen, FileText, Calendar, GraduationCap, Users, ArrowRight, Sparkles, Trophy, TrendingUp, CheckCircle2, Database, Cpu, CircuitBoard, Wifi, Award, Zap, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -150,6 +150,13 @@ const Landing = () => {
               <Link to="/register" className="w-full sm:w-auto">
                 <Button size="lg" variant="outline" className="w-full sm:w-auto border-2 border-gold/50 bg-white/10 text-gold hover:bg-gold/20 hover:border-gold font-bold px-8 py-5 md:px-10 md:py-7 text-base md:text-lg rounded-2xl transition-smooth backdrop-blur-md">
                   Register Now
+                </Button>
+              </Link>
+              
+              <Link to="/admin-login" className="w-full sm:w-auto">
+                <Button size="lg" variant="outline" className="w-full sm:w-auto border-2 border-gold/50 bg-navy/30 text-gold hover:bg-navy/50 hover:border-gold font-bold px-8 py-5 md:px-10 md:py-7 text-base md:text-lg rounded-2xl transition-smooth backdrop-blur-md">
+                  <Shield className="mr-2 w-4 h-4 md:w-5 md:h-5" />
+                  Admin Login
                 </Button>
               </Link>
             </div>
