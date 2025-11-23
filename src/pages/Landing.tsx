@@ -198,7 +198,7 @@ const Landing = () => {
             </Badge>
             <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-heading font-bold mb-4 md:mb-6 text-foreground px-4">
               Everything You Need to
-              <span className="block gradient-gold bg-clip-text text-transparent mt-2">
+              <span className="block text-navy font-black mt-2">
                 Excel in Your Studies
               </span>
             </h2>
@@ -207,33 +207,33 @@ const Landing = () => {
             </p>
           </div>
           
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8 px-2">
             {features.map((feature, index) => (
               <Card
                 key={index}
-                className="group hover:shadow-2xl transition-all duration-500 border-2 hover:border-primary/30 hover:-translate-y-2 animate-scale-in bg-gradient-to-br from-card to-card/50 backdrop-blur-sm overflow-hidden relative"
+                className="group hover:shadow-2xl transition-all duration-500 border-2 hover:border-gold/30 hover:-translate-y-2 animate-scale-in bg-gradient-to-br from-card to-card/50 backdrop-blur-sm overflow-hidden relative w-full"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className={`absolute top-0 right-0 w-32 md:w-40 h-32 md:h-40 bg-gradient-to-br ${feature.gradient} rounded-bl-[120px] group-hover:scale-150 transition-all duration-500 opacity-50`}></div>
-                <div className="absolute inset-0 bg-gradient-to-t from-primary/0 to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className={`absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 bg-gradient-to-br ${feature.gradient} rounded-bl-[80px] sm:rounded-bl-[120px] group-hover:scale-150 transition-all duration-500 opacity-50`}></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-gold/0 to-gold/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 
-                <CardHeader className="relative z-10">
-                  <div className={`w-12 h-12 md:w-16 md:h-16 ${feature.bgColor} rounded-xl md:rounded-2xl flex items-center justify-center mb-4 md:mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg relative`}>
-                    <feature.icon className={`w-6 h-6 md:w-8 md:h-8 ${feature.color}`} />
+                <CardHeader className="relative z-10 p-4 sm:p-6">
+                  <div className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 ${feature.bgColor} rounded-xl md:rounded-2xl flex items-center justify-center mb-3 sm:mb-4 md:mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg relative`}>
+                    <feature.icon className={`w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 ${feature.color}`} />
                     <div className={`absolute inset-0 ${feature.bgColor} rounded-xl md:rounded-2xl blur-xl opacity-50 group-hover:opacity-100 transition-opacity`}></div>
                   </div>
-                  <CardTitle className="text-lg md:text-2xl font-heading group-hover:text-primary transition-colors">
+                  <CardTitle className="text-base sm:text-lg md:text-2xl font-heading group-hover:text-gold transition-colors">
                     {feature.title}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="relative z-10">
+                <CardContent className="relative z-10 p-4 sm:p-6 pt-0">
                   <CardDescription className="text-sm md:text-base leading-relaxed">
                     {feature.description}
                   </CardDescription>
                 </CardContent>
                 
-                <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <ArrowRight className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+                <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-gold" />
                 </div>
               </Card>
             ))}
