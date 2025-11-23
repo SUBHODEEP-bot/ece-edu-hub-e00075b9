@@ -69,7 +69,15 @@ const SyllabusManager = () => {
       } else {
         const { error } = await supabase
           .from('syllabus')
-          .insert([{ ...values, uploaded_by: user?.id }]);
+          .insert([{ 
+            title: values.title,
+            semester: values.semester,
+            academic_year: values.academic_year,
+            description: values.description,
+            file_url: values.file_url,
+            file_name: values.file_name,
+            uploaded_by: user?.id 
+          }]);
         if (error) throw error;
         toast.success('Syllabus added successfully');
       }

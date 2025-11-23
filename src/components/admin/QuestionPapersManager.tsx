@@ -68,7 +68,15 @@ const QuestionPapersManager = () => {
       } else {
         const { error } = await supabase
           .from('question_papers')
-          .insert([{ ...values, uploaded_by: user?.id }]);
+          .insert([{ 
+            title: values.title,
+            subject: values.subject,
+            year: values.year,
+            semester: values.semester,
+            file_url: values.file_url,
+            file_name: values.file_name,
+            uploaded_by: user?.id 
+          }]);
         if (error) throw error;
         toast.success('Question paper added successfully');
       }

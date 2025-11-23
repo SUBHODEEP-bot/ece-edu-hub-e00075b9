@@ -79,7 +79,17 @@ const EventsManager = () => {
       } else {
         const { error } = await supabase
           .from('events')
-          .insert([{ ...cleanedValues, created_by: user?.id }]);
+          .insert([{ 
+            title: values.title,
+            description: values.description,
+            event_date: values.event_date,
+            event_time: values.event_time || null,
+            location: values.location || null,
+            organizer: values.organizer,
+            image_url: values.image_url || null,
+            is_active: values.is_active,
+            created_by: user?.id 
+          }]);
         if (error) throw error;
         toast.success('Event added successfully');
       }
