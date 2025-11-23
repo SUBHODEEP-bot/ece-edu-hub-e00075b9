@@ -76,20 +76,20 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen gradient-hero flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen gradient-secondary flex items-center justify-center p-3 md:p-4 relative overflow-hidden">
       {/* Animated Background */}
-      <div className="absolute inset-0 gradient-mesh opacity-40"></div>
-      <div className="absolute inset-0 bg-grid-pattern-dark opacity-20"></div>
+      <div className="absolute inset-0 gradient-mesh opacity-60"></div>
+      <div className="absolute inset-0 bg-grid-pattern-dark opacity-10"></div>
       
-      {/* Floating Orbs */}
-      <div className="absolute top-20 left-[10%] w-96 h-96 bg-primary-light/20 rounded-full blur-3xl animate-float"></div>
-      <div className="absolute bottom-20 right-[10%] w-96 h-96 bg-secondary/20 rounded-full blur-3xl animate-float-delayed"></div>
+      {/* Floating Orbs - Smaller on mobile */}
+      <div className="absolute top-20 left-[10%] w-48 h-48 md:w-96 md:h-96 bg-gold/20 rounded-full blur-3xl animate-float"></div>
+      <div className="absolute bottom-20 right-[10%] w-48 h-48 md:w-96 md:h-96 bg-gold/15 rounded-full blur-3xl animate-float-delayed"></div>
       
-      {/* Animated Particles */}
+      {/* Animated Particles - Hidden on small mobile */}
       {[...Array(10)].map((_, i) => (
         <div
           key={i}
-          className="absolute bg-white/20 rounded-full animate-pulse-slow"
+          className="absolute bg-white/20 rounded-full animate-pulse-slow hidden sm:block"
           style={{
             width: Math.random() * 6 + 3 + 'px',
             height: Math.random() * 6 + 3 + 'px',
@@ -100,15 +100,15 @@ const Login = () => {
         />
       ))}
       
-      <Card className="w-full max-w-md relative z-10 shadow-2xl border-2 border-white/10 backdrop-blur-xl bg-white/95 animate-scale-in">
-        <CardHeader className="space-y-4 text-center pb-8">
-          <div className="flex justify-center mb-2">
+      <Card className="w-full max-w-md relative z-10 shadow-2xl border-2 border-gold/20 backdrop-blur-xl bg-white/95 animate-scale-in mx-4">
+        <CardHeader className="space-y-3 md:space-y-4 text-center pb-6 md:pb-8">
+          <div className="flex justify-center mb-1 md:mb-2">
             <div className="relative">
-              <div className="w-20 h-20 gradient-primary rounded-3xl flex items-center justify-center shadow-glow animate-float">
-                <GraduationCap className="w-11 h-11 text-white" />
+              <div className="w-16 h-16 md:w-20 md:h-20 gradient-gold rounded-3xl flex items-center justify-center shadow-gold animate-float">
+                <GraduationCap className="w-9 h-9 md:w-11 md:h-11 text-navy" />
               </div>
               <div className="absolute -top-2 -right-2">
-                <Badge className="bg-accent text-accent-foreground border-0 shadow-lg animate-pulse-slow">
+                <Badge className="bg-accent text-navy border-0 shadow-lg animate-pulse-slow text-xs">
                   <Sparkles className="w-3 h-3 mr-1" />
                   ECE
                 </Badge>
@@ -117,23 +117,23 @@ const Login = () => {
           </div>
           
           <div>
-            <CardTitle className="text-4xl font-heading font-bold mb-2 bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
+            <CardTitle className="text-3xl md:text-4xl font-heading font-bold mb-2 gradient-gold bg-clip-text text-transparent">
               Welcome Back
             </CardTitle>
-            <CardDescription className="text-base text-muted-foreground">
+            <CardDescription className="text-sm md:text-base text-muted-foreground px-2">
               Sign in to access your ECE EDU PORTAL account
             </CardDescription>
           </div>
           
           <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-            <Shield className="w-4 h-4 text-success" />
+            <Shield className="w-4 h-4 text-gold" />
             <span>Secure Login • Protected Access</span>
           </div>
         </CardHeader>
         
-        <CardContent>
+        <CardContent className="px-4 md:px-6">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-5">
               <FormField
                 control={form.control}
                 name="email"
@@ -142,11 +142,11 @@ const Login = () => {
                     <FormLabel className="text-sm font-semibold">Email Address</FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
                         <Input 
                           type="email" 
                           placeholder="student@college.edu" 
-                          className="pl-11 h-12 border-2 focus:border-primary transition-colors" 
+                          className="pl-10 md:pl-11 h-11 md:h-12 border-2 focus:border-gold transition-colors text-sm md:text-base" 
                           {...field} 
                         />
                       </div>
@@ -164,11 +164,11 @@ const Login = () => {
                     <FormLabel className="text-sm font-semibold">Password</FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
                         <Input 
                           type="password" 
                           placeholder="••••••••" 
-                          className="pl-11 h-12 border-2 focus:border-primary transition-colors" 
+                          className="pl-10 md:pl-11 h-11 md:h-12 border-2 focus:border-gold transition-colors text-sm md:text-base" 
                           {...field} 
                         />
                       </div>
@@ -180,17 +180,17 @@ const Login = () => {
 
               <Button
                 type="submit"
-                className="w-full gradient-primary text-white font-bold h-12 text-base rounded-xl hover:shadow-glow-hover transition-all duration-300 relative overflow-hidden group"
+                className="w-full gradient-gold text-navy font-bold h-11 md:h-12 text-sm md:text-base rounded-xl hover:shadow-gold transition-all duration-300 relative overflow-hidden group border-2 border-gold/20"
                 disabled={loading}
               >
                 {loading ? (
                   <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    <Loader2 className="mr-2 h-4 w-4 md:h-5 md:w-5 animate-spin" />
                     Signing In...
                   </>
                 ) : (
                   <>
-                    <span className="relative z-10">Sign In to Portal</span>
+                    <span className="relative z-10 font-bold">Sign In to Portal</span>
                     <div className="absolute inset-0 bg-white/20 translate-y-[100%] group-hover:translate-y-0 transition-transform duration-500"></div>
                   </>
                 )}
@@ -198,7 +198,7 @@ const Login = () => {
             </form>
           </Form>
 
-          <div className="mt-8 space-y-4">
+          <div className="mt-6 md:mt-8 space-y-3 md:space-y-4">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <span className="w-full border-t border-border" />
@@ -211,13 +211,13 @@ const Login = () => {
             </div>
             
             <Link to="/register" className="block">
-              <Button variant="outline" className="w-full h-12 border-2 hover:border-primary hover:bg-primary/5 font-semibold rounded-xl transition-all">
+              <Button variant="outline" className="w-full h-11 md:h-12 border-2 border-navy hover:border-gold hover:bg-gold/5 font-semibold rounded-xl transition-all text-sm md:text-base">
                 Create New Account
               </Button>
             </Link>
             
             <Link to="/">
-              <Button variant="ghost" className="w-full hover:bg-muted/50 rounded-xl" type="button">
+              <Button variant="ghost" className="w-full hover:bg-muted/50 rounded-xl text-sm md:text-base" type="button">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to Home
               </Button>
