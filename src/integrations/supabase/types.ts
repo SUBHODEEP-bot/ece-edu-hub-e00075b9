@@ -14,16 +14,234 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      events: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string
+          event_date: string
+          event_time: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean | null
+          location: string | null
+          organizer: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description: string
+          event_date: string
+          event_time?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          location?: string | null
+          organizer: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          event_date?: string
+          event_time?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          location?: string | null
+          organizer?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      notes: {
+        Row: {
+          created_at: string
+          description: string | null
+          file_name: string
+          file_url: string
+          id: string
+          semester: string
+          subject: string
+          title: string
+          updated_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          file_name: string
+          file_url: string
+          id?: string
+          semester: string
+          subject: string
+          title: string
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          file_name?: string
+          file_url?: string
+          id?: string
+          semester?: string
+          subject?: string
+          title?: string
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          college_email: string
+          created_at: string
+          id: string
+          is_active: boolean | null
+          mobile_number: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          college_email: string
+          created_at?: string
+          id: string
+          is_active?: boolean | null
+          mobile_number: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          college_email?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          mobile_number?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      question_papers: {
+        Row: {
+          created_at: string
+          file_name: string
+          file_url: string
+          id: string
+          semester: string
+          subject: string
+          title: string
+          updated_at: string
+          uploaded_by: string | null
+          year: string
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          file_url: string
+          id?: string
+          semester: string
+          subject: string
+          title: string
+          updated_at?: string
+          uploaded_by?: string | null
+          year: string
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          file_url?: string
+          id?: string
+          semester?: string
+          subject?: string
+          title?: string
+          updated_at?: string
+          uploaded_by?: string | null
+          year?: string
+        }
+        Relationships: []
+      }
+      syllabus: {
+        Row: {
+          academic_year: string
+          created_at: string
+          description: string | null
+          file_name: string
+          file_url: string
+          id: string
+          semester: string
+          title: string
+          updated_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          academic_year: string
+          created_at?: string
+          description?: string | null
+          file_name: string
+          file_url: string
+          id?: string
+          semester: string
+          title: string
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          academic_year?: string
+          created_at?: string
+          description?: string | null
+          file_name?: string
+          file_url?: string
+          id?: string
+          semester?: string
+          title?: string
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "student"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +368,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "student"],
+    },
   },
 } as const

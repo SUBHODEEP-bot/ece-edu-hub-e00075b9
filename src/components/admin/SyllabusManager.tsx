@@ -1,0 +1,255 @@
+import { useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { toast } from 'sonner';
+import { Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+
+const syllabusSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  semester: z.string().min(1, 'Semester is required'),
+  academic_year: z.string().min(1, 'Academic year is required'),
+  description: z.string().optional(),
+  file_url: z.string().url('Must be a valid URL'),
+  file_name: z.string().min(1, 'File name is required'),
+});
+
+type SyllabusFormValues = z.infer<typeof syllabusSchema>;
+
+const SyllabusManager = () => {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const form = useForm<SyllabusFormValues>({
+    resolver: zodResolver(syllabusSchema),
+    defaultValues: {
+      title: '',
+      semester: '',
+      academic_year: '',
+      description: '',
+      file_url: '',
+      file_name: '',
+    },
+  });
+
+  const { data: syllabus } = useQuery({
+    queryKey: ['syllabus'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('syllabus')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const handleSave = async (values: SyllabusFormValues) => {
+    setLoading(true);
+    try {
+      if (editingId) {
+        const { error } = await supabase
+          .from('syllabus')
+          .update(values)
+          .eq('id', editingId);
+        if (error) throw error;
+        toast.success('Syllabus updated successfully');
+      } else {
+        const { error } = await supabase
+          .from('syllabus')
+          .insert([{ ...values, uploaded_by: user?.id }]);
+        if (error) throw error;
+        toast.success('Syllabus added successfully');
+      }
+      
+      queryClient.invalidateQueries({ queryKey: ['syllabus'] });
+      setIsDialogOpen(false);
+      form.reset();
+      setEditingId(null);
+    } catch (error: any) {
+      toast.error(error.message || 'Operation failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEdit = (item: any) => {
+    setEditingId(item.id);
+    form.reset({
+      title: item.title,
+      semester: item.semester,
+      academic_year: item.academic_year,
+      description: item.description || '',
+      file_url: item.file_url,
+      file_name: item.file_name,
+    });
+    setIsDialogOpen(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this syllabus?')) return;
+    
+    try {
+      const { error } = await supabase
+        .from('syllabus')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+      toast.success('Syllabus deleted successfully');
+      queryClient.invalidateQueries({ queryKey: ['syllabus'] });
+    } catch (error: any) {
+      toast.error(error.message || 'Delete failed');
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold">Manage Syllabus</h2>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="gradient-primary text-white gap-2" onClick={() => { setEditingId(null); form.reset(); }}>
+              <Plus className="w-4 h-4" />
+              Add Syllabus
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>{editingId ? 'Edit' : 'Add'} Syllabus</DialogTitle>
+              <DialogDescription>Fill in the details below</DialogDescription>
+            </DialogHeader>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleSave)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Title</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., B.Tech ECE Syllabus" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="semester"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Semester</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., Semester 5" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="academic_year"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Academic Year</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., 2024-25" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description (Optional)</FormLabel>
+                      <FormControl>
+                        <Textarea placeholder="Brief description..." {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="file_url"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>File URL</FormLabel>
+                      <FormControl>
+                        <Input placeholder="https://..." {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="file_name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>File Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="syllabus-sem5.pdf" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <DialogFooter>
+                  <Button type="submit" className="gradient-primary text-white" disabled={loading}>
+                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Save
+                  </Button>
+                </DialogFooter>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {syllabus?.map((item) => (
+          <Card key={item.id} className="hover:shadow-lg transition-smooth">
+            <CardHeader>
+              <CardTitle className="text-lg">{item.title}</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                {item.semester} • {item.academic_year}
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {item.description && (
+                <p className="text-sm text-muted-foreground line-clamp-2">{item.description}</p>
+              )}
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" onClick={() => handleEdit(item)} className="flex-1">
+                  <Pencil className="w-4 h-4 mr-2" />
+                  Edit
+                </Button>
+                <Button size="sm" variant="destructive" onClick={() => handleDelete(item.id)}>
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default SyllabusManager;
