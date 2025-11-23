@@ -114,48 +114,48 @@ const Landing = () => {
         </div>
       </div>
 
-      {/* Hero Section - Engineering Theme */}
-      <section className="relative gradient-hero text-white pt-20 pb-32 px-4 overflow-hidden">
-        <div className="absolute inset-0 gradient-mesh opacity-40"></div>
-        <div className="absolute inset-0 bg-grid-pattern-dark opacity-20"></div>
+      {/* Hero Section - Luxurious Gold & Navy Theme */}
+      <section className="relative gradient-secondary text-white pt-20 pb-32 px-4 overflow-hidden">
+        <div className="absolute inset-0 gradient-mesh opacity-60"></div>
+        <div className="absolute inset-0 bg-grid-pattern-dark opacity-10"></div>
         
         {/* Animated Tech Icons */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-10 left-10 w-20 h-20 border-2 border-white/10 rounded-lg rotate-12 animate-float"></div>
-          <div className="absolute top-40 right-20 w-16 h-16 border-2 border-white/10 rounded-full animate-float-delayed"></div>
-          <div className="absolute bottom-40 left-1/4 w-12 h-12 border-2 border-white/10 rounded-lg -rotate-12 animate-float"></div>
-          <CircuitBoard className="absolute top-1/4 right-1/4 w-32 h-32 text-white/5 animate-pulse-slow" />
-          <Cpu className="absolute bottom-1/4 left-1/3 w-24 h-24 text-white/5 animate-pulse-slow" style={{ animationDelay: '1s' }} />
+          <div className="absolute top-10 left-10 w-20 h-20 border-2 border-gold/30 rounded-lg rotate-12 animate-float"></div>
+          <div className="absolute top-40 right-20 w-16 h-16 border-2 border-gold/30 rounded-full animate-float-delayed"></div>
+          <div className="absolute bottom-40 left-1/4 w-12 h-12 border-2 border-gold/30 rounded-lg -rotate-12 animate-float"></div>
+          <CircuitBoard className="absolute top-1/4 right-1/4 w-32 h-32 text-gold/10 animate-pulse-slow" />
+          <Cpu className="absolute bottom-1/4 left-1/3 w-24 h-24 text-gold/10 animate-pulse-slow" style={{ animationDelay: '1s' }} />
         </div>
         
-        {/* Floating Orbs */}
-        <div className="absolute top-20 left-[10%] w-96 h-96 bg-primary-light/20 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute bottom-20 right-[10%] w-[500px] h-[500px] bg-secondary/20 rounded-full blur-3xl animate-float-delayed"></div>
+        {/* Floating Gold Orbs */}
+        <div className="absolute top-20 left-[10%] w-96 h-96 bg-gold/20 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-20 right-[10%] w-[500px] h-[500px] bg-gold/15 rounded-full blur-3xl animate-float-delayed"></div>
         
         <div className="container mx-auto max-w-7xl relative z-10">
           <div className="text-center">
             {/* Top Badge */}
-            <div className="inline-flex items-center gap-2 glass px-6 py-3 rounded-full mb-8 hover:scale-105 transition-smooth animate-slide-up border border-white/20">
-              <Sparkles className="w-5 h-5 text-accent animate-pulse-slow" />
-              <span className="text-sm font-medium">Electronics & Communication Engineering Department</span>
+            <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full mb-8 hover:scale-105 transition-smooth animate-slide-up border-2 border-gold/40 bg-gold/10 backdrop-blur-md">
+              <Sparkles className="w-5 h-5 text-gold animate-pulse-slow" />
+              <span className="text-sm font-medium text-gold">Electronics & Communication Engineering Department</span>
             </div>
             
             {/* Main Heading */}
             <div className="mb-8 animate-slide-up-delayed">
               <h1 className="text-6xl md:text-8xl font-heading font-black mb-4 leading-tight">
-                <span className="inline-block bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent animate-shimmer" style={{ backgroundSize: '200% auto' }}>
+                <span className="inline-block bg-gradient-to-r from-gold via-yellow-200 to-gold bg-clip-text text-transparent animate-shimmer" style={{ backgroundSize: '200% auto' }}>
                   ECE EDU
                 </span>
               </h1>
-              <div className="inline-block glass-card px-10 py-5 rounded-3xl shadow-2xl border border-white/20">
-                <p className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-accent via-white to-accent bg-clip-text text-transparent">
+              <div className="inline-block px-10 py-5 rounded-3xl shadow-gold border-2 border-gold/50 bg-gold/20 backdrop-blur-md">
+                <p className="text-3xl md:text-4xl font-bold gradient-gold bg-clip-text text-transparent">
                   PORTAL
                 </p>
               </div>
             </div>
             
             {/* Subtitle */}
-            <p className="text-xl md:text-2xl text-blue-50 mb-6 max-w-4xl mx-auto leading-relaxed animate-slide-up" style={{ animationDelay: '0.3s' }}>
+            <p className="text-xl md:text-2xl text-silver mb-6 max-w-4xl mx-auto leading-relaxed animate-slide-up" style={{ animationDelay: '0.3s' }}>
               Your Comprehensive Digital Platform for Academic Excellence
             </p>
             
@@ -165,7 +165,7 @@ const Landing = () => {
                 <Badge 
                   key={index} 
                   variant="outline" 
-                  className="glass border-white/20 text-white px-4 py-2 text-sm font-medium hover:scale-110 transition-smooth"
+                  className="border-2 border-gold/30 bg-gold/10 text-gold px-4 py-2 text-sm font-medium hover:scale-110 hover:bg-gold/20 hover:border-gold/50 transition-smooth backdrop-blur-md"
                   style={{ animationDelay: tech.delay }}
                 >
                   <tech.icon className="w-4 h-4 mr-2" />
@@ -177,17 +177,17 @@ const Landing = () => {
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-slide-up" style={{ animationDelay: '0.5s' }}>
               <Link to="/login">
-                <Button size="lg" className="bg-white text-primary hover:bg-blue-50 font-bold shadow-2xl hover:shadow-glow-hover px-10 py-7 text-lg rounded-2xl group transition-smooth relative overflow-hidden">
-                  <span className="relative z-10 flex items-center">
+                <Button size="lg" className="gradient-gold text-navy hover:shadow-gold font-bold shadow-gold hover:scale-105 px-10 py-7 text-lg rounded-2xl group transition-smooth relative overflow-hidden border-2 border-gold/20">
+                  <span className="relative z-10 flex items-center font-bold">
                     Access Student Portal
                     <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-2 transition-transform" />
                   </span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/10 to-primary/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
                 </Button>
               </Link>
               
               <Link to="/register">
-                <Button size="lg" variant="outline" className="glass border-2 border-white text-white hover:bg-white hover:text-primary font-bold px-10 py-7 text-lg rounded-2xl transition-smooth backdrop-blur-md">
+                <Button size="lg" variant="outline" className="border-2 border-gold/50 bg-white/10 text-gold hover:bg-gold/20 hover:border-gold font-bold px-10 py-7 text-lg rounded-2xl transition-smooth backdrop-blur-md">
                   Register Now
                 </Button>
               </Link>
@@ -201,10 +201,10 @@ const Landing = () => {
                 { icon: Award, label: 'Success Rate', value: '95%' },
                 { icon: Zap, label: 'Quick Access', value: '24/7' },
               ].map((stat, index) => (
-                <div key={index} className="glass-card p-4 rounded-2xl text-center border border-white/10 hover:scale-105 transition-smooth">
-                  <stat.icon className="w-8 h-8 mx-auto mb-2 text-accent" />
-                  <div className="text-2xl font-bold mb-1">{stat.value}</div>
-                  <div className="text-xs text-blue-100">{stat.label}</div>
+                <div key={index} className="bg-gold/10 backdrop-blur-md p-4 rounded-2xl text-center border-2 border-gold/30 hover:scale-105 hover:bg-gold/20 hover:border-gold/50 transition-smooth">
+                  <stat.icon className="w-8 h-8 mx-auto mb-2 text-gold" />
+                  <div className="text-2xl font-bold mb-1 text-gold">{stat.value}</div>
+                  <div className="text-xs text-silver">{stat.label}</div>
                 </div>
               ))}
             </div>
@@ -232,12 +232,12 @@ const Landing = () => {
         
         <div className="container mx-auto max-w-7xl relative z-10">
           <div className="text-center mb-20 animate-slide-up">
-            <Badge className="mb-4 px-6 py-2 bg-primary/10 text-primary border-primary/20">
+            <Badge className="mb-4 px-6 py-2 gradient-gold text-navy border-gold/20">
               FEATURES
             </Badge>
             <h2 className="text-5xl md:text-6xl font-heading font-bold mb-6 text-foreground">
               Everything You Need to
-              <span className="block bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent mt-2">
+              <span className="block gradient-gold bg-clip-text text-transparent mt-2">
                 Excel in Your Studies
               </span>
             </h2>
@@ -280,11 +280,11 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Stats Section - Engineering Style */}
-      <section className="py-24 px-4 gradient-primary text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-grid-pattern-dark opacity-10"></div>
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-white/5 rounded-full blur-3xl animate-pulse-slow"></div>
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-secondary/10 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '1.5s' }}></div>
+      {/* Stats Section - Gold & Navy Theme */}
+      <section className="py-24 px-4 gradient-gold text-navy relative overflow-hidden">
+        <div className="absolute inset-0 bg-grid-pattern-dark opacity-5"></div>
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-white/20 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-navy/10 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '1.5s' }}></div>
         
         {/* Tech Pattern Overlay */}
         <div className="absolute inset-0 opacity-5">
@@ -297,7 +297,7 @@ const Landing = () => {
             <h2 className="text-4xl md:text-5xl font-heading font-bold mb-4">
               Our Impact in Numbers
             </h2>
-            <p className="text-blue-100 text-lg">
+            <p className="text-navy/70 text-lg font-semibold">
               Trusted by thousands of students and faculty members
             </p>
           </div>
@@ -306,18 +306,18 @@ const Landing = () => {
             {stats.map((stat, index) => (
               <div
                 key={index}
-                className="text-center group animate-slide-up bg-white/5 backdrop-blur-sm rounded-3xl p-8 border border-white/10 hover:bg-white/10 hover:scale-105 transition-all duration-500"
+                className="text-center group animate-slide-up bg-navy/80 backdrop-blur-sm rounded-3xl p-8 border-2 border-navy hover:bg-navy hover:scale-105 transition-all duration-500 shadow-navy"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className="inline-flex items-center justify-center w-20 h-20 bg-white/10 rounded-3xl mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 relative">
-                  <stat.icon className="w-10 h-10" />
-                  <div className="absolute inset-0 bg-white/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div className="inline-flex items-center justify-center w-20 h-20 bg-gold/20 rounded-3xl mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 relative border-2 border-gold/40">
+                  <stat.icon className="w-10 h-10 text-gold" />
+                  <div className="absolute inset-0 bg-gold/30 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 </div>
-                <div className="text-6xl font-heading font-black mb-3 group-hover:scale-110 transition-transform">
+                <div className="text-6xl font-heading font-black mb-3 group-hover:scale-110 transition-transform text-white">
                   {stat.value}
                 </div>
-                <div className="text-lg font-semibold mb-2">{stat.label}</div>
-                <div className="text-sm text-blue-200">{stat.desc}</div>
+                <div className="text-lg font-semibold mb-2 text-gold">{stat.label}</div>
+                <div className="text-sm text-silver">{stat.desc}</div>
               </div>
             ))}
           </div>
@@ -330,11 +330,11 @@ const Landing = () => {
         
         <div className="container mx-auto max-w-7xl relative z-10">
           <div className="text-center mb-20">
-            <Badge className="mb-4 px-6 py-2 bg-secondary/10 text-secondary border-secondary/20">
+            <Badge className="mb-4 px-6 py-2 gradient-navy text-gold border-gold/20">
               WHY CHOOSE US
             </Badge>
             <h2 className="text-5xl md:text-6xl font-heading font-bold mb-6">
-              Designed for <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Student Success</span>
+              Designed for <span className="gradient-gold bg-clip-text text-transparent">Student Success</span>
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               Premium features that make learning easier and more effective
@@ -369,24 +369,24 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* CTA Section - Premium Style */}
+      {/* CTA Section - Premium Gold Style */}
       <section className="py-28 px-4 relative overflow-hidden">
-        <div className="absolute inset-0 gradient-mesh opacity-10"></div>
+        <div className="absolute inset-0 gradient-mesh opacity-20"></div>
         <div className="absolute inset-0 bg-grid-pattern opacity-20"></div>
         
         <div className="container mx-auto max-w-5xl text-center relative z-10">
-          <Card className="glass-card p-16 rounded-[3rem] shadow-2xl border-2 border-primary/10 animate-scale-in relative overflow-hidden group">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 group-hover:scale-110 transition-transform duration-1000"></div>
+          <Card className="p-16 rounded-[3rem] shadow-gold border-2 border-gold/30 animate-scale-in relative overflow-hidden group bg-gradient-to-br from-white via-gold/5 to-white">
+            <div className="absolute inset-0 bg-gradient-to-br from-gold/10 via-transparent to-navy/5 group-hover:scale-110 transition-transform duration-1000"></div>
             
             <div className="relative z-10">
-              <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-primary rounded-[2rem] mb-8 shadow-glow group-hover:scale-110 group-hover:shadow-glow-hover transition-all duration-500 relative">
-                <Users className="w-12 h-12 text-white" />
-                <div className="absolute inset-0 bg-gradient-primary rounded-[2rem] blur-2xl opacity-50"></div>
+              <div className="inline-flex items-center justify-center w-24 h-24 gradient-gold rounded-[2rem] mb-8 shadow-gold group-hover:scale-110 group-hover:shadow-glow transition-all duration-500 relative">
+                <Users className="w-12 h-12 text-navy" />
+                <div className="absolute inset-0 gradient-gold rounded-[2rem] blur-2xl opacity-50"></div>
               </div>
               
               <h2 className="text-5xl md:text-6xl font-heading font-bold mb-6 text-foreground">
                 Ready to Start Your
-                <span className="block bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent mt-2">
+                <span className="block gradient-gold bg-clip-text text-transparent mt-2">
                   Learning Journey?
                 </span>
               </h2>
@@ -398,8 +398,8 @@ const Landing = () => {
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <Link to="/register">
-                  <Button size="lg" className="gradient-primary text-white hover:shadow-glow-hover font-bold px-12 py-7 text-lg rounded-2xl group transition-smooth relative overflow-hidden">
-                    <span className="relative z-10 flex items-center">
+                  <Button size="lg" className="gradient-gold text-navy hover:shadow-gold font-bold px-12 py-7 text-lg rounded-2xl group transition-smooth relative overflow-hidden border-2 border-gold/20">
+                    <span className="relative z-10 flex items-center font-bold">
                       Create Free Account
                       <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-2 transition-transform" />
                     </span>
@@ -408,7 +408,7 @@ const Landing = () => {
                 </Link>
                 
                 <Link to="/login">
-                  <Button size="lg" variant="outline" className="border-2 font-bold px-12 py-7 text-lg rounded-2xl hover:bg-muted transition-smooth">
+                  <Button size="lg" variant="outline" className="border-2 border-navy text-navy hover:bg-navy hover:text-white font-bold px-12 py-7 text-lg rounded-2xl transition-smooth">
                     Sign In
                   </Button>
                 </Link>
@@ -417,16 +417,16 @@ const Landing = () => {
               {/* Trust Badges */}
               <div className="mt-12 flex flex-wrap justify-center gap-8 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-success" />
-                  <span>No credit card required</span>
+                  <CheckCircle2 className="w-5 h-5 text-gold" />
+                  <span className="font-medium">No credit card required</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-success" />
-                  <span>Instant access</span>
+                  <CheckCircle2 className="w-5 h-5 text-gold" />
+                  <span className="font-medium">Instant access</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-success" />
-                  <span>Free forever</span>
+                  <CheckCircle2 className="w-5 h-5 text-gold" />
+                  <span className="font-medium">Free forever</span>
                 </div>
               </div>
             </div>
@@ -434,35 +434,35 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Footer - Professional */}
-      <footer className="bg-sidebar text-sidebar-foreground py-16 px-4 relative overflow-hidden border-t border-sidebar-border">
+      {/* Footer - Professional Gold Theme */}
+      <footer className="gradient-navy text-white py-16 px-4 relative overflow-hidden border-t-4 border-gold">
         <div className="absolute inset-0 bg-grid-pattern-dark opacity-5"></div>
-        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gold/10 rounded-full blur-3xl"></div>
         
         <div className="container mx-auto max-w-7xl relative z-10">
           <div className="text-center">
             <div className="flex items-center justify-center gap-4 mb-6">
-              <div className="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center shadow-glow">
-                <GraduationCap className="w-9 h-9 text-white" />
+              <div className="w-16 h-16 gradient-gold rounded-2xl flex items-center justify-center shadow-gold">
+                <GraduationCap className="w-9 h-9 text-navy" />
               </div>
               <div className="text-left">
-                <span className="text-3xl font-heading font-bold block">ECE EDU PORTAL</span>
-                <span className="text-sm text-muted-foreground">Electronics & Communication Engineering</span>
+                <span className="text-3xl font-heading font-bold block text-gold">ECE EDU PORTAL</span>
+                <span className="text-sm text-silver">Electronics & Communication Engineering</span>
               </div>
             </div>
             
             <div className="flex flex-wrap justify-center gap-6 mb-8 text-sm">
-              <Link to="/login" className="hover:text-primary transition-colors">Student Login</Link>
-              <Link to="/register" className="hover:text-primary transition-colors">Register</Link>
-              <a href="#features" className="hover:text-primary transition-colors">Features</a>
-              <a href="#stats" className="hover:text-primary transition-colors">About</a>
+              <Link to="/login" className="hover:text-gold transition-colors font-medium">Student Login</Link>
+              <Link to="/register" className="hover:text-gold transition-colors font-medium">Register</Link>
+              <a href="#features" className="hover:text-gold transition-colors font-medium">Features</a>
+              <a href="#stats" className="hover:text-gold transition-colors font-medium">About</a>
             </div>
             
-            <div className="border-t border-sidebar-border pt-8">
-              <p className="text-sm text-muted-foreground mb-2">
+            <div className="border-t border-gold/20 pt-8">
+              <p className="text-sm text-silver mb-2 font-medium">
                 © 2025 ECE EDU PORTAL - Electronics & Communication Engineering Department
               </p>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-silver/70">
                 Empowering students with quality education resources
               </p>
             </div>
