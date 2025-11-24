@@ -233,6 +233,42 @@ export type Database = {
         }
         Relationships: []
       }
+      subject_schedules: {
+        Row: {
+          class_type: Database["public"]["Enums"]["class_type"]
+          created_at: string
+          id: string
+          is_active: boolean | null
+          semester: string
+          student_id: string
+          subject: string
+          updated_at: string
+          weekly_classes: number
+        }
+        Insert: {
+          class_type?: Database["public"]["Enums"]["class_type"]
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          semester: string
+          student_id: string
+          subject: string
+          updated_at?: string
+          weekly_classes: number
+        }
+        Update: {
+          class_type?: Database["public"]["Enums"]["class_type"]
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          semester?: string
+          student_id?: string
+          subject?: string
+          updated_at?: string
+          weekly_classes?: number
+        }
+        Relationships: []
+      }
       syllabus: {
         Row: {
           academic_year: string
