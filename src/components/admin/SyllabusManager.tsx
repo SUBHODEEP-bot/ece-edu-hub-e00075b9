@@ -12,7 +12,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { toast } from 'sonner';
-import { Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Loader2, Upload } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface SyllabusManagerProps {
@@ -24,8 +24,8 @@ const syllabusSchema = z.object({
   semester: z.string().min(1, 'Semester is required'),
   academic_year: z.string().min(1, 'Academic year is required'),
   description: z.string().optional(),
-  file_url: z.string().url('Must be a valid URL'),
-  file_name: z.string().min(1, 'File name is required'),
+  file_url: z.string().optional(),
+  file_name: z.string().optional(),
 });
 
 type SyllabusFormValues = z.infer<typeof syllabusSchema>;
@@ -36,6 +36,8 @@ const SyllabusManager = ({ selectedSemester }: SyllabusManagerProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const form = useForm<SyllabusFormValues>({
     resolver: zodResolver(syllabusSchema),
@@ -62,13 +64,63 @@ const SyllabusManager = ({ selectedSemester }: SyllabusManagerProps) => {
     },
   });
 
+  const handleFileUpload = async (file: File) => {
+    setUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `${selectedSemester}/${fileName}`;
+
+      const { error: uploadError, data } = await supabase.storage
+        .from('syllabus')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('syllabus')
+        .getPublicUrl(filePath);
+
+      form.setValue('file_url', publicUrl);
+      form.setValue('file_name', file.name);
+      toast.success('File uploaded successfully');
+      return publicUrl;
+    } catch (error: any) {
+      toast.error(error.message || 'Upload failed');
+      throw error;
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSave = async (values: SyllabusFormValues) => {
     setLoading(true);
     try {
+      let fileUrl = values.file_url;
+      let fileName = values.file_name;
+
+      // Upload file if one was selected
+      if (uploadedFile) {
+        fileUrl = await handleFileUpload(uploadedFile);
+        fileName = uploadedFile.name;
+      }
+
+      if (!fileUrl || !fileName) {
+        toast.error('Please upload a file or provide a file URL');
+        return;
+      }
+
       if (editingId) {
         const { error } = await supabase
           .from('syllabus')
-          .update(values)
+          .update({
+            ...values,
+            file_url: fileUrl,
+            file_name: fileName,
+          })
           .eq('id', editingId);
         if (error) throw error;
         toast.success('Syllabus updated successfully');
@@ -80,8 +132,8 @@ const SyllabusManager = ({ selectedSemester }: SyllabusManagerProps) => {
             semester: values.semester,
             academic_year: values.academic_year,
             description: values.description,
-            file_url: values.file_url,
-            file_name: values.file_name,
+            file_url: fileUrl,
+            file_name: fileName,
             uploaded_by: user?.id 
           }]);
         if (error) throw error;
@@ -93,6 +145,7 @@ const SyllabusManager = ({ selectedSemester }: SyllabusManagerProps) => {
       setIsDialogOpen(false);
       form.reset();
       setEditingId(null);
+      setUploadedFile(null);
     } catch (error: any) {
       toast.error(error.message || 'Operation failed');
     } finally {
@@ -217,32 +270,70 @@ const SyllabusManager = ({ selectedSemester }: SyllabusManagerProps) => {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="file_url"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>File URL</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://..." {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="file_name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>File Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="syllabus-sem5.pdf" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <FormLabel>Upload File (Recommended)</FormLabel>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="file"
+                        accept=".pdf"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setUploadedFile(file);
+                            form.setValue('file_name', file.name);
+                          }
+                        }}
+                        disabled={uploading}
+                      />
+                      {uploadedFile && (
+                        <span className="text-sm text-green-600">✓ {uploadedFile.name}</span>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Upload PDF file (recommended for better reliability)
+                    </p>
+                  </div>
+
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-background px-2 text-muted-foreground">Or use external URL</span>
+                    </div>
+                  </div>
+
+                  <FormField
+                    control={form.control}
+                    name="file_url"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>File URL (Optional)</FormLabel>
+                        <FormControl>
+                          <Input placeholder="https://..." {...field} value={field.value || ''} />
+                        </FormControl>
+                        <p className="text-xs text-muted-foreground">
+                          Only if not uploading a file above
+                        </p>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="file_name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>File Name (Optional)</FormLabel>
+                        <FormControl>
+                          <Input placeholder="syllabus-sem5.pdf" {...field} value={field.value || ''} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
                 <DialogFooter>
                   <Button type="submit" className="gradient-primary text-white" disabled={loading}>
                     {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
