@@ -37,7 +37,14 @@ export const SyllabusPage = () => {
   });
 
   const handleDownload = (fileUrl: string, fileName: string) => {
-    window.open(fileUrl, '_blank');
+    // Create a temporary anchor element to handle the download properly
+    const link = document.createElement('a');
+    link.href = fileUrl;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
