@@ -42,9 +42,7 @@ const Register = () => {
   const onSubmit = async (values: RegisterFormValues) => {
     setLoading(true);
     try {
-      const {
-        error
-      } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email: values.email,
         password: values.password,
         options: {
@@ -53,9 +51,10 @@ const Register = () => {
             mobile_number: values.mobile,
             semester: values.semester
           },
-          emailRedirectTo: `${window.location.origin}/`
+          emailRedirectTo: `${window.location.origin}/dashboard`
         }
       });
+
       if (error) {
         if (error.message.includes('already registered')) {
           toast.error('This email is already registered. Please login instead.');
@@ -64,8 +63,17 @@ const Register = () => {
         }
         return;
       }
-      toast.success('Registration successful! Please check your email for verification.');
-      setTimeout(() => navigate('/login'), 2000);
+
+      // Check if user was created and auto-confirmed
+      if (data.user && data.session) {
+        toast.success('Registration successful! Redirecting to dashboard...');
+        // Redirect to dashboard immediately
+        navigate('/dashboard');
+      } else {
+        // Email confirmation required
+        toast.success('Registration successful! Please check your email for verification.');
+        setTimeout(() => navigate('/login'), 2000);
+      }
     } catch (error: any) {
       toast.error('Registration failed. Please try again.');
       console.error('Registration error:', error);
