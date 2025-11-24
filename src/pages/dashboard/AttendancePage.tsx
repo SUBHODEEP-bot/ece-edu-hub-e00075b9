@@ -100,28 +100,41 @@ export const AttendancePage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-background border-b border-border px-4 py-3">
-        <div className="flex items-center justify-between">
-          <h1 className="text-lg font-bold text-foreground">{profile?.name || 'Student'}</h1>
-          <div className="flex items-center gap-2">
-            <div className={`border rounded px-3 py-1.5 text-sm font-medium ${
-              todayStats.percentage >= 75 ? 'bg-green-500/10 border-green-500/20 text-green-700' :
-              todayStats.percentage >= 50 ? 'bg-yellow-500/10 border-yellow-500/20 text-yellow-700' :
-              'bg-red-500/10 border-red-500/20 text-red-700'
+      <div className="sticky top-0 z-10 bg-background border-b border-border px-4 py-4">
+        <div className="flex items-start justify-between mb-3">
+          <div>
+            <h1 className="text-xl font-bold text-foreground">{profile?.name || 'Student'}</h1>
+            <p className="text-xs text-muted-foreground mt-0.5">Semester {profile?.semester}</p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <div className={`flex-1 border rounded-lg px-3 py-2 ${
+            todayStats.percentage >= 75 ? 'bg-green-500/10 border-green-500/20' :
+            todayStats.percentage >= 50 ? 'bg-yellow-500/10 border-yellow-500/20' :
+            'bg-red-500/10 border-red-500/20'
+          }`}>
+            <div className="text-xs text-muted-foreground mb-0.5">Today</div>
+            <div className={`text-lg font-bold ${
+              todayStats.percentage >= 75 ? 'text-green-700' :
+              todayStats.percentage >= 50 ? 'text-yellow-700' :
+              'text-red-700'
             }`}>
-              Today: {todayStats.percentage}% ({todayStats.present}/{todayStats.total})
+              {todayStats.percentage}%
             </div>
-            <div className="bg-card border border-border rounded px-3 py-1.5 text-xs text-muted-foreground font-medium">
-              Overall: {stats.percentage}% ({stats.present}/{stats.total})
-            </div>
+            <div className="text-xs text-muted-foreground">{todayStats.present}/{todayStats.total} classes</div>
+          </div>
+          <div className="flex-1 bg-card border border-border rounded-lg px-3 py-2">
+            <div className="text-xs text-muted-foreground mb-0.5">Overall</div>
+            <div className="text-lg font-bold text-foreground">{stats.percentage}%</div>
+            <div className="text-xs text-muted-foreground">{stats.present}/{stats.total} total</div>
           </div>
         </div>
       </div>
 
       {/* Content */}
-      <div className="p-4">
+      <div className="px-4 py-4">
         {profile?.semester && (
           <>
             {activeTab === 'today' && <TodayView semester={profile.semester} />}
@@ -131,8 +144,8 @@ export const AttendancePage = () => {
       </div>
 
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border">
-        <div className="flex items-center justify-around py-2">
+      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border shadow-lg">
+        <div className="flex items-center justify-around py-3 px-2">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             return (
@@ -144,8 +157,8 @@ export const AttendancePage = () => {
                   activeTab === tab.id ? 'text-primary' : 'text-muted-foreground'
                 }`}
               >
-                <Icon className="w-5 h-5" />
-                <span className="text-xs">{tab.label}</span>
+                <Icon className={`w-5 h-5 ${activeTab === tab.id ? 'fill-primary' : ''}`} />
+                <span className="text-xs font-medium">{tab.label}</span>
               </Button>
             );
           })}
@@ -154,7 +167,7 @@ export const AttendancePage = () => {
             className="flex flex-col items-center gap-1 h-auto py-2 px-6 text-muted-foreground"
           >
             <Settings className="w-5 h-5" />
-            <span className="text-xs">Settings</span>
+            <span className="text-xs font-medium">Settings</span>
           </Button>
         </div>
       </div>

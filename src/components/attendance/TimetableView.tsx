@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Plus, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState } from 'react';
+import { format } from 'date-fns';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -100,20 +101,24 @@ export const TimetableView = ({ semester }: TimetableViewProps) => {
   };
 
   return (
-    <div className="space-y-4 pb-20">
+    <div className="space-y-4">
       <div className="text-center py-4">
-        <h3 className="text-lg font-bold text-foreground">Weekly Timetable</h3>
-        <p className="text-sm text-muted-foreground">Add subjects to each day</p>
+        <h3 className="text-xl font-bold text-foreground mb-1">Weekly Timetable</h3>
+        <p className="text-sm text-muted-foreground">Manage your class schedule</p>
       </div>
 
       <div className="space-y-3">
         {WEEKDAYS.map((day) => {
           const daySubjects = getSubjectsForDay(day.id);
+          const isToday = format(new Date(), 'EEEE').toLowerCase() === day.id;
 
           return (
-            <Card key={day.id} className="p-4 bg-card border-border">
+            <Card key={day.id} className={`p-4 bg-card border-border shadow-sm ${isToday ? 'border-primary border-2' : ''}`}>
               <div className="flex items-center justify-between mb-3">
-                <h4 className="font-semibold text-foreground">{day.fullName}</h4>
+                <div>
+                  <h4 className="text-lg font-bold text-foreground">{day.fullName}</h4>
+                  {isToday && <p className="text-xs text-primary font-medium">Today</p>}
+                </div>
                 <Button
                   size="sm"
                   variant="outline"
@@ -121,6 +126,7 @@ export const TimetableView = ({ semester }: TimetableViewProps) => {
                     setSelectedDay(day.id);
                     setShowAddDialog(true);
                   }}
+                  className="border-primary/20 hover:bg-primary/10"
                 >
                   <Plus className="w-4 h-4 mr-1" />
                   Add
@@ -132,21 +138,21 @@ export const TimetableView = ({ semester }: TimetableViewProps) => {
                   {daySubjects.map((schedule) => (
                     <div
                       key={schedule.id}
-                      className="flex items-center justify-between bg-muted/50 rounded-md p-2"
+                      className="flex items-center justify-between bg-muted/50 rounded-lg p-3"
                     >
-                      <div>
-                        <p className="text-sm font-medium text-foreground">
+                      <div className="flex-1">
+                        <p className="font-semibold text-foreground">
                           {schedule.subject}
                         </p>
-                        <p className="text-xs text-muted-foreground capitalize">
-                          {schedule.class_type}
+                        <p className="text-xs text-muted-foreground capitalize mt-0.5">
+                          {schedule.class_type} {schedule.class_type === 'lab' && '(×2)'}
                         </p>
                       </div>
                       <Button
                         size="sm"
                         variant="ghost"
                         onClick={() => handleDeleteSubject(schedule.id)}
-                        className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
+                        className="h-9 w-9 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                       >
                         <X className="w-4 h-4" />
                       </Button>
@@ -154,8 +160,8 @@ export const TimetableView = ({ semester }: TimetableViewProps) => {
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-muted-foreground text-center py-2">
-                  No subjects added
+                <p className="text-xs text-muted-foreground text-center py-3 bg-muted/30 rounded-lg">
+                  No classes scheduled
                 </p>
               )}
             </Card>
@@ -164,35 +170,36 @@ export const TimetableView = ({ semester }: TimetableViewProps) => {
       </div>
 
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent>
+        <DialogContent className="max-w-[90vw] rounded-lg">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="text-lg">
               Add Subject to {WEEKDAYS.find(d => d.id === selectedDay)?.fullName}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="subject">Subject Name</Label>
+              <Label htmlFor="subject" className="text-sm font-medium">Subject Name</Label>
               <Input
                 id="subject"
                 value={newSubject}
                 onChange={(e) => setNewSubject(e.target.value)}
                 placeholder="e.g., Network, Signal, DSA"
+                className="mt-1.5"
               />
             </div>
             <div>
-              <Label htmlFor="type">Class Type</Label>
+              <Label htmlFor="type" className="text-sm font-medium">Class Type</Label>
               <Select value={classType} onValueChange={(v) => setClassType(v as 'theory' | 'lab')}>
-                <SelectTrigger id="type">
+                <SelectTrigger id="type" className="mt-1.5">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="theory">Theory</SelectItem>
-                  <SelectItem value="lab">Lab</SelectItem>
+                  <SelectItem value="theory">Theory (×1)</SelectItem>
+                  <SelectItem value="lab">Lab (×2)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            <Button onClick={handleAddSubject} className="w-full">
+            <Button onClick={handleAddSubject} className="w-full" size="lg">
               Add Subject
             </Button>
           </div>
