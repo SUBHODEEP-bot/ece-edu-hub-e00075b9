@@ -2,21 +2,37 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, TrendingUp } from 'lucide-react';
+import { Calendar, TrendingUp, CheckCircle2, XCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Progress } from '@/components/ui/progress';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 export const AttendancePage = () => {
   const { user } = useAuth();
+  const [fromDate, setFromDate] = useState<Date>();
+  const [toDate, setToDate] = useState<Date>();
 
   const { data: attendance, isLoading } = useQuery({
-    queryKey: ['attendance', user?.id],
+    queryKey: ['attendance', user?.id, fromDate, toDate],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from('attendance')
         .select('*')
-        .eq('student_id', user?.id)
-        .order('date', { ascending: false });
+        .eq('student_id', user?.id);
+      
+      if (fromDate) {
+        query = query.gte('date', format(fromDate, 'yyyy-MM-dd'));
+      }
+      if (toDate) {
+        query = query.lte('date', format(toDate, 'yyyy-MM-dd'));
+      }
+      
+      const { data, error } = await query.order('date', { ascending: false });
       if (error) throw error;
       return data;
     },
@@ -26,6 +42,16 @@ export const AttendancePage = () => {
   // Calculate attendance statistics
   const stats = attendance?.reduce((acc, record) => {
     acc.total++;
+    
+    // Count by class type
+    if (record.class_type === 'theory') {
+      acc.totalTheory++;
+      if (record.status === 'present' || record.status === 'late') acc.presentTheory++;
+    } else if (record.class_type === 'lab') {
+      acc.totalLab++;
+      if (record.status === 'present' || record.status === 'late') acc.presentLab++;
+    }
+    
     if (record.status === 'present') acc.present++;
     if (record.status === 'absent') acc.absent++;
     if (record.status === 'late') acc.late++;
@@ -40,10 +66,30 @@ export const AttendancePage = () => {
     }
     
     return acc;
-  }, { total: 0, present: 0, absent: 0, late: 0, bySubject: {} as Record<string, { present: number; total: number }> }) || 
-  { total: 0, present: 0, absent: 0, late: 0, bySubject: {} };
+  }, { 
+    total: 0, 
+    present: 0, 
+    absent: 0, 
+    late: 0, 
+    totalTheory: 0,
+    presentTheory: 0,
+    totalLab: 0,
+    presentLab: 0,
+    bySubject: {} as Record<string, { present: number; total: number }> 
+  }) || { 
+    total: 0, 
+    present: 0, 
+    absent: 0, 
+    late: 0, 
+    totalTheory: 0,
+    presentTheory: 0,
+    totalLab: 0,
+    presentLab: 0,
+    bySubject: {} 
+  };
 
   const overallPercentage = stats.total > 0 ? Math.round(((stats.present + stats.late) / stats.total) * 100) : 0;
+  const isEligibleForExam = overallPercentage >= 75;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -74,8 +120,109 @@ export const AttendancePage = () => {
 
   return (
     <div className="space-y-4 sm:space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <h2 className="text-xl sm:text-2xl font-bold text-foreground">My Attendance</h2>
+        
+        {/* Date Range Filter */}
+        <div className="flex flex-wrap items-center gap-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className={cn("justify-start text-left font-normal", !fromDate && "text-muted-foreground")}>
+                <Calendar className="mr-2 h-4 w-4" />
+                {fromDate ? format(fromDate, "PPP") : <span>From Date</span>}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <CalendarComponent mode="single" selected={fromDate} onSelect={setFromDate} initialFocus className="pointer-events-auto" />
+            </PopoverContent>
+          </Popover>
+          
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className={cn("justify-start text-left font-normal", !toDate && "text-muted-foreground")}>
+                <Calendar className="mr-2 h-4 w-4" />
+                {toDate ? format(toDate, "PPP") : <span>To Date</span>}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <CalendarComponent mode="single" selected={toDate} onSelect={setToDate} initialFocus className="pointer-events-auto" />
+            </PopoverContent>
+          </Popover>
+          
+          {(fromDate || toDate) && (
+            <Button variant="ghost" onClick={() => { setFromDate(undefined); setToDate(undefined); }}>
+              Clear
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {/* Exam Eligibility Banner */}
+      <Card className={`border-2 ${isEligibleForExam ? 'border-green-500/50 bg-green-500/5' : 'border-red-500/50 bg-red-500/5'}`}>
+        <CardContent className="pt-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {isEligibleForExam ? (
+                <CheckCircle2 className="w-8 h-8 text-green-600" />
+              ) : (
+                <XCircle className="w-8 h-8 text-red-600" />
+              )}
+              <div>
+                <h3 className={`text-lg font-bold ${isEligibleForExam ? 'text-green-600' : 'text-red-600'}`}>
+                  {isEligibleForExam ? 'Eligible for Examination' : 'Not Eligible for Examination'}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {isEligibleForExam 
+                    ? 'Your attendance meets the minimum requirement (75%)'
+                    : `You need ${75 - overallPercentage}% more attendance to be eligible`
+                  }
+                </p>
+              </div>
+            </div>
+            <div className={`text-3xl font-bold ${getPercentageColor(overallPercentage)}`}>
+              {overallPercentage}%
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Detailed Statistics */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <Card className="border-2 hover:shadow-lg transition-smooth border-primary/20">
+          <CardHeader className="pb-3">
+            <CardDescription className="text-xs">Total Theory Classes</CardDescription>
+            <CardTitle className="text-3xl font-bold text-primary">{stats.totalTheory}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-xs text-muted-foreground">
+              Present: {stats.presentTheory} ({stats.totalTheory > 0 ? Math.round((stats.presentTheory / stats.totalTheory) * 100) : 0}%)
+            </p>
+            <Progress value={stats.totalTheory > 0 ? (stats.presentTheory / stats.totalTheory) * 100 : 0} className="h-2 mt-2" />
+          </CardContent>
+        </Card>
+
+        <Card className="border-2 hover:shadow-lg transition-smooth border-primary/20">
+          <CardHeader className="pb-3">
+            <CardDescription className="text-xs">Total Lab Classes</CardDescription>
+            <CardTitle className="text-3xl font-bold text-primary">{stats.totalLab}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-xs text-muted-foreground">
+              Present: {stats.presentLab} ({stats.totalLab > 0 ? Math.round((stats.presentLab / stats.totalLab) * 100) : 0}%)
+            </p>
+            <Progress value={stats.totalLab > 0 ? (stats.presentLab / stats.totalLab) * 100 : 0} className="h-2 mt-2" />
+          </CardContent>
+        </Card>
+
+        <Card className="border-2 hover:shadow-lg transition-smooth border-primary/20">
+          <CardHeader className="pb-3">
+            <CardDescription className="text-xs">Total Classes</CardDescription>
+            <CardTitle className="text-3xl font-bold text-primary">{stats.total}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-xs text-muted-foreground">Theory + Lab combined</p>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Overall Statistics */}
@@ -97,8 +244,8 @@ export const AttendancePage = () => {
 
         <Card className="hover:shadow-lg transition-smooth border-green-500/20">
           <CardHeader className="pb-3">
-            <CardDescription className="text-xs">Present</CardDescription>
-            <CardTitle className="text-3xl font-bold text-green-600">{stats.present}</CardTitle>
+            <CardDescription className="text-xs">Total Present</CardDescription>
+            <CardTitle className="text-3xl font-bold text-green-600">{stats.present + stats.late}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-xs text-muted-foreground">Classes attended</p>
@@ -178,7 +325,12 @@ export const AttendancePage = () => {
                   className="flex items-center justify-between p-4 rounded-lg border hover:shadow-md transition-smooth"
                 >
                   <div className="flex-1">
-                    <div className="font-semibold text-foreground">{record.subject}</div>
+                    <div className="flex items-center gap-2">
+                      <div className="font-semibold text-foreground">{record.subject}</div>
+                      <Badge variant="outline" className="text-xs">
+                        {record.class_type === 'theory' ? 'Theory' : 'Lab'}
+                      </Badge>
+                    </div>
                     <div className="text-sm text-muted-foreground">
                       {new Date(record.date).toLocaleDateString('en-US', {
                         weekday: 'short',

@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       attendance: {
         Row: {
+          class_type: Database["public"]["Enums"]["class_type"]
           created_at: string
           date: string
           id: string
@@ -28,6 +29,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          class_type?: Database["public"]["Enums"]["class_type"]
           created_at?: string
           date: string
           id?: string
@@ -40,6 +42,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          class_type?: Database["public"]["Enums"]["class_type"]
           created_at?: string
           date?: string
           id?: string
@@ -306,6 +309,7 @@ export type Database = {
     Enums: {
       app_role: "admin" | "student"
       attendance_status: "present" | "absent" | "late"
+      class_type: "theory" | "lab"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -435,6 +439,7 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "student"],
       attendance_status: ["present", "absent", "late"],
+      class_type: ["theory", "lab"],
     },
   },
 } as const
