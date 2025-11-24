@@ -23,6 +23,7 @@ interface AttendanceManagerProps {
 const attendanceSchema = z.object({
   subject: z.string().min(1, 'Subject is required'),
   date: z.string().min(1, 'Date is required'),
+  class_type: z.enum(['theory', 'lab']),
   notes: z.string().optional(),
 });
 
@@ -40,6 +41,7 @@ const AttendanceManager = ({ selectedSemester }: AttendanceManagerProps) => {
     defaultValues: {
       subject: '',
       date: new Date().toISOString().split('T')[0],
+      class_type: 'theory',
       notes: '',
     },
   });
@@ -85,6 +87,7 @@ const AttendanceManager = ({ selectedSemester }: AttendanceManagerProps) => {
           subject: selectedSubject,
           date: selectedDate,
           status: status as any,
+          class_type: form.getValues('class_type') as any,
           semester: selectedSemester,
           marked_by: user?.id || null,
           notes: notes || null,
@@ -183,7 +186,7 @@ const AttendanceManager = ({ selectedSemester }: AttendanceManagerProps) => {
             </DialogHeader>
             <Form {...form}>
               <form className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
                   <FormField
                     control={form.control}
                     name="subject"
@@ -220,6 +223,27 @@ const AttendanceManager = ({ selectedSemester }: AttendanceManagerProps) => {
                             }}
                           />
                         </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="class_type"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Class Type</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select type" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="theory">Theory</SelectItem>
+                            <SelectItem value="lab">Lab</SelectItem>
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}
