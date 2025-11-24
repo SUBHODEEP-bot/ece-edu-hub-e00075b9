@@ -28,7 +28,7 @@ export const EventsPage = () => {
         .from('events')
         .select('*')
         .eq('is_active', true)
-        .or(`semester.eq.${profile?.semester},semester.is.null`)
+        .or(`semester.eq.${profile?.semester},semester.is.null,semester.eq.`)
         .order('event_date', { ascending: true });
       if (error) throw error;
       return data;
