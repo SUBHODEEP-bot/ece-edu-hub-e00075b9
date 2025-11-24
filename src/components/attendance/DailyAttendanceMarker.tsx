@@ -105,20 +105,24 @@ export const DailyAttendanceMarker = ({ semester }: DailyAttendanceMarkerProps) 
 
   return (
     <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle>Mark Daily Attendance</CardTitle>
-            <CardDescription>Record your attendance for each class</CardDescription>
+      <CardHeader className="pb-3">
+        <div className="flex flex-col gap-3">
+          <div className="flex-1 min-w-0">
+            <CardTitle className="text-base sm:text-lg">Mark Attendance</CardTitle>
+            <CardDescription className="text-xs sm:text-sm">Record daily attendance</CardDescription>
           </div>
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" className={cn("justify-start text-left font-normal")}>
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {format(selectedDate, "PPP")}
+              <Button 
+                variant="outline" 
+                size="sm"
+                className={cn("w-full justify-start text-left font-normal h-9")}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
+                <span className="truncate">{format(selectedDate, "PP")}</span>
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="end">
+            <PopoverContent className="w-auto p-0" align="center">
               <Calendar 
                 mode="single" 
                 selected={selectedDate} 
@@ -130,28 +134,28 @@ export const DailyAttendanceMarker = ({ semester }: DailyAttendanceMarkerProps) 
           </Popover>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-3">
         {schedules && schedules.length > 0 ? (
-          <div className="space-y-3">
+          <div className="space-y-2">
             {schedules.map((schedule) => {
               const status = getAttendanceStatus(schedule.subject, schedule.class_type);
               return (
                 <div
                   key={schedule.id}
-                  className="flex items-center justify-between p-4 rounded-lg border hover:shadow-sm transition-smooth"
+                  className="flex items-center justify-between p-3 rounded-lg border hover:shadow-sm transition-smooth gap-2"
                 >
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{schedule.subject}</span>
-                      <Badge variant="outline" className="text-xs">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-medium text-sm sm:text-base truncate">{schedule.subject}</span>
+                      <Badge variant="outline" className="text-xs shrink-0">
                         {schedule.class_type === 'theory' ? 'Theory' : 'Lab'}
                       </Badge>
                     </div>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs text-muted-foreground hidden sm:block">
                       {schedule.weekly_classes} classes/week
                     </p>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-1.5 shrink-0">
                     <Button
                       size="sm"
                       variant={status === 'present' ? 'default' : 'outline'}
@@ -163,7 +167,7 @@ export const DailyAttendanceMarker = ({ semester }: DailyAttendanceMarkerProps) 
                         })
                       }
                       disabled={markAttendanceMutation.isPending}
-                      className={status === 'present' ? 'bg-green-600 hover:bg-green-700' : ''}
+                      className={`h-9 w-9 p-0 ${status === 'present' ? 'bg-green-600 hover:bg-green-700' : ''}`}
                     >
                       <Check className="w-4 h-4" />
                     </Button>
@@ -178,7 +182,7 @@ export const DailyAttendanceMarker = ({ semester }: DailyAttendanceMarkerProps) 
                         })
                       }
                       disabled={markAttendanceMutation.isPending}
-                      className={status === 'late' ? 'bg-yellow-600 hover:bg-yellow-700' : ''}
+                      className={`h-9 w-9 p-0 ${status === 'late' ? 'bg-yellow-600 hover:bg-yellow-700' : ''}`}
                     >
                       <Clock className="w-4 h-4" />
                     </Button>
@@ -193,7 +197,7 @@ export const DailyAttendanceMarker = ({ semester }: DailyAttendanceMarkerProps) 
                         })
                       }
                       disabled={markAttendanceMutation.isPending}
-                      className={status === 'absent' ? 'bg-red-600 hover:bg-red-700' : ''}
+                      className={`h-9 w-9 p-0 ${status === 'absent' ? 'bg-red-600 hover:bg-red-700' : ''}`}
                     >
                       <X className="w-4 h-4" />
                     </Button>
@@ -203,8 +207,8 @@ export const DailyAttendanceMarker = ({ semester }: DailyAttendanceMarkerProps) 
             })}
           </div>
         ) : (
-          <div className="text-center py-8 text-muted-foreground">
-            <p>Add your subjects first to mark attendance</p>
+          <div className="text-center py-6 sm:py-8 text-muted-foreground">
+            <p className="text-sm">Add subjects first to mark attendance</p>
           </div>
         )}
       </CardContent>

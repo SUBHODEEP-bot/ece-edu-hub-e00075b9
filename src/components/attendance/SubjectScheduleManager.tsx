@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -113,20 +114,20 @@ export const SubjectScheduleManager = ({ semester }: SubjectScheduleManagerProps
 
   return (
     <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="flex items-center gap-2">
-              <BookOpen className="w-5 h-5" />
-              My Subject Schedule
+      <CardHeader className="pb-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex-1 min-w-0">
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
+              <span className="truncate">My Subjects</span>
             </CardTitle>
-            <CardDescription>Define your subjects and weekly class count</CardDescription>
+            <CardDescription className="text-xs sm:text-sm">Weekly class schedule</CardDescription>
           </div>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button size="sm" className="gap-2">
+              <Button size="sm" className="gap-2 w-full sm:w-auto h-9">
                 <Plus className="w-4 h-4" />
-                Add Subject
+                <span>Add Subject</span>
               </Button>
             </DialogTrigger>
             <DialogContent>
@@ -199,28 +200,29 @@ export const SubjectScheduleManager = ({ semester }: SubjectScheduleManagerProps
           </Dialog>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-3">
         {schedules && schedules.length > 0 ? (
           <div className="space-y-2">
             {schedules.map((schedule) => (
               <div
                 key={schedule.id}
-                className="flex items-center justify-between p-3 rounded-lg border hover:shadow-sm transition-smooth"
+                className="flex items-center justify-between p-3 rounded-lg border hover:shadow-sm transition-smooth gap-2"
               >
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">{schedule.subject}</span>
-                    <span className="text-xs text-muted-foreground">
-                      ({schedule.class_type === 'theory' ? 'Theory' : 'Lab'})
-                    </span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-medium text-sm sm:text-base truncate">{schedule.subject}</span>
+                    <Badge variant="outline" className="text-xs shrink-0">
+                      {schedule.class_type === 'theory' ? 'Theory' : 'Lab'}
+                    </Badge>
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    {schedule.weekly_classes} classes per week
+                  <p className="text-xs sm:text-sm text-muted-foreground">
+                    {schedule.weekly_classes} classes/week
                   </p>
                 </div>
                 <Button
                   variant="ghost"
                   size="sm"
+                  className="shrink-0 h-8 w-8 p-0"
                   onClick={() => deleteScheduleMutation.mutate(schedule.id)}
                   disabled={deleteScheduleMutation.isPending}
                 >
@@ -230,10 +232,10 @@ export const SubjectScheduleManager = ({ semester }: SubjectScheduleManagerProps
             ))}
           </div>
         ) : (
-          <div className="text-center py-8 text-muted-foreground">
-            <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-50" />
-            <p>No subjects added yet</p>
-            <p className="text-sm mt-1">Add your subjects to start tracking attendance</p>
+          <div className="text-center py-6 sm:py-8 text-muted-foreground">
+            <BookOpen className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 sm:mb-3 opacity-50" />
+            <p className="text-sm sm:text-base">No subjects added yet</p>
+            <p className="text-xs sm:text-sm mt-1">Add subjects to track attendance</p>
           </div>
         )}
       </CardContent>

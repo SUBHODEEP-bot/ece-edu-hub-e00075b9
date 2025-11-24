@@ -178,38 +178,51 @@ export const AttendancePage = () => {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6 animate-fade-in">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <h2 className="text-xl sm:text-2xl font-bold text-foreground">My Attendance Tracking</h2>
+    <div className="space-y-3 sm:space-y-6 animate-fade-in px-2 sm:px-0">
+      <div className="flex flex-col gap-3">
+        <h2 className="text-lg sm:text-2xl font-bold text-foreground">My Attendance</h2>
         
-        {/* Date Range Filter */}
-        <div className="flex flex-wrap items-center gap-2">
+        {/* Date Range Filter - Mobile Optimized */}
+        <div className="flex flex-col sm:flex-row gap-2 w-full">
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" className={cn("justify-start text-left font-normal", !fromDate && "text-muted-foreground")}>
-                <Calendar className="mr-2 h-4 w-4" />
-                {fromDate ? format(fromDate, "PPP") : <span>From Date</span>}
+              <Button 
+                variant="outline" 
+                size="sm"
+                className={cn("w-full sm:w-auto justify-start text-left font-normal h-9", !fromDate && "text-muted-foreground")}
+              >
+                <Calendar className="mr-2 h-4 w-4 shrink-0" />
+                <span className="truncate">{fromDate ? format(fromDate, "PP") : "From Date"}</span>
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
+            <PopoverContent className="w-auto p-0" align="center">
               <CalendarComponent mode="single" selected={fromDate} onSelect={setFromDate} initialFocus className="pointer-events-auto" />
             </PopoverContent>
           </Popover>
           
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" className={cn("justify-start text-left font-normal", !toDate && "text-muted-foreground")}>
-                <Calendar className="mr-2 h-4 w-4" />
-                {toDate ? format(toDate, "PPP") : <span>To Date</span>}
+              <Button 
+                variant="outline" 
+                size="sm"
+                className={cn("w-full sm:w-auto justify-start text-left font-normal h-9", !toDate && "text-muted-foreground")}
+              >
+                <Calendar className="mr-2 h-4 w-4 shrink-0" />
+                <span className="truncate">{toDate ? format(toDate, "PP") : "To Date"}</span>
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
+            <PopoverContent className="w-auto p-0" align="center">
               <CalendarComponent mode="single" selected={toDate} onSelect={setToDate} initialFocus className="pointer-events-auto" />
             </PopoverContent>
           </Popover>
           
           {(fromDate || toDate) && (
-            <Button variant="ghost" onClick={() => { setFromDate(undefined); setToDate(undefined); }}>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              className="w-full sm:w-auto h-9"
+              onClick={() => { setFromDate(undefined); setToDate(undefined); }}
+            >
               Clear
             </Button>
           )}
@@ -222,121 +235,118 @@ export const AttendancePage = () => {
       {/* Daily Attendance Marker */}
       {profile?.semester && <DailyAttendanceMarker semester={profile.semester} />}
 
-      {/* Exam Eligibility Banner */}
+      {/* Exam Eligibility Banner - Mobile Optimized */}
       <Card className={`border-2 ${isEligibleForExam ? 'border-green-500/50 bg-green-500/5' : 'border-red-500/50 bg-red-500/5'}`}>
-        <CardContent className="pt-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+        <CardContent className="pt-4 pb-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+            <div className="flex items-start gap-3 flex-1">
               {isEligibleForExam ? (
-                <CheckCircle2 className="w-8 h-8 text-green-600" />
+                <CheckCircle2 className="w-6 h-6 sm:w-8 sm:h-8 text-green-600 shrink-0 mt-1" />
               ) : (
-                <XCircle className="w-8 h-8 text-red-600" />
+                <XCircle className="w-6 h-6 sm:w-8 sm:h-8 text-red-600 shrink-0 mt-1" />
               )}
-              <div>
-                <h3 className={`text-lg font-bold ${isEligibleForExam ? 'text-green-600' : 'text-red-600'}`}>
-                  {isEligibleForExam ? 'Eligible for Examination' : 'Not Eligible for Examination'}
+              <div className="flex-1 min-w-0">
+                <h3 className={`text-sm sm:text-lg font-bold ${isEligibleForExam ? 'text-green-600' : 'text-red-600'}`}>
+                  {isEligibleForExam ? 'Exam Eligible' : 'Not Eligible'}
                 </h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   {isEligibleForExam 
-                    ? 'Your attendance meets the minimum requirement (75%)'
-                    : `You need ${75 - overallPercentage}% more attendance to be eligible`
+                    ? 'Meets 75% requirement'
+                    : `Need ${75 - overallPercentage}% more`
                   }
                 </p>
               </div>
             </div>
-            <div className={`text-3xl font-bold ${getPercentageColor(overallPercentage)}`}>
+            <div className={`text-2xl sm:text-3xl font-bold ${getPercentageColor(overallPercentage)} self-end sm:self-auto`}>
               {overallPercentage}%
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Detailed Statistics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <Card className="border-2 hover:shadow-lg transition-smooth border-primary/20">
-          <CardHeader className="pb-3">
-            <CardDescription className="text-xs">Total Theory Classes</CardDescription>
-            <CardTitle className="text-3xl font-bold text-primary">{stats.totalTheory}</CardTitle>
+      {/* Detailed Statistics - Mobile Optimized */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <Card className="border hover:shadow-lg transition-smooth border-primary/20">
+          <CardHeader className="pb-2 pt-4">
+            <CardDescription className="text-xs">Theory Classes</CardDescription>
+            <CardTitle className="text-2xl sm:text-3xl font-bold text-primary">{stats.totalTheory}</CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-xs text-muted-foreground">
+          <CardContent className="pb-4">
+            <p className="text-xs text-muted-foreground mb-2">
               Present: {stats.presentTheory} ({stats.totalTheory > 0 ? Math.round((stats.presentTheory / stats.totalTheory) * 100) : 0}%)
             </p>
-            <Progress value={stats.totalTheory > 0 ? (stats.presentTheory / stats.totalTheory) * 100 : 0} className="h-2 mt-2" />
+            <Progress value={stats.totalTheory > 0 ? (stats.presentTheory / stats.totalTheory) * 100 : 0} className="h-1.5" />
           </CardContent>
         </Card>
 
-        <Card className="border-2 hover:shadow-lg transition-smooth border-primary/20">
-          <CardHeader className="pb-3">
-            <CardDescription className="text-xs">Total Lab Classes</CardDescription>
-            <CardTitle className="text-3xl font-bold text-primary">{stats.totalLab}</CardTitle>
+        <Card className="border hover:shadow-lg transition-smooth border-primary/20">
+          <CardHeader className="pb-2 pt-4">
+            <CardDescription className="text-xs">Lab Classes</CardDescription>
+            <CardTitle className="text-2xl sm:text-3xl font-bold text-primary">{stats.totalLab}</CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-xs text-muted-foreground">
+          <CardContent className="pb-4">
+            <p className="text-xs text-muted-foreground mb-2">
               Present: {stats.presentLab} ({stats.totalLab > 0 ? Math.round((stats.presentLab / stats.totalLab) * 100) : 0}%)
             </p>
-            <Progress value={stats.totalLab > 0 ? (stats.presentLab / stats.totalLab) * 100 : 0} className="h-2 mt-2" />
+            <Progress value={stats.totalLab > 0 ? (stats.presentLab / stats.totalLab) * 100 : 0} className="h-1.5" />
           </CardContent>
         </Card>
 
-        <Card className="border-2 hover:shadow-lg transition-smooth border-primary/20">
-          <CardHeader className="pb-3">
+        <Card className="border hover:shadow-lg transition-smooth border-primary/20">
+          <CardHeader className="pb-2 pt-4">
             <CardDescription className="text-xs">Total Classes</CardDescription>
-            <CardTitle className="text-3xl font-bold text-primary">{stats.total}</CardTitle>
+            <CardTitle className="text-2xl sm:text-3xl font-bold text-primary">{stats.total}</CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-xs text-muted-foreground">Theory + Lab combined</p>
+          <CardContent className="pb-4">
+            <p className="text-xs text-muted-foreground">Combined total</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Overall Statistics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-2 hover:shadow-lg transition-smooth">
-          <CardHeader className="pb-3">
-            <CardDescription className="text-xs">Overall Attendance</CardDescription>
-            <CardTitle className={`text-3xl font-bold ${getPercentageColor(overallPercentage)}`}>
+      {/* Overall Statistics - Mobile Optimized */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
+        <Card className="border hover:shadow-lg transition-smooth col-span-2 lg:col-span-1">
+          <CardHeader className="pb-2 pt-4">
+            <CardDescription className="text-xs">Overall</CardDescription>
+            <CardTitle className={`text-2xl sm:text-3xl font-bold ${getPercentageColor(overallPercentage)}`}>
               {overallPercentage}%
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <Progress value={overallPercentage} className="h-2" />
-            <p className="text-xs text-muted-foreground mt-2">
-              {stats.present + stats.late} / {stats.expectedTotal} expected classes
-            </p>
+          <CardContent className="pb-4">
+            <Progress value={overallPercentage} className="h-1.5 mb-2" />
             <p className="text-xs text-muted-foreground">
-              Marked: {stats.total} classes
+              {stats.present + stats.late}/{stats.expectedTotal} expected
             </p>
           </CardContent>
         </Card>
 
         <Card className="hover:shadow-lg transition-smooth border-green-500/20">
-          <CardHeader className="pb-3">
-            <CardDescription className="text-xs">Total Present</CardDescription>
-            <CardTitle className="text-3xl font-bold text-green-600">{stats.present + stats.late}</CardTitle>
+          <CardHeader className="pb-2 pt-4">
+            <CardDescription className="text-xs">Present</CardDescription>
+            <CardTitle className="text-2xl sm:text-3xl font-bold text-green-600">{stats.present + stats.late}</CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-xs text-muted-foreground">Classes attended</p>
+          <CardContent className="pb-4">
+            <p className="text-xs text-muted-foreground">Attended</p>
           </CardContent>
         </Card>
 
         <Card className="hover:shadow-lg transition-smooth border-red-500/20">
-          <CardHeader className="pb-3">
+          <CardHeader className="pb-2 pt-4">
             <CardDescription className="text-xs">Absent</CardDescription>
-            <CardTitle className="text-3xl font-bold text-red-600">{stats.absent}</CardTitle>
+            <CardTitle className="text-2xl sm:text-3xl font-bold text-red-600">{stats.absent}</CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-xs text-muted-foreground">Classes missed</p>
+          <CardContent className="pb-4">
+            <p className="text-xs text-muted-foreground">Missed</p>
           </CardContent>
         </Card>
 
         <Card className="hover:shadow-lg transition-smooth border-yellow-500/20">
-          <CardHeader className="pb-3">
+          <CardHeader className="pb-2 pt-4">
             <CardDescription className="text-xs">Late</CardDescription>
-            <CardTitle className="text-3xl font-bold text-yellow-600">{stats.late}</CardTitle>
+            <CardTitle className="text-2xl sm:text-3xl font-bold text-yellow-600">{stats.late}</CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-xs text-muted-foreground">Arrived late</p>
+          <CardContent className="pb-4">
+            <p className="text-xs text-muted-foreground">Delayed</p>
           </CardContent>
         </Card>
       </div>
