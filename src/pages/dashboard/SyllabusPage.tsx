@@ -37,15 +37,42 @@ export const SyllabusPage = () => {
     enabled: !!profile?.semester,
   });
 
-  const handleDownload = (fileUrl: string, fileName: string) => {
-    // Check if it's a Supabase storage URL (recommended)
-    if (fileUrl.includes('supabase.co/storage')) {
-      window.open(fileUrl, '_blank');
-    } 
-    // For other URLs, try to open but warn about potential blocks
-    else {
-      window.open(fileUrl, '_blank');
-      toast.info('If the file doesn\'t open, please contact your admin to upload it directly to the system.');
+  const handleDownload = async (fileUrl: string, fileName: string) => {
+    try {
+      // For Supabase storage URLs, use the storage client to avoid Chrome blocking
+      if (fileUrl.includes('supabase.co/storage')) {
+        // Extract the path from the URL
+        const urlParts = fileUrl.split('/storage/v1/object/public/');
+        if (urlParts.length > 1) {
+          const [bucket, ...pathParts] = urlParts[1].split('/');
+          const filePath = pathParts.join('/');
+          
+          // Download using Supabase client
+          const { data, error } = await supabase.storage
+            .from(bucket)
+            .download(filePath);
+          
+          if (error) throw error;
+          
+          // Create blob URL and trigger download
+          const url = URL.createObjectURL(data);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = fileName;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          toast.success('File downloaded successfully!');
+        }
+      } else {
+        // For external URLs, try to open
+        window.open(fileUrl, '_blank');
+        toast.info('If the file doesn\'t open, please contact your admin to upload it directly to the system.');
+      }
+    } catch (error) {
+      console.error('Download error:', error);
+      toast.error('Failed to download file. Please try again.');
     }
   };
 
