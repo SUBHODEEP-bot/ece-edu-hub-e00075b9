@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, XCircle, Clock } from 'lucide-react';
+import { CheckCircle2, XCircle, Clock, Calendar } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { format } from 'date-fns';
 import { useState } from 'react';
@@ -101,10 +101,10 @@ export const TodayView = ({ semester }: TodayViewProps) => {
   };
 
   return (
-    <div className="space-y-4 pb-20">
-      <div className="text-center py-6">
-        <h3 className="text-xl font-bold text-foreground mb-1">
-          {format(new Date(), 'EEEE, MMMM d, yyyy')}
+    <div className="space-y-4">
+      <div className="text-center py-4">
+        <h3 className="text-2xl font-bold text-foreground mb-1">
+          {format(new Date(), 'EEEE, MMMM d')}
         </h3>
         <p className="text-sm text-muted-foreground">Mark your attendance for today</p>
       </div>
@@ -116,52 +116,64 @@ export const TodayView = ({ semester }: TodayViewProps) => {
             const isMarking = markingSubject === schedule.subject;
 
             return (
-              <Card key={schedule.id} className="p-4 bg-card border-border">
-                <div className="flex items-center justify-between mb-3">
+              <Card key={schedule.id} className="p-4 bg-card border-border shadow-sm">
+                <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h4 className="font-semibold text-foreground">{schedule.subject}</h4>
-                    <p className="text-xs text-muted-foreground capitalize">
-                      {schedule.class_type} Class
+                    <h4 className="text-lg font-bold text-foreground">{schedule.subject}</h4>
+                    <p className="text-xs text-muted-foreground capitalize mt-0.5">
+                      {schedule.class_type} Class {schedule.class_type === 'lab' && '(×2)'}
                     </p>
                   </div>
                   {status && (
-                    <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      status === 'present' ? 'bg-green-500/20 text-green-600' :
-                      status === 'late' ? 'bg-yellow-500/20 text-yellow-600' :
-                      'bg-red-500/20 text-red-600'
+                    <div className={`px-3 py-1.5 rounded-full text-xs font-bold uppercase ${
+                      status === 'present' ? 'bg-green-500/20 text-green-700' :
+                      status === 'late' ? 'bg-yellow-500/20 text-yellow-700' :
+                      'bg-red-500/20 text-red-700'
                     }`}>
-                      {status.toUpperCase()}
+                      {status}
                     </div>
                   )}
                 </div>
 
-                <div className="flex gap-2">
+                <div className="grid grid-cols-3 gap-2">
                   <Button
-                    size="sm"
+                    size="lg"
                     onClick={() => handleMarkAttendance(schedule.subject, 'present')}
                     disabled={isMarking}
-                    className={`flex-1 ${status === 'present' ? 'bg-green-600 hover:bg-green-700' : 'bg-green-600/80 hover:bg-green-600'}`}
+                    className={`flex flex-col items-center gap-1 h-auto py-3 ${
+                      status === 'present' 
+                        ? 'bg-green-600 hover:bg-green-700 text-white' 
+                        : 'bg-green-500/10 hover:bg-green-500/20 text-green-700 border border-green-500/20'
+                    }`}
                   >
-                    <CheckCircle2 className="w-4 h-4 mr-1" />
-                    Present
+                    <CheckCircle2 className="w-5 h-5" />
+                    <span className="text-xs font-semibold">Present</span>
                   </Button>
                   <Button
-                    size="sm"
+                    size="lg"
                     onClick={() => handleMarkAttendance(schedule.subject, 'late')}
                     disabled={isMarking}
-                    className={`flex-1 ${status === 'late' ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-yellow-600/80 hover:bg-yellow-600'}`}
+                    className={`flex flex-col items-center gap-1 h-auto py-3 ${
+                      status === 'late'
+                        ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
+                        : 'bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-700 border border-yellow-500/20'
+                    }`}
                   >
-                    <Clock className="w-4 h-4 mr-1" />
-                    Late
+                    <Clock className="w-5 h-5" />
+                    <span className="text-xs font-semibold">Late</span>
                   </Button>
                   <Button
-                    size="sm"
+                    size="lg"
                     onClick={() => handleMarkAttendance(schedule.subject, 'absent')}
                     disabled={isMarking}
-                    className={`flex-1 ${status === 'absent' ? 'bg-red-600 hover:bg-red-700' : 'bg-red-600/80 hover:bg-red-600'}`}
+                    className={`flex flex-col items-center gap-1 h-auto py-3 ${
+                      status === 'absent'
+                        ? 'bg-red-600 hover:bg-red-700 text-white'
+                        : 'bg-red-500/10 hover:bg-red-500/20 text-red-700 border border-red-500/20'
+                    }`}
                   >
-                    <XCircle className="w-4 h-4 mr-1" />
-                    Absent
+                    <XCircle className="w-5 h-5" />
+                    <span className="text-xs font-semibold">Absent</span>
                   </Button>
                 </div>
               </Card>
@@ -169,10 +181,13 @@ export const TodayView = ({ semester }: TodayViewProps) => {
           })}
         </div>
       ) : (
-        <div className="text-center py-12">
-          <p className="text-muted-foreground">No subjects configured for today</p>
-          <p className="text-sm text-muted-foreground mt-1">
-            Go to Timetable tab to add subjects for {format(new Date(), 'EEEE')}
+        <div className="text-center py-16">
+          <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
+            <Calendar className="w-10 h-10 text-muted-foreground" />
+          </div>
+          <p className="text-lg font-semibold text-foreground mb-1">No classes today</p>
+          <p className="text-sm text-muted-foreground">
+            Go to Timetable to add subjects for {format(new Date(), 'EEEE')}
           </p>
         </div>
       )}
