@@ -17,7 +17,7 @@ const StudentDashboard = () => {
   const { user, signOut } = useAuth();
 
   const { data: profile } = useQuery({
-    queryKey: ['profile', user?.id],
+    queryKey: ['profile'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('profiles')
