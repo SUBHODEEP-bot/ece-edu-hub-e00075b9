@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState } from 'react';
 import { format } from 'date-fns';
@@ -32,6 +32,7 @@ export const TimetableView = ({ semester }: TimetableViewProps) => {
   const [selectedDay, setSelectedDay] = useState<string>('');
   const [newSubject, setNewSubject] = useState('');
   const [classType, setClassType] = useState<'theory' | 'lab'>('theory');
+  const [collapsedDays, setCollapsedDays] = useState<Set<string>>(new Set());
 
   const { data: schedules, refetch } = useQuery({
     queryKey: ['subject-schedules-all', user?.id, semester],
@@ -100,6 +101,18 @@ export const TimetableView = ({ semester }: TimetableViewProps) => {
     return schedules?.filter(s => s.day_of_week === dayId) || [];
   };
 
+  const toggleDay = (dayId: string) => {
+    setCollapsedDays(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(dayId)) {
+        newSet.delete(dayId);
+      } else {
+        newSet.add(dayId);
+      }
+      return newSet;
+    });
+  };
+
   return (
     <div className="space-y-4">
       <div className="text-center py-4">
@@ -111,14 +124,25 @@ export const TimetableView = ({ semester }: TimetableViewProps) => {
         {WEEKDAYS.map((day) => {
           const daySubjects = getSubjectsForDay(day.id);
           const isToday = format(new Date(), 'EEEE').toLowerCase() === day.id;
+          const isCollapsed = collapsedDays.has(day.id);
 
           return (
             <Card key={day.id} className={`p-4 bg-card border-border shadow-sm ${isToday ? 'border-primary border-2' : ''}`}>
               <div className="flex items-center justify-between mb-3">
-                <div>
-                  <h4 className="text-lg font-bold text-foreground">{day.fullName}</h4>
-                  {isToday && <p className="text-xs text-primary font-medium">Today</p>}
-                </div>
+                <button
+                  onClick={() => toggleDay(day.id)}
+                  className="flex items-center gap-2 flex-1 text-left"
+                >
+                  <div className="flex-1">
+                    <h4 className="text-lg font-bold text-foreground">{day.fullName}</h4>
+                    {isToday && <p className="text-xs text-primary font-medium">Today</p>}
+                  </div>
+                  {isCollapsed ? (
+                    <ChevronDown className="w-5 h-5 text-muted-foreground" />
+                  ) : (
+                    <ChevronUp className="w-5 h-5 text-muted-foreground" />
+                  )}
+                </button>
                 <Button
                   size="sm"
                   variant="outline"
@@ -126,43 +150,45 @@ export const TimetableView = ({ semester }: TimetableViewProps) => {
                     setSelectedDay(day.id);
                     setShowAddDialog(true);
                   }}
-                  className="border-primary/20 hover:bg-primary/10"
+                  className="border-primary/20 hover:bg-primary/10 ml-2"
                 >
                   <Plus className="w-4 h-4 mr-1" />
                   Add
                 </Button>
               </div>
 
-              {daySubjects.length > 0 ? (
-                <div className="space-y-2">
-                  {daySubjects.map((schedule) => (
-                    <div
-                      key={schedule.id}
-                      className="flex items-center justify-between bg-muted/50 rounded-lg p-3"
-                    >
-                      <div className="flex-1">
-                        <p className="font-semibold text-foreground">
-                          {schedule.subject}
-                        </p>
-                        <p className="text-xs text-muted-foreground capitalize mt-0.5">
-                          {schedule.class_type} {schedule.class_type === 'lab' && '(×2)'}
-                        </p>
-                      </div>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleDeleteSubject(schedule.id)}
-                        className="h-9 w-9 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+              {!isCollapsed && (
+                daySubjects.length > 0 ? (
+                  <div className="space-y-2">
+                    {daySubjects.map((schedule) => (
+                      <div
+                        key={schedule.id}
+                        className="flex items-center justify-between bg-muted/50 rounded-lg p-3"
                       >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-xs text-muted-foreground text-center py-3 bg-muted/30 rounded-lg">
-                  No classes scheduled
-                </p>
+                        <div className="flex-1">
+                          <p className="font-semibold text-foreground">
+                            {schedule.subject}
+                          </p>
+                          <p className="text-xs text-muted-foreground capitalize mt-0.5">
+                            {schedule.class_type} {schedule.class_type === 'lab' && '(×2)'}
+                          </p>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleDeleteSubject(schedule.id)}
+                          className="h-9 w-9 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground text-center py-3 bg-muted/30 rounded-lg">
+                    No classes scheduled
+                  </p>
+                )
               )}
             </Card>
           );
