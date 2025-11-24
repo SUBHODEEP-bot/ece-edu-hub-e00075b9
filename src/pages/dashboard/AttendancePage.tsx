@@ -61,9 +61,13 @@ export const AttendancePage = () => {
     if (!schedules || !attendance) return { percentage: 0, present: 0, total: 0 };
 
     const todaySchedules = schedules.filter(s => s.day_of_week === currentDayOfWeek);
+    const todaySubjects = todaySchedules.map(s => s.subject);
     const total = todaySchedules.length;
+    
     const present = attendance.filter(
-      a => a.date === today && (a.status === 'present' || a.status === 'late')
+      a => a.date === today && 
+           todaySubjects.includes(a.subject) && 
+           (a.status === 'present' || a.status === 'late')
     ).length;
 
     const percentage = total > 0 ? Math.round((present / total) * 100) : 0;
