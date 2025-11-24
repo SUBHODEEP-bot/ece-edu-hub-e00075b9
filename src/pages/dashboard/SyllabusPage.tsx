@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Download } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
 export const SyllabusPage = () => {
   const { user } = useAuth();
@@ -37,7 +38,15 @@ export const SyllabusPage = () => {
   });
 
   const handleDownload = (fileUrl: string, fileName: string) => {
-    window.open(fileUrl, '_blank');
+    // Check if it's a Supabase storage URL (recommended)
+    if (fileUrl.includes('supabase.co/storage')) {
+      window.open(fileUrl, '_blank');
+    } 
+    // For other URLs, try to open but warn about potential blocks
+    else {
+      window.open(fileUrl, '_blank');
+      toast.info('If the file doesn\'t open, please contact your admin to upload it directly to the system.');
+    }
   };
 
   return (
