@@ -47,12 +47,18 @@ const Login = () => {
         return;
       }
       if (data.user) {
-        const {
-          data: roleData
-        } = await supabase.from('user_roles').select('role').eq('user_id', data.user.id).single();
-        const role = roleData?.role;
+        // Fetch all roles and prioritize admin role
+        const { data: rolesData } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', data.user.id);
+        
+        // Check if user has admin role, otherwise default to student
+        const hasAdminRole = rolesData?.some(r => r.role === 'admin');
+        
         toast.success('Login successful! Welcome back.');
-        if (role === 'admin') {
+        
+        if (hasAdminRole) {
           navigate('/admin');
         } else {
           navigate('/dashboard');
