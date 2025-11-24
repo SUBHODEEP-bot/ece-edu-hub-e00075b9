@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState } from 'react';
-import { format, addDays, startOfWeek } from 'date-fns';
+import { format } from 'date-fns';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -16,16 +16,24 @@ interface TimetableViewProps {
   semester: string;
 }
 
+const WEEKDAYS = [
+  { id: 'monday', label: 'Mon', fullName: 'Monday' },
+  { id: 'tuesday', label: 'Tue', fullName: 'Tuesday' },
+  { id: 'wednesday', label: 'Wed', fullName: 'Wednesday' },
+  { id: 'thursday', label: 'Thu', fullName: 'Thursday' },
+  { id: 'friday', label: 'Fri', fullName: 'Friday' },
+  { id: 'saturday', label: 'Sat', fullName: 'Saturday' },
+  { id: 'sunday', label: 'Sun', fullName: 'Sunday' },
+];
+
 export const TimetableView = ({ semester }: TimetableViewProps) => {
   const { user } = useAuth();
-  const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const currentDayOfWeek = format(new Date(), 'EEEE').toLowerCase();
+  const [selectedDay, setSelectedDay] = useState<string>(currentDayOfWeek);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [newSubject, setNewSubject] = useState('');
   const [classType, setClassType] = useState<'theory' | 'lab'>('theory');
   const [weeklyClasses, setWeeklyClasses] = useState('1');
-
-  const weekStart = startOfWeek(new Date(), { weekStartsOn: 1 });
-  const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
   const { data: schedules, refetch } = useQuery({
     queryKey: ['subject-schedules', user?.id, semester],
@@ -72,76 +80,66 @@ export const TimetableView = ({ semester }: TimetableViewProps) => {
     }
   };
 
+  const selectedDayInfo = WEEKDAYS.find(d => d.id === selectedDay);
+
   return (
     <div className="space-y-4 pb-20">
       <div className="flex gap-2 overflow-x-auto pb-2">
-        {weekDays.map((day) => {
-          const dayName = format(day, 'EEE');
-          const isToday = format(day, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
-          const isSelected = selectedDay === format(day, 'yyyy-MM-dd');
+        {WEEKDAYS.map((day) => {
+          const isToday = currentDayOfWeek === day.id;
+          const isSelected = selectedDay === day.id;
 
           return (
             <Button
-              key={day.toString()}
+              key={day.id}
               variant={isSelected ? 'default' : 'outline'}
-              onClick={() => setSelectedDay(format(day, 'yyyy-MM-dd'))}
-              className={`flex-shrink-0 min-w-[80px] ${isToday ? 'border-primary' : ''}`}
+              onClick={() => setSelectedDay(day.id)}
+              className={`flex-shrink-0 min-w-[70px] ${isToday ? 'border-primary border-2' : ''}`}
             >
               <div className="text-center">
-                <div className="text-xs">{dayName}</div>
-                <div className="text-lg font-bold">{format(day, 'd')}</div>
+                <div className="text-xs">{day.label}</div>
+                {isToday && <div className="text-xs font-normal mt-0.5">{format(new Date(), 'd')}</div>}
               </div>
             </Button>
           );
         })}
       </div>
 
-      {selectedDay && (
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-foreground">
-              {format(new Date(selectedDay), 'EEEE, MMMM d')}
-            </h3>
-            <Button size="sm" onClick={() => setShowAddDialog(true)}>
-              <Plus className="w-4 h-4 mr-1" />
-              Add Subject
-            </Button>
-          </div>
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="font-semibold text-foreground">
+            {selectedDayInfo?.fullName}
+          </h3>
+          <Button size="sm" onClick={() => setShowAddDialog(true)}>
+            <Plus className="w-4 h-4 mr-1" />
+            Add Subject
+          </Button>
+        </div>
 
-          {schedules && schedules.length > 0 ? (
-            <div className="space-y-2">
-              {schedules.map((schedule) => (
-                <Card key={schedule.id} className="p-3 bg-card border-border">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="font-semibold text-foreground">{schedule.subject}</h4>
-                      <p className="text-xs text-muted-foreground capitalize">
-                        {schedule.class_type} • {schedule.weekly_classes}x per week
-                      </p>
-                    </div>
+        {schedules && schedules.length > 0 ? (
+          <div className="space-y-2">
+            {schedules.map((schedule) => (
+              <Card key={schedule.id} className="p-3 bg-card border-border">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-semibold text-foreground">{schedule.subject}</h4>
+                    <p className="text-xs text-muted-foreground capitalize">
+                      {schedule.class_type} • {schedule.weekly_classes}x per week
+                    </p>
                   </div>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground text-sm">No subjects for this day</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Tap "Add Subject" to add a class
-              </p>
-            </div>
-          )}
-        </div>
-      )}
-
-      {!selectedDay && (
-        <div className="text-center py-12">
-          <p className="text-muted-foreground">Select a day to view schedule</p>
-          <p className="text-sm text-muted-foreground mt-1">
-            Tap on any day above to see classes
-          </p>
-        </div>
-      )}
+                </div>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <p className="text-muted-foreground text-sm">No subjects for this day</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Tap "Add Subject" to add a class
+            </p>
+          </div>
+        )}
+      </div>
 
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent>
