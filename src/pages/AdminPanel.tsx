@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { FileText, BookOpen, GraduationCap, Calendar, Users, LogOut, BarChart3, Filter, ClipboardCheck } from 'lucide-react';
+import { FileText, BookOpen, GraduationCap, Calendar, Users, LogOut, BarChart3, Filter } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import QuestionPapersManager from '@/components/admin/QuestionPapersManager';
@@ -12,7 +12,6 @@ import NotesManager from '@/components/admin/NotesManager';
 import SyllabusManager from '@/components/admin/SyllabusManager';
 import EventsManager from '@/components/admin/EventsManager';
 import UsersManager from '@/components/admin/UsersManager';
-import AttendanceManager from '@/components/admin/AttendanceManager';
 
 const AdminPanel = () => {
   const { signOut } = useAuth();
@@ -104,7 +103,7 @@ const AdminPanel = () => {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7 h-auto gap-2 bg-muted/50 p-2 rounded-xl">
+          <TabsList className="grid w-full grid-cols-6 h-auto gap-2 bg-muted/50 p-2 rounded-xl">
             <TabsTrigger value="dashboard" className="gap-2 data-[state=active]:gradient-primary data-[state=active]:text-white">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline">Dashboard</span>
@@ -124,10 +123,6 @@ const AdminPanel = () => {
             <TabsTrigger value="events" className="gap-2 data-[state=active]:gradient-primary data-[state=active]:text-white">
               <Calendar className="w-4 h-4" />
               <span className="hidden sm:inline">Events</span>
-            </TabsTrigger>
-            <TabsTrigger value="attendance" className="gap-2 data-[state=active]:gradient-primary data-[state=active]:text-white">
-              <ClipboardCheck className="w-4 h-4" />
-              <span className="hidden sm:inline">Attendance</span>
             </TabsTrigger>
             <TabsTrigger value="users" className="gap-2 data-[state=active]:gradient-primary data-[state=active]:text-white">
               <Users className="w-4 h-4" />
@@ -239,11 +234,6 @@ const AdminPanel = () => {
           {/* Events Tab */}
           <TabsContent value="events" className="animate-fade-in">
             <EventsManager selectedSemester={selectedSemester} />
-          </TabsContent>
-
-          {/* Attendance Tab */}
-          <TabsContent value="attendance" className="animate-fade-in">
-            <AttendanceManager selectedSemester={selectedSemester} />
           </TabsContent>
 
           {/* Users Tab */}
