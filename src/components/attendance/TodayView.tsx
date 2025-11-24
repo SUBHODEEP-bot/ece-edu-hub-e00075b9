@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,7 @@ interface TodayViewProps {
 
 export const TodayView = ({ semester }: TodayViewProps) => {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const today = format(new Date(), 'yyyy-MM-dd');
   const currentDayOfWeek = format(new Date(), 'EEEE').toLowerCase();
   const [markingSubject, setMarkingSubject] = useState<string | null>(null);
@@ -86,6 +87,7 @@ export const TodayView = ({ semester }: TodayViewProps) => {
       }
 
       refetch();
+      queryClient.invalidateQueries({ queryKey: ['all-attendance', user.id] });
     } catch (error) {
       console.error('Error marking attendance:', error);
       toast.error('Failed to mark attendance');

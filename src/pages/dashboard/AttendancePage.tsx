@@ -6,11 +6,13 @@ import { Home, Grid3x3, Settings } from 'lucide-react';
 import { TodayView } from '@/components/attendance/TodayView';
 import { TimetableView } from '@/components/attendance/TimetableView';
 import { Button } from '@/components/ui/button';
-import { differenceInWeeks, startOfMonth } from 'date-fns';
+import { format } from 'date-fns';
 
 export const AttendancePage = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<'today' | 'timetable'>('today');
+  const today = format(new Date(), 'yyyy-MM-dd');
+  const currentDayOfWeek = format(new Date(), 'EEEE').toLowerCase();
 
   const { data: profile } = useQuery({
     queryKey: ['profile', user?.id],
@@ -55,16 +57,31 @@ export const AttendancePage = () => {
     enabled: !!user,
   });
 
-  const calculateOverallStats = () => {
-    if (!attendance || attendance.length === 0) return { percentage: 0, present: 0, total: 0 };
-    
-    const present = attendance.filter(a => a.status === 'present' || a.status === 'late').length;
-    const total = attendance.length;
+  const calculateTodayStats = () => {
+    if (!schedules || !attendance) return { percentage: 0, present: 0, total: 0 };
+
+    const todaySchedules = schedules.filter(s => s.day_of_week === currentDayOfWeek);
+    const total = todaySchedules.length;
+    const present = attendance.filter(
+      a => a.date === today && (a.status === 'present' || a.status === 'late')
+    ).length;
+
     const percentage = total > 0 ? Math.round((present / total) * 100) : 0;
-    
+
     return { percentage, present, total };
   };
 
+  const calculateOverallStats = () => {
+    if (!attendance || attendance.length === 0) return { percentage: 0, present: 0, total: 0 };
+
+    const present = attendance.filter(a => a.status === 'present' || a.status === 'late').length;
+    const total = attendance.length;
+    const percentage = total > 0 ? Math.round((present / total) * 100) : 0;
+
+    return { percentage, present, total };
+  };
+
+  const todayStats = calculateTodayStats();
   const stats = calculateOverallStats();
 
   const tabs = [
@@ -80,11 +97,14 @@ export const AttendancePage = () => {
           <h1 className="text-lg font-bold text-foreground">{profile?.name || 'Student'}</h1>
           <div className="flex items-center gap-2">
             <div className={`border rounded px-3 py-1.5 text-sm font-medium ${
-              stats.percentage >= 75 ? 'bg-green-500/10 border-green-500/20 text-green-700' :
-              stats.percentage >= 50 ? 'bg-yellow-500/10 border-yellow-500/20 text-yellow-700' :
+              todayStats.percentage >= 75 ? 'bg-green-500/10 border-green-500/20 text-green-700' :
+              todayStats.percentage >= 50 ? 'bg-yellow-500/10 border-yellow-500/20 text-yellow-700' :
               'bg-red-500/10 border-red-500/20 text-red-700'
             }`}>
-              {stats.percentage}% ({stats.present}/{stats.total})
+              Today: {todayStats.percentage}% ({todayStats.present}/{todayStats.total})
+            </div>
+            <div className="bg-card border border-border rounded px-3 py-1.5 text-xs text-muted-foreground font-medium">
+              Overall: {stats.percentage}% ({stats.present}/{stats.total})
             </div>
           </div>
         </div>
