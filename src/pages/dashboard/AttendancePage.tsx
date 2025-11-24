@@ -9,13 +9,46 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
-import { format } from 'date-fns';
+import { format, startOfWeek, endOfWeek, differenceInWeeks } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { SubjectScheduleManager } from '@/components/attendance/SubjectScheduleManager';
+import { DailyAttendanceMarker } from '@/components/attendance/DailyAttendanceMarker';
 
 export const AttendancePage = () => {
   const { user } = useAuth();
   const [fromDate, setFromDate] = useState<Date>();
   const [toDate, setToDate] = useState<Date>();
+
+  // Fetch user's semester from profile
+  const { data: profile } = useQuery({
+    queryKey: ['profile', user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('semester')
+        .eq('id', user?.id)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  // Fetch subject schedules
+  const { data: schedules } = useQuery({
+    queryKey: ['subject-schedules', user?.id, profile?.semester],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('subject_schedules')
+        .select('*')
+        .eq('student_id', user?.id)
+        .eq('semester', profile?.semester)
+        .eq('is_active', true);
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user && !!profile?.semester,
+  });
 
   const { data: attendance, isLoading } = useQuery({
     queryKey: ['attendance', user?.id, fromDate, toDate],
@@ -39,56 +72,82 @@ export const AttendancePage = () => {
     enabled: !!user,
   });
 
-  // Calculate attendance statistics
-  const stats = attendance?.reduce((acc, record) => {
-    acc.total++;
-    
-    // Count by class type
-    if (record.class_type === 'theory') {
-      acc.totalTheory++;
-      if (record.status === 'present' || record.status === 'late') acc.presentTheory++;
-    } else if (record.class_type === 'lab') {
-      acc.totalLab++;
-      if (record.status === 'present' || record.status === 'late') acc.presentLab++;
+  // Calculate expected vs actual attendance based on schedules
+  const calculateAttendanceStats = () => {
+    if (!schedules || !attendance) {
+      return {
+        total: 0,
+        present: 0,
+        absent: 0,
+        late: 0,
+        totalTheory: 0,
+        presentTheory: 0,
+        totalLab: 0,
+        presentLab: 0,
+        expectedTotal: 0,
+        bySubject: {} as Record<string, { present: number; total: number; expected: number }>,
+      };
     }
-    
-    if (record.status === 'present') acc.present++;
-    if (record.status === 'absent') acc.absent++;
-    if (record.status === 'late') acc.late++;
-    
-    // Group by subject
-    if (!acc.bySubject[record.subject]) {
-      acc.bySubject[record.subject] = { present: 0, total: 0 };
-    }
-    acc.bySubject[record.subject].total++;
-    if (record.status === 'present' || record.status === 'late') {
-      acc.bySubject[record.subject].present++;
-    }
-    
-    return acc;
-  }, { 
-    total: 0, 
-    present: 0, 
-    absent: 0, 
-    late: 0, 
-    totalTheory: 0,
-    presentTheory: 0,
-    totalLab: 0,
-    presentLab: 0,
-    bySubject: {} as Record<string, { present: number; total: number }> 
-  }) || { 
-    total: 0, 
-    present: 0, 
-    absent: 0, 
-    late: 0, 
-    totalTheory: 0,
-    presentTheory: 0,
-    totalLab: 0,
-    presentLab: 0,
-    bySubject: {} 
+
+    // Calculate weeks in date range
+    const startDate = fromDate || (attendance.length > 0 ? new Date(attendance[attendance.length - 1].date) : new Date());
+    const endDate = toDate || new Date();
+    const weeks = Math.max(1, differenceInWeeks(endDate, startDate) + 1);
+
+    // Calculate expected classes based on schedules
+    const expectedTotal = schedules.reduce((sum, schedule) => sum + (schedule.weekly_classes * weeks), 0);
+
+    const stats = attendance.reduce((acc, record) => {
+      acc.total++;
+      
+      // Count by class type
+      if (record.class_type === 'theory') {
+        acc.totalTheory++;
+        if (record.status === 'present' || record.status === 'late') acc.presentTheory++;
+      } else if (record.class_type === 'lab') {
+        acc.totalLab++;
+        if (record.status === 'present' || record.status === 'late') acc.presentLab++;
+      }
+      
+      if (record.status === 'present') acc.present++;
+      if (record.status === 'absent') acc.absent++;
+      if (record.status === 'late') acc.late++;
+      
+      // Group by subject
+      if (!acc.bySubject[record.subject]) {
+        const schedule = schedules.find(s => s.subject === record.subject);
+        acc.bySubject[record.subject] = { 
+          present: 0, 
+          total: 0,
+          expected: schedule ? schedule.weekly_classes * weeks : 0
+        };
+      }
+      acc.bySubject[record.subject].total++;
+      if (record.status === 'present' || record.status === 'late') {
+        acc.bySubject[record.subject].present++;
+      }
+      
+      return acc;
+    }, { 
+      total: 0, 
+      present: 0, 
+      absent: 0, 
+      late: 0, 
+      totalTheory: 0,
+      presentTheory: 0,
+      totalLab: 0,
+      presentLab: 0,
+      expectedTotal,
+      bySubject: {} as Record<string, { present: number; total: number; expected: number }> 
+    });
+
+    return stats;
   };
 
-  const overallPercentage = stats.total > 0 ? Math.round(((stats.present + stats.late) / stats.total) * 100) : 0;
+  const stats = calculateAttendanceStats();
+  const overallPercentage = stats.expectedTotal > 0 
+    ? Math.round(((stats.present + stats.late) / stats.expectedTotal) * 100) 
+    : 0;
   const isEligibleForExam = overallPercentage >= 75;
 
   const getStatusColor = (status: string) => {
@@ -121,7 +180,7 @@ export const AttendancePage = () => {
   return (
     <div className="space-y-4 sm:space-y-6 animate-fade-in">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <h2 className="text-xl sm:text-2xl font-bold text-foreground">My Attendance</h2>
+        <h2 className="text-xl sm:text-2xl font-bold text-foreground">My Attendance Tracking</h2>
         
         {/* Date Range Filter */}
         <div className="flex flex-wrap items-center gap-2">
@@ -156,6 +215,12 @@ export const AttendancePage = () => {
           )}
         </div>
       </div>
+
+      {/* Subject Schedule Manager */}
+      {profile?.semester && <SubjectScheduleManager semester={profile.semester} />}
+
+      {/* Daily Attendance Marker */}
+      {profile?.semester && <DailyAttendanceMarker semester={profile.semester} />}
 
       {/* Exam Eligibility Banner */}
       <Card className={`border-2 ${isEligibleForExam ? 'border-green-500/50 bg-green-500/5' : 'border-red-500/50 bg-red-500/5'}`}>
@@ -237,7 +302,10 @@ export const AttendancePage = () => {
           <CardContent>
             <Progress value={overallPercentage} className="h-2" />
             <p className="text-xs text-muted-foreground mt-2">
-              {stats.present + stats.late} / {stats.total} classes
+              {stats.present + stats.late} / {stats.expectedTotal} expected classes
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Marked: {stats.total} classes
             </p>
           </CardContent>
         </Card>
@@ -286,7 +354,7 @@ export const AttendancePage = () => {
           <CardContent>
             <div className="space-y-4">
               {Object.entries(stats.bySubject).map(([subject, data]) => {
-                const percentage = Math.round((data.present / data.total) * 100);
+                const percentage = data.expected > 0 ? Math.round((data.present / data.expected) * 100) : 0;
                 return (
                   <div key={subject} className="space-y-2">
                     <div className="flex items-center justify-between">
@@ -297,7 +365,7 @@ export const AttendancePage = () => {
                     </div>
                     <Progress value={percentage} className="h-2" />
                     <p className="text-xs text-muted-foreground">
-                      {data.present} / {data.total} classes
+                      Present: {data.present} / Expected: {data.expected} / Marked: {data.total}
                     </p>
                   </div>
                 );
