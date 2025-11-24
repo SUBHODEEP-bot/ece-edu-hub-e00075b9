@@ -37,14 +37,29 @@ export const SyllabusPage = () => {
   });
 
   const handleDownload = (fileUrl: string, fileName: string) => {
-    // Create a temporary anchor element to handle the download properly
-    const link = document.createElement('a');
-    link.href = fileUrl;
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    // Handle Google Drive links
+    let finalUrl = fileUrl;
+    
+    if (fileUrl.includes('drive.google.com')) {
+      // If it's a folder link, just open it as-is
+      if (fileUrl.includes('/folders/')) {
+        finalUrl = fileUrl;
+      }
+      // If it's a file link, ensure it opens in view mode
+      else if (fileUrl.includes('/file/d/')) {
+        const fileId = fileUrl.match(/\/file\/d\/([^/]+)/)?.[1];
+        if (fileId) {
+          finalUrl = `https://drive.google.com/file/d/${fileId}/view`;
+        }
+      }
+      // If it's already a direct link, use as-is
+      else if (fileUrl.includes('drive.google.com/uc')) {
+        finalUrl = fileUrl;
+      }
+    }
+    
+    // Open the URL in a new tab
+    window.open(finalUrl, '_blank', 'noopener,noreferrer');
   };
 
   return (
