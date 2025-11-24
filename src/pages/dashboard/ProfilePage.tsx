@@ -8,7 +8,7 @@ export const ProfilePage = () => {
   const { user } = useAuth();
 
   const { data: profile, isLoading } = useQuery({
-    queryKey: ['profile', user?.id],
+    queryKey: ['profile'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('profiles')
