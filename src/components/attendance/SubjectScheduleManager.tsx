@@ -19,6 +19,7 @@ const scheduleSchema = z.object({
   subject: z.string().trim().min(1, 'Subject is required').max(100, 'Subject name too long'),
   weekly_classes: z.coerce.number().min(1, 'At least 1 class per week').max(20, 'Maximum 20 classes per week'),
   class_type: z.enum(['theory', 'lab']),
+  day_of_week: z.enum(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']),
 });
 
 type ScheduleFormValues = z.infer<typeof scheduleSchema>;
@@ -38,6 +39,7 @@ export const SubjectScheduleManager = ({ semester }: SubjectScheduleManagerProps
       subject: '',
       weekly_classes: 4,
       class_type: 'theory',
+      day_of_week: 'monday',
     },
   });
 
@@ -65,6 +67,7 @@ export const SubjectScheduleManager = ({ semester }: SubjectScheduleManagerProps
         weekly_classes: values.weekly_classes,
         class_type: values.class_type,
         semester: semester,
+        day_of_week: values.day_of_week,
       });
       if (error) throw error;
     },
@@ -154,6 +157,32 @@ export const SubjectScheduleManager = ({ semester }: SubjectScheduleManagerProps
                   />
                   <FormField
                     control={form.control}
+                    name="day_of_week"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Day of Week</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select day" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="monday">Monday</SelectItem>
+                            <SelectItem value="tuesday">Tuesday</SelectItem>
+                            <SelectItem value="wednesday">Wednesday</SelectItem>
+                            <SelectItem value="thursday">Thursday</SelectItem>
+                            <SelectItem value="friday">Friday</SelectItem>
+                            <SelectItem value="saturday">Saturday</SelectItem>
+                            <SelectItem value="sunday">Sunday</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
                     name="weekly_classes"
                     render={({ field }) => (
                       <FormItem>
@@ -215,8 +244,8 @@ export const SubjectScheduleManager = ({ semester }: SubjectScheduleManagerProps
                       {schedule.class_type === 'theory' ? 'Theory' : 'Lab'}
                     </Badge>
                   </div>
-                  <p className="text-xs sm:text-sm text-muted-foreground">
-                    {schedule.weekly_classes} classes/week
+                  <p className="text-xs sm:text-sm text-muted-foreground capitalize">
+                    {schedule.weekly_classes} classes/week • {schedule.day_of_week || 'Not scheduled'}
                   </p>
                 </div>
                 <Button

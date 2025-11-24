@@ -36,22 +36,23 @@ export const TimetableView = ({ semester }: TimetableViewProps) => {
   const [weeklyClasses, setWeeklyClasses] = useState('1');
 
   const { data: schedules, refetch } = useQuery({
-    queryKey: ['subject-schedules', user?.id, semester],
+    queryKey: ['subject-schedules', user?.id, semester, selectedDay],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('subject_schedules')
         .select('*')
         .eq('student_id', user?.id)
         .eq('semester', semester)
-        .eq('is_active', true);
+        .eq('is_active', true)
+        .eq('day_of_week', selectedDay);
       if (error) throw error;
       return data;
     },
-    enabled: !!user && !!semester,
+    enabled: !!user && !!semester && !!selectedDay,
   });
 
   const handleAddSubject = async () => {
-    if (!user || !newSubject.trim()) {
+    if (!user || !newSubject.trim() || !selectedDay) {
       toast.error('Please enter a subject name');
       return;
     }
@@ -65,14 +66,14 @@ export const TimetableView = ({ semester }: TimetableViewProps) => {
           semester,
           class_type: classType,
           weekly_classes: parseInt(weeklyClasses),
+          day_of_week: selectedDay,
         });
 
       if (error) throw error;
 
-      toast.success('Subject added to timetable');
+      toast.success(`Subject added to ${selectedDayInfo?.fullName}`);
       setNewSubject('');
       setShowAddDialog(false);
-      setSelectedDay(null);
       refetch();
     } catch (error) {
       console.error('Error adding subject:', error);
@@ -144,7 +145,7 @@ export const TimetableView = ({ semester }: TimetableViewProps) => {
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add Subject to Timetable</DialogTitle>
+            <DialogTitle>Add Subject to {selectedDayInfo?.fullName}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
@@ -169,17 +170,19 @@ export const TimetableView = ({ semester }: TimetableViewProps) => {
               </Select>
             </div>
             <div>
-              <Label htmlFor="weekly">Classes per Week</Label>
+              <Label htmlFor="weekly">Classes This Day</Label>
               <Input
                 id="weekly"
                 type="number"
                 min="1"
+                max="10"
                 value={weeklyClasses}
                 onChange={(e) => setWeeklyClasses(e.target.value)}
+                placeholder="How many classes on this day?"
               />
             </div>
             <Button onClick={handleAddSubject} className="w-full">
-              Add Subject
+              Add to {selectedDayInfo?.label}
             </Button>
           </div>
         </DialogContent>

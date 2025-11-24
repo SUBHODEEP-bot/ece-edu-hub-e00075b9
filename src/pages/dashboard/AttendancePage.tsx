@@ -28,7 +28,7 @@ export const AttendancePage = () => {
   });
 
   const { data: schedules } = useQuery({
-    queryKey: ['subject-schedules', user?.id, profile?.semester],
+    queryKey: ['subject-schedules-all', user?.id, profile?.semester],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('subject_schedules')
