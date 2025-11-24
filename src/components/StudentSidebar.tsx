@@ -1,4 +1,4 @@
-import { FileText, BookOpen, GraduationCap, Calendar, User, ClipboardCheck } from 'lucide-react';
+import { FileText, BookOpen, GraduationCap, Calendar, User, ClipboardCheck, LifeBuoy } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useLocation } from 'react-router-dom';
 import {
@@ -18,6 +18,7 @@ const menuItems = [
   { title: 'Notes', url: '/dashboard/notes', icon: BookOpen },
   { title: 'Syllabus', url: '/dashboard/syllabus', icon: GraduationCap },
   { title: 'Events', url: '/dashboard/events', icon: Calendar },
+  { title: 'Mar Support', url: '/dashboard/mar-support', icon: LifeBuoy },
   { title: 'Attendance', url: '/dashboard/attendance', icon: ClipboardCheck },
 ];
 

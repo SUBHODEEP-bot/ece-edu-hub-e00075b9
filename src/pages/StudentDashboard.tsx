@@ -13,6 +13,7 @@ import { NotesPage } from './dashboard/NotesPage';
 import { SyllabusPage } from './dashboard/SyllabusPage';
 import { EventsPage } from './dashboard/EventsPage';
 import { AttendancePage } from './dashboard/AttendancePage';
+import { MarSupportPage } from './dashboard/MarSupportPage';
 
 const StudentDashboard = () => {
   const { user, signOut } = useAuth();
@@ -77,6 +78,7 @@ const StudentDashboard = () => {
               <Route path="notes" element={<NotesPage />} />
               <Route path="syllabus" element={<SyllabusPage />} />
               <Route path="events" element={<EventsPage />} />
+              <Route path="mar-support" element={<MarSupportPage />} />
               <Route path="attendance" element={<AttendancePage />} />
             </Routes>
           </div>
