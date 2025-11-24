@@ -3,7 +3,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, BookOpen, GraduationCap, Calendar, Users, LogOut, BarChart3 } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { FileText, BookOpen, GraduationCap, Calendar, Users, LogOut, BarChart3, Filter } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import QuestionPapersManager from '@/components/admin/QuestionPapersManager';
@@ -15,6 +16,7 @@ import UsersManager from '@/components/admin/UsersManager';
 const AdminPanel = () => {
   const { signOut } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [selectedSemester, setSelectedSemester] = useState<string>('1st');
 
   // Fetch statistics
   const { data: stats } = useQuery({
@@ -67,13 +69,35 @@ const AdminPanel = () => {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
-        {/* Welcome Section */}
+        {/* Welcome Section with Semester Filter */}
         <Card className="mb-8 border-2 border-primary/20 shadow-lg animate-slide-up">
           <CardHeader className="gradient-primary text-white rounded-t-lg">
-            <CardTitle className="text-2xl">Admin Dashboard</CardTitle>
-            <CardDescription className="text-blue-50">
-              Manage all educational resources and user accounts
-            </CardDescription>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <CardTitle className="text-2xl">Admin Dashboard</CardTitle>
+                <CardDescription className="text-blue-50">
+                  Manage all educational resources and user accounts
+                </CardDescription>
+              </div>
+              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg p-3">
+                <Filter className="w-4 h-4" />
+                <Select value={selectedSemester} onValueChange={setSelectedSemester}>
+                  <SelectTrigger className="w-[150px] bg-white text-foreground border-0">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1st">1st Semester</SelectItem>
+                    <SelectItem value="2nd">2nd Semester</SelectItem>
+                    <SelectItem value="3rd">3rd Semester</SelectItem>
+                    <SelectItem value="4th">4th Semester</SelectItem>
+                    <SelectItem value="5th">5th Semester</SelectItem>
+                    <SelectItem value="6th">6th Semester</SelectItem>
+                    <SelectItem value="7th">7th Semester</SelectItem>
+                    <SelectItem value="8th">8th Semester</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </CardHeader>
         </Card>
 
@@ -194,22 +218,22 @@ const AdminPanel = () => {
 
           {/* Question Papers Tab */}
           <TabsContent value="papers" className="animate-fade-in">
-            <QuestionPapersManager />
+            <QuestionPapersManager selectedSemester={selectedSemester} />
           </TabsContent>
 
           {/* Notes Tab */}
           <TabsContent value="notes" className="animate-fade-in">
-            <NotesManager />
+            <NotesManager selectedSemester={selectedSemester} />
           </TabsContent>
 
           {/* Syllabus Tab */}
           <TabsContent value="syllabus" className="animate-fade-in">
-            <SyllabusManager />
+            <SyllabusManager selectedSemester={selectedSemester} />
           </TabsContent>
 
           {/* Events Tab */}
           <TabsContent value="events" className="animate-fade-in">
-            <EventsManager />
+            <EventsManager selectedSemester={selectedSemester} />
           </TabsContent>
 
           {/* Users Tab */}

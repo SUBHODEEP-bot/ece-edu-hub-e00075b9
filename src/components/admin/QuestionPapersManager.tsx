@@ -6,12 +6,17 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { toast } from 'sonner';
 import { Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+
+interface QuestionPapersManagerProps {
+  selectedSemester: string;
+}
 
 const paperSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -24,7 +29,7 @@ const paperSchema = z.object({
 
 type PaperFormValues = z.infer<typeof paperSchema>;
 
-const QuestionPapersManager = () => {
+const QuestionPapersManager = ({ selectedSemester }: QuestionPapersManagerProps) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -37,18 +42,19 @@ const QuestionPapersManager = () => {
       title: '',
       subject: '',
       year: '',
-      semester: '',
+      semester: selectedSemester,
       file_url: '',
       file_name: '',
     },
   });
 
   const { data: papers } = useQuery({
-    queryKey: ['question_papers'],
+    queryKey: ['question_papers', selectedSemester],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('question_papers')
         .select('*')
+        .eq('semester', selectedSemester)
         .order('created_at', { ascending: false });
       if (error) throw error;
       return data;
@@ -81,6 +87,7 @@ const QuestionPapersManager = () => {
         toast.success('Question paper added successfully');
       }
       
+      queryClient.invalidateQueries({ queryKey: ['question_papers', selectedSemester] });
       queryClient.invalidateQueries({ queryKey: ['question_papers'] });
       setIsDialogOpen(false);
       form.reset();
@@ -115,6 +122,7 @@ const QuestionPapersManager = () => {
         .eq('id', id);
       if (error) throw error;
       toast.success('Question paper deleted successfully');
+      queryClient.invalidateQueries({ queryKey: ['question_papers', selectedSemester] });
       queryClient.invalidateQueries({ queryKey: ['question_papers'] });
     } catch (error: any) {
       toast.error(error.message || 'Delete failed');
@@ -124,10 +132,13 @@ const QuestionPapersManager = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Manage Question Papers</h2>
+        <div>
+          <h2 className="text-2xl font-bold">Manage Question Papers</h2>
+          <p className="text-sm text-muted-foreground mt-1">Viewing: {selectedSemester} Semester</p>
+        </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="gradient-primary text-white gap-2" onClick={() => { setEditingId(null); form.reset(); }}>
+            <Button className="gradient-primary text-white gap-2" onClick={() => { setEditingId(null); form.reset({ semester: selectedSemester }); }}>
               <Plus className="w-4 h-4" />
               Add Question Paper
             </Button>
@@ -184,9 +195,23 @@ const QuestionPapersManager = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Semester</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g., Semester 5" {...field} />
-                      </FormControl>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select semester" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="1st">1st Semester</SelectItem>
+                          <SelectItem value="2nd">2nd Semester</SelectItem>
+                          <SelectItem value="3rd">3rd Semester</SelectItem>
+                          <SelectItem value="4th">4th Semester</SelectItem>
+                          <SelectItem value="5th">5th Semester</SelectItem>
+                          <SelectItem value="6th">6th Semester</SelectItem>
+                          <SelectItem value="7th">7th Semester</SelectItem>
+                          <SelectItem value="8th">8th Semester</SelectItem>
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
