@@ -75,7 +75,7 @@ const EventsManager = ({ selectedSemester }: EventsManagerProps) => {
       const cleanedValues = {
         ...values,
         image_url: values.image_url || null,
-        semester: values.semester || null, // Convert empty string to null
+        semester: values.semester === 'ALL' ? null : values.semester, // Convert 'ALL' to null
         event_time: values.event_time || null,
         location: values.location || null,
       };
@@ -97,7 +97,7 @@ const EventsManager = ({ selectedSemester }: EventsManagerProps) => {
             event_time: values.event_time || null,
             location: values.location || null,
             organizer: values.organizer,
-            semester: values.semester || null, // Convert empty string to null
+            semester: values.semester === 'ALL' ? null : values.semester, // Convert 'ALL' to null
             image_url: values.image_url || null,
             is_active: values.is_active,
             created_by: user?.id 
@@ -128,7 +128,7 @@ const EventsManager = ({ selectedSemester }: EventsManagerProps) => {
       event_time: event.event_time || '',
       location: event.location || '',
       organizer: event.organizer,
-      semester: event.semester || selectedSemester,
+      semester: event.semester || 'ALL', // Use 'ALL' for null/empty semester
       image_url: event.image_url || '',
       is_active: event.is_active,
     });
@@ -265,7 +265,7 @@ const EventsManager = ({ selectedSemester }: EventsManagerProps) => {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="">All Semesters</SelectItem>
+                          <SelectItem value="ALL">All Semesters</SelectItem>
                           <SelectItem value="1st">1st Semester</SelectItem>
                           <SelectItem value="2nd">2nd Semester</SelectItem>
                           <SelectItem value="3rd">3rd Semester</SelectItem>
