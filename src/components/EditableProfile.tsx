@@ -156,27 +156,27 @@ export const EditableProfile = ({ profile }: EditableProfileProps) => {
   };
 
   return (
-    <Card className="max-w-2xl">
-      <CardHeader className="gradient-primary text-white rounded-t-lg p-4 sm:p-6">
+    <Card className="max-w-2xl border-primary/20 shadow-lg overflow-hidden">
+      <CardHeader className="gradient-primary text-white p-4 sm:p-6">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base sm:text-lg md:text-xl">Profile Information</CardTitle>
+          <CardTitle className="text-base sm:text-lg md:text-xl font-bold">Profile Information</CardTitle>
           {!isEditing && (
             <Button
               onClick={() => setIsEditing(true)}
               variant="secondary"
               size="sm"
-              className="text-xs sm:text-sm"
+              className="text-xs sm:text-sm hover:bg-white/90"
             >
               Edit Profile
             </Button>
           )}
         </div>
       </CardHeader>
-      <CardContent className="space-y-4 sm:space-y-6 pt-4 sm:pt-6 p-4 sm:p-6">
+      <CardContent className="space-y-4 sm:space-y-6 pt-6 sm:pt-8 p-4 sm:p-6 bg-gradient-to-br from-background to-primary/5">
         {/* Avatar Section */}
         <div className="flex flex-col items-center gap-3 sm:gap-4">
           <div className="relative">
-            <Avatar className="w-24 h-24 sm:w-32 sm:h-32 border-4 border-primary/20">
+            <Avatar className="w-24 h-24 sm:w-32 sm:h-32 border-4 border-primary/30 shadow-xl ring-4 ring-primary/10">
               <AvatarImage src={avatarUrl || undefined} alt={profile.name} />
               <AvatarFallback className="text-xl sm:text-2xl font-bold bg-gradient-primary text-white">
                 {getInitials(profile.name)}
@@ -185,7 +185,7 @@ export const EditableProfile = ({ profile }: EditableProfileProps) => {
             {isEditing && (
               <label
                 htmlFor="avatar-upload"
-                className="absolute bottom-0 right-0 p-1.5 sm:p-2 bg-primary rounded-full cursor-pointer hover:bg-primary/90 transition-colors shadow-lg"
+                className="absolute bottom-0 right-0 p-1.5 sm:p-2 bg-primary rounded-full cursor-pointer hover:bg-primary/90 transition-all shadow-lg hover:scale-110"
               >
                 <Camera className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                 <input
@@ -199,13 +199,15 @@ export const EditableProfile = ({ profile }: EditableProfileProps) => {
               </label>
             )}
           </div>
-          {uploading && <p className="text-xs sm:text-sm text-muted-foreground">Uploading...</p>}
+          {uploading && <p className="text-xs sm:text-sm text-muted-foreground animate-pulse">Uploading...</p>}
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-3 sm:space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-5">
           {/* Name Field */}
-          <div className="space-y-2">
-            <Label htmlFor="name" className="text-xs sm:text-sm">Name</Label>
+          <div className="bg-card rounded-lg p-4 border border-primary/20 shadow-sm hover:shadow-md transition-shadow">
+            <Label htmlFor="name" className="text-xs sm:text-sm font-semibold text-muted-foreground mb-2 block">
+              Full Name
+            </Label>
             {isEditing ? (
               <>
                 <Input
@@ -213,29 +215,33 @@ export const EditableProfile = ({ profile }: EditableProfileProps) => {
                   {...register('name')}
                   placeholder="Enter your name"
                   disabled={isSubmitting}
-                  className="text-sm"
+                  className="text-sm border-primary/30 focus:border-primary"
                 />
                 {errors.name && (
-                  <p className="text-xs sm:text-sm text-destructive">{errors.name.message}</p>
+                  <p className="text-xs sm:text-sm text-destructive mt-1">{errors.name.message}</p>
                 )}
               </>
             ) : (
-              <p className="text-base sm:text-lg font-semibold">{profile.name}</p>
+              <p className="text-base sm:text-lg font-bold text-foreground">{profile.name}</p>
             )}
           </div>
 
           {/* Email Field (Read-only) */}
-          <div className="space-y-2">
-            <Label htmlFor="email" className="text-xs sm:text-sm">College Email</Label>
-            <p className="text-base sm:text-lg font-semibold text-muted-foreground break-all">{profile.college_email}</p>
+          <div className="bg-card rounded-lg p-4 border border-primary/20 shadow-sm">
+            <Label htmlFor="email" className="text-xs sm:text-sm font-semibold text-muted-foreground mb-2 block">
+              College Email
+            </Label>
+            <p className="text-base sm:text-lg font-bold text-primary break-all">{profile.college_email}</p>
             {isEditing && (
-              <p className="text-[10px] sm:text-xs text-muted-foreground">Email cannot be changed</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">Email cannot be changed</p>
             )}
           </div>
 
           {/* Mobile Number Field */}
-          <div className="space-y-2">
-            <Label htmlFor="mobile_number" className="text-xs sm:text-sm">Mobile Number</Label>
+          <div className="bg-card rounded-lg p-4 border border-primary/20 shadow-sm hover:shadow-md transition-shadow">
+            <Label htmlFor="mobile_number" className="text-xs sm:text-sm font-semibold text-muted-foreground mb-2 block">
+              Mobile Number
+            </Label>
             {isEditing ? (
               <>
                 <Input
@@ -243,24 +249,26 @@ export const EditableProfile = ({ profile }: EditableProfileProps) => {
                   {...register('mobile_number')}
                   placeholder="Enter your mobile number"
                   disabled={isSubmitting}
-                  className="text-sm"
+                  className="text-sm border-primary/30 focus:border-primary"
                 />
                 {errors.mobile_number && (
-                  <p className="text-xs sm:text-sm text-destructive">{errors.mobile_number.message}</p>
+                  <p className="text-xs sm:text-sm text-destructive mt-1">{errors.mobile_number.message}</p>
                 )}
               </>
             ) : (
-              <p className="text-base sm:text-lg font-semibold">{profile.mobile_number}</p>
+              <p className="text-base sm:text-lg font-bold text-foreground">{profile.mobile_number}</p>
             )}
           </div>
 
           {/* Semester Field */}
-          <div className="space-y-2">
-            <Label htmlFor="semester" className="text-xs sm:text-sm">Current Semester</Label>
+          <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg p-4 border-2 border-primary/30 shadow-md hover:shadow-lg transition-shadow">
+            <Label htmlFor="semester" className="text-xs sm:text-sm font-semibold text-muted-foreground mb-2 block">
+              Current Semester
+            </Label>
             {isEditing ? (
               <>
                 <Select onValueChange={(value) => setValue('semester', value)} value={semester}>
-                  <SelectTrigger className="text-sm">
+                  <SelectTrigger className="text-sm border-primary/30 focus:border-primary bg-background">
                     <SelectValue placeholder="Select your semester" />
                   </SelectTrigger>
                   <SelectContent>
@@ -275,22 +283,30 @@ export const EditableProfile = ({ profile }: EditableProfileProps) => {
                   </SelectContent>
                 </Select>
                 {errors.semester && (
-                  <p className="text-xs sm:text-sm text-destructive">{errors.semester.message}</p>
+                  <p className="text-xs sm:text-sm text-destructive mt-1">{errors.semester.message}</p>
                 )}
               </>
             ) : (
-              <p className="text-base sm:text-lg font-semibold">{profile.semester}</p>
+              <p className="text-xl sm:text-2xl font-bold text-primary">{profile.semester}</p>
             )}
           </div>
 
           {/* Account Status (Read-only) */}
-          <div className="space-y-2">
-            <Label className="text-xs sm:text-sm">Account Status</Label>
-            <p className="text-base sm:text-lg font-semibold">
+          <div className="bg-card rounded-lg p-4 border border-primary/20 shadow-sm">
+            <Label className="text-xs sm:text-sm font-semibold text-muted-foreground mb-2 block">
+              Account Status
+            </Label>
+            <p className="text-base sm:text-lg font-bold">
               {profile.is_active ? (
-                <span className="text-green-600">Active</span>
+                <span className="text-green-600 inline-flex items-center gap-2">
+                  <span className="w-2 h-2 bg-green-600 rounded-full animate-pulse"></span>
+                  Active
+                </span>
               ) : (
-                <span className="text-destructive">Inactive</span>
+                <span className="text-destructive inline-flex items-center gap-2">
+                  <span className="w-2 h-2 bg-destructive rounded-full"></span>
+                  Inactive
+                </span>
               )}
             </p>
           </div>
@@ -300,7 +316,7 @@ export const EditableProfile = ({ profile }: EditableProfileProps) => {
             <div className="flex gap-2 sm:gap-3 pt-2 sm:pt-4">
               <Button
                 type="submit"
-                className="flex-1 gradient-primary text-white text-xs sm:text-sm"
+                className="flex-1 gradient-primary text-white text-xs sm:text-sm shadow-lg hover:shadow-xl"
                 disabled={isSubmitting}
               >
                 <Save className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
@@ -311,7 +327,7 @@ export const EditableProfile = ({ profile }: EditableProfileProps) => {
                 variant="outline"
                 onClick={handleCancel}
                 disabled={isSubmitting}
-                className="text-xs sm:text-sm"
+                className="text-xs sm:text-sm border-primary/30 hover:border-primary"
               >
                 <X className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
                 Cancel
