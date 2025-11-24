@@ -11,10 +11,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { toast } from 'sonner';
 import { GraduationCap, ArrowLeft, Loader2, Mail, Lock, User, Phone, Sparkles, CheckCircle2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
 const registerSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').max(100),
   email: z.string().email('Invalid email').refine(email => email.includes('@'), 'Must be a valid college email address'),
   mobile: z.string().min(10, 'Mobile number must be at least 10 digits').max(15),
+  semester: z.string().min(1, 'Please select your semester'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
   confirmPassword: z.string()
 }).refine(data => data.password === data.confirmPassword, {
@@ -31,6 +34,7 @@ const Register = () => {
       name: '',
       email: '',
       mobile: '',
+      semester: '',
       password: '',
       confirmPassword: ''
     }
@@ -46,7 +50,8 @@ const Register = () => {
         options: {
           data: {
             name: values.name,
-            mobile_number: values.mobile
+            mobile_number: values.mobile,
+            semester: values.semester
           },
           emailRedirectTo: `${window.location.origin}/`
         }
@@ -164,6 +169,30 @@ const Register = () => {
                         <Input type="tel" placeholder="1234567890" className="pl-10 md:pl-11 h-11 md:h-12 border-2 focus:border-gold transition-colors text-sm md:text-base" {...field} />
                       </div>
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>} />
+
+              <FormField control={form.control} name="semester" render={({
+              field
+            }) => <FormItem>
+                    <FormLabel className="text-sm font-semibold">Current Semester *</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="h-11 md:h-12 border-2 focus:border-gold transition-colors text-sm md:text-base">
+                          <SelectValue placeholder="Select your semester" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="1st">1st Semester</SelectItem>
+                        <SelectItem value="2nd">2nd Semester</SelectItem>
+                        <SelectItem value="3rd">3rd Semester</SelectItem>
+                        <SelectItem value="4th">4th Semester</SelectItem>
+                        <SelectItem value="5th">5th Semester</SelectItem>
+                        <SelectItem value="6th">6th Semester</SelectItem>
+                        <SelectItem value="7th">7th Semester</SelectItem>
+                        <SelectItem value="8th">8th Semester</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>} />
 

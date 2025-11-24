@@ -3,18 +3,37 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Download } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 export const SyllabusPage = () => {
+  const { user } = useAuth();
+
+  const { data: profile } = useQuery({
+    queryKey: ['profile', user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('semester')
+        .eq('id', user?.id)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
+
   const { data: syllabus } = useQuery({
-    queryKey: ['syllabus'],
+    queryKey: ['syllabus', profile?.semester],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('syllabus')
         .select('*')
+        .eq('semester', profile?.semester)
         .order('created_at', { ascending: false });
       if (error) throw error;
       return data;
     },
+    enabled: !!profile?.semester,
   });
 
   const handleDownload = (fileUrl: string, fileName: string) => {

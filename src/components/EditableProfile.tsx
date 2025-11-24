@@ -5,6 +5,7 @@ import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Camera, Save, X } from 'lucide-react';
@@ -15,6 +16,7 @@ import { useQueryClient } from '@tanstack/react-query';
 const profileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').max(100, 'Name too long'),
   mobile_number: z.string().min(10, 'Mobile number must be at least 10 digits').max(15, 'Mobile number too long'),
+  semester: z.string().min(1, 'Please select your semester'),
 });
 
 type ProfileFormData = z.infer<typeof profileSchema>;
@@ -25,6 +27,7 @@ interface EditableProfileProps {
     name: string;
     college_email: string;
     mobile_number: string;
+    semester: string;
     avatar_url?: string | null;
     is_active?: boolean;
   };
@@ -39,6 +42,8 @@ export const EditableProfile = ({ profile }: EditableProfileProps) => {
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors, isSubmitting },
     reset,
   } = useForm<ProfileFormData>({
@@ -46,8 +51,11 @@ export const EditableProfile = ({ profile }: EditableProfileProps) => {
     defaultValues: {
       name: profile.name,
       mobile_number: profile.mobile_number,
+      semester: profile.semester,
     },
   });
+
+  const semester = watch('semester');
 
   const getInitials = (name: string) => {
     return name
@@ -127,6 +135,7 @@ export const EditableProfile = ({ profile }: EditableProfileProps) => {
         .update({
           name: data.name,
           mobile_number: data.mobile_number,
+          semester: data.semester,
         })
         .eq('id', profile.id);
 
@@ -242,6 +251,35 @@ export const EditableProfile = ({ profile }: EditableProfileProps) => {
               </>
             ) : (
               <p className="text-base sm:text-lg font-semibold">{profile.mobile_number}</p>
+            )}
+          </div>
+
+          {/* Semester Field */}
+          <div className="space-y-2">
+            <Label htmlFor="semester" className="text-xs sm:text-sm">Current Semester</Label>
+            {isEditing ? (
+              <>
+                <Select onValueChange={(value) => setValue('semester', value)} value={semester}>
+                  <SelectTrigger className="text-sm">
+                    <SelectValue placeholder="Select your semester" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1st">1st Semester</SelectItem>
+                    <SelectItem value="2nd">2nd Semester</SelectItem>
+                    <SelectItem value="3rd">3rd Semester</SelectItem>
+                    <SelectItem value="4th">4th Semester</SelectItem>
+                    <SelectItem value="5th">5th Semester</SelectItem>
+                    <SelectItem value="6th">6th Semester</SelectItem>
+                    <SelectItem value="7th">7th Semester</SelectItem>
+                    <SelectItem value="8th">8th Semester</SelectItem>
+                  </SelectContent>
+                </Select>
+                {errors.semester && (
+                  <p className="text-xs sm:text-sm text-destructive">{errors.semester.message}</p>
+                )}
+              </>
+            ) : (
+              <p className="text-base sm:text-lg font-semibold">{profile.semester}</p>
             )}
           </div>
 
