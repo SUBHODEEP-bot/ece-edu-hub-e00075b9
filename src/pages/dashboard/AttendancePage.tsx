@@ -2,16 +2,15 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState } from 'react';
-import { Home, Grid3x3, Calendar, List, Settings } from 'lucide-react';
+import { Home, Grid3x3, Settings } from 'lucide-react';
 import { TodayView } from '@/components/attendance/TodayView';
-import { SubjectsView } from '@/components/attendance/SubjectsView';
 import { TimetableView } from '@/components/attendance/TimetableView';
 import { Button } from '@/components/ui/button';
 import { differenceInWeeks, startOfMonth } from 'date-fns';
 
 export const AttendancePage = () => {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'today' | 'timetable' | 'subjects'>('today');
+  const [activeTab, setActiveTab] = useState<'today' | 'timetable'>('today');
 
   const { data: profile } = useQuery({
     queryKey: ['profile', user?.id],
@@ -75,7 +74,6 @@ export const AttendancePage = () => {
   const tabs = [
     { id: 'today' as const, label: 'Today', icon: Home },
     { id: 'timetable' as const, label: 'Timetable', icon: Grid3x3 },
-    { id: 'subjects' as const, label: 'Subjects', icon: List },
   ];
 
   return (
@@ -98,7 +96,6 @@ export const AttendancePage = () => {
           <>
             {activeTab === 'today' && <TodayView semester={profile.semester} />}
             {activeTab === 'timetable' && <TimetableView semester={profile.semester} />}
-            {activeTab === 'subjects' && <SubjectsView semester={profile.semester} />}
           </>
         )}
       </div>
@@ -113,7 +110,7 @@ export const AttendancePage = () => {
                 key={tab.id}
                 variant="ghost"
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex flex-col items-center gap-1 h-auto py-2 px-4 ${
+                className={`flex flex-col items-center gap-1 h-auto py-2 px-6 ${
                   activeTab === tab.id ? 'text-primary' : 'text-muted-foreground'
                 }`}
               >
@@ -124,14 +121,7 @@ export const AttendancePage = () => {
           })}
           <Button
             variant="ghost"
-            className="flex flex-col items-center gap-1 h-auto py-2 px-4 text-muted-foreground"
-          >
-            <Calendar className="w-5 h-5" />
-            <span className="text-xs">Calendar</span>
-          </Button>
-          <Button
-            variant="ghost"
-            className="flex flex-col items-center gap-1 h-auto py-2 px-4 text-muted-foreground"
+            className="flex flex-col items-center gap-1 h-auto py-2 px-6 text-muted-foreground"
           >
             <Settings className="w-5 h-5" />
             <span className="text-xs">Settings</span>

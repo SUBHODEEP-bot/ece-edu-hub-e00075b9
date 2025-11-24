@@ -15,16 +15,18 @@ interface TodayViewProps {
 export const TodayView = ({ semester }: TodayViewProps) => {
   const { user } = useAuth();
   const today = format(new Date(), 'yyyy-MM-dd');
+  const currentDayOfWeek = format(new Date(), 'EEEE').toLowerCase();
   const [markingSubject, setMarkingSubject] = useState<string | null>(null);
 
   const { data: schedules } = useQuery({
-    queryKey: ['subject-schedules-all', user?.id, semester],
+    queryKey: ['subject-schedules-today', user?.id, semester, currentDayOfWeek],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('subject_schedules')
         .select('*')
         .eq('student_id', user?.id)
         .eq('semester', semester)
+        .eq('day_of_week', currentDayOfWeek)
         .eq('is_active', true);
       if (error) throw error;
       return data;
@@ -100,7 +102,7 @@ export const TodayView = ({ semester }: TodayViewProps) => {
     <div className="space-y-4 pb-20">
       <div className="text-center py-6">
         <h3 className="text-xl font-bold text-foreground mb-1">
-          {format(new Date(), 'EEEE, MMMM d')}
+          {format(new Date(), 'EEEE, MMMM d, yyyy')}
         </h3>
         <p className="text-sm text-muted-foreground">Mark your attendance for today</p>
       </div>
@@ -166,9 +168,9 @@ export const TodayView = ({ semester }: TodayViewProps) => {
         </div>
       ) : (
         <div className="text-center py-12">
-          <p className="text-muted-foreground">No subjects configured</p>
+          <p className="text-muted-foreground">No subjects configured for today</p>
           <p className="text-sm text-muted-foreground mt-1">
-            Go to Subjects tab to add your subjects
+            Go to Timetable tab to add subjects for {format(new Date(), 'EEEE')}
           </p>
         </div>
       )}
