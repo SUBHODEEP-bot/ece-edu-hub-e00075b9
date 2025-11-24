@@ -18,7 +18,7 @@ export const TodayView = ({ semester }: TodayViewProps) => {
   const [markingSubject, setMarkingSubject] = useState<string | null>(null);
 
   const { data: schedules } = useQuery({
-    queryKey: ['subject-schedules', user?.id, semester],
+    queryKey: ['subject-schedules-all', user?.id, semester],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('subject_schedules')

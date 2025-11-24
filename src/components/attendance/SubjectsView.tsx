@@ -17,7 +17,7 @@ export const SubjectsView = ({ semester }: SubjectsViewProps) => {
   const [showAddSubject, setShowAddSubject] = useState(false);
 
   const { data: schedules } = useQuery({
-    queryKey: ['subject-schedules', user?.id, semester],
+    queryKey: ['subject-schedules-all', user?.id, semester],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('subject_schedules')
@@ -120,8 +120,8 @@ export const SubjectsView = ({ semester }: SubjectsViewProps) => {
                         </div>
                         <div className="flex-1">
                           <h4 className="font-bold text-foreground text-lg">{schedule.subject}</h4>
-                          <p className="text-xs text-muted-foreground">
-                            can't miss the next lecture
+                          <p className="text-xs text-muted-foreground capitalize">
+                            {schedule.class_type} • {schedule.day_of_week || 'Not scheduled'}
                           </p>
                         </div>
                       </div>

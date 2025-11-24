@@ -237,6 +237,7 @@ export type Database = {
         Row: {
           class_type: Database["public"]["Enums"]["class_type"]
           created_at: string
+          day_of_week: string | null
           id: string
           is_active: boolean | null
           semester: string
@@ -248,6 +249,7 @@ export type Database = {
         Insert: {
           class_type?: Database["public"]["Enums"]["class_type"]
           created_at?: string
+          day_of_week?: string | null
           id?: string
           is_active?: boolean | null
           semester: string
@@ -259,6 +261,7 @@ export type Database = {
         Update: {
           class_type?: Database["public"]["Enums"]["class_type"]
           created_at?: string
+          day_of_week?: string | null
           id?: string
           is_active?: boolean | null
           semester?: string
