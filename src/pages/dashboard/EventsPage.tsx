@@ -2,19 +2,38 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calendar } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 export const EventsPage = () => {
+  const { user } = useAuth();
+
+  const { data: profile } = useQuery({
+    queryKey: ['profile', user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('semester')
+        .eq('id', user?.id)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
+
   const { data: events } = useQuery({
-    queryKey: ['events'],
+    queryKey: ['events', profile?.semester],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('events')
         .select('*')
         .eq('is_active', true)
+        .or(`semester.eq.${profile?.semester},semester.is.null`)
         .order('event_date', { ascending: true });
       if (error) throw error;
       return data;
     },
+    enabled: !!profile?.semester,
   });
 
   return (

@@ -26,6 +26,7 @@ export type Database = {
           is_active: boolean | null
           location: string | null
           organizer: string
+          semester: string | null
           title: string
           updated_at: string
         }
@@ -40,6 +41,7 @@ export type Database = {
           is_active?: boolean | null
           location?: string | null
           organizer: string
+          semester?: string | null
           title: string
           updated_at?: string
         }
@@ -54,6 +56,7 @@ export type Database = {
           is_active?: boolean | null
           location?: string | null
           organizer?: string
+          semester?: string | null
           title?: string
           updated_at?: string
         }
@@ -107,6 +110,7 @@ export type Database = {
           is_active: boolean | null
           mobile_number: string
           name: string
+          semester: string
           updated_at: string
         }
         Insert: {
@@ -117,6 +121,7 @@ export type Database = {
           is_active?: boolean | null
           mobile_number: string
           name: string
+          semester?: string
           updated_at?: string
         }
         Update: {
@@ -127,6 +132,7 @@ export type Database = {
           is_active?: boolean | null
           mobile_number?: string
           name?: string
+          semester?: string
           updated_at?: string
         }
         Relationships: []
