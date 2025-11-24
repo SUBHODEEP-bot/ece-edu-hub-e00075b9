@@ -12,6 +12,7 @@ import { QuestionPapersPage } from './dashboard/QuestionPapersPage';
 import { NotesPage } from './dashboard/NotesPage';
 import { SyllabusPage } from './dashboard/SyllabusPage';
 import { EventsPage } from './dashboard/EventsPage';
+import { AttendancePage } from './dashboard/AttendancePage';
 
 const StudentDashboard = () => {
   const { user, signOut } = useAuth();
@@ -76,6 +77,7 @@ const StudentDashboard = () => {
               <Route path="notes" element={<NotesPage />} />
               <Route path="syllabus" element={<SyllabusPage />} />
               <Route path="events" element={<EventsPage />} />
+              <Route path="attendance" element={<AttendancePage />} />
             </Routes>
           </div>
         </main>
