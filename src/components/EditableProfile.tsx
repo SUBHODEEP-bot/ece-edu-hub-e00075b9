@@ -58,6 +58,7 @@ export const EditableProfile = ({ profile }: EditableProfileProps) => {
   const semester = watch('semester');
 
   const getInitials = (name: string) => {
+    if (!name) return 'U';
     return name
       .split(' ')
       .map((n) => n[0])
