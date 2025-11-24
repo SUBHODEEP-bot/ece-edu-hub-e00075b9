@@ -119,6 +119,39 @@ export type Database = {
         }
         Relationships: []
       }
+      mar_support: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          link_url: string
+          semester: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          link_url: string
+          semester: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          link_url?: string
+          semester?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notes: {
         Row: {
           created_at: string
