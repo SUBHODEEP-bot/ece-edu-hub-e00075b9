@@ -56,17 +56,13 @@ export const AttendancePage = () => {
   });
 
   const calculateOverallStats = () => {
-    if (!schedules || !attendance) return { percentage: 0, expected: 0 };
+    if (!attendance || attendance.length === 0) return { percentage: 0, present: 0, total: 0 };
     
-    const startDate = attendance.length > 0 
-      ? new Date(attendance[attendance.length - 1].date) 
-      : startOfMonth(new Date());
-    const weeks = Math.max(1, differenceInWeeks(new Date(), startDate) + 1);
-    const expected = schedules.reduce((sum, s) => sum + (s.weekly_classes * weeks), 0);
     const present = attendance.filter(a => a.status === 'present' || a.status === 'late').length;
-    const percentage = expected > 0 ? Math.round((present / expected) * 100) : 0;
+    const total = attendance.length;
+    const percentage = total > 0 ? Math.round((present / total) * 100) : 0;
     
-    return { percentage, expected };
+    return { percentage, present, total };
   };
 
   const stats = calculateOverallStats();
@@ -83,8 +79,12 @@ export const AttendancePage = () => {
         <div className="flex items-center justify-between">
           <h1 className="text-lg font-bold text-foreground">{profile?.name || 'Student'}</h1>
           <div className="flex items-center gap-2">
-            <div className="bg-card border border-border rounded px-3 py-1.5 text-sm font-medium">
-              {stats.percentage} | 75
+            <div className={`border rounded px-3 py-1.5 text-sm font-medium ${
+              stats.percentage >= 75 ? 'bg-green-500/10 border-green-500/20 text-green-700' :
+              stats.percentage >= 50 ? 'bg-yellow-500/10 border-yellow-500/20 text-yellow-700' :
+              'bg-red-500/10 border-red-500/20 text-red-700'
+            }`}>
+              {stats.percentage}% ({stats.present}/{stats.total})
             </div>
           </div>
         </div>
