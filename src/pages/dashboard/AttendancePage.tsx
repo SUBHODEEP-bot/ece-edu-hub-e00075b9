@@ -62,13 +62,14 @@ export const AttendancePage = () => {
 
     const todaySchedules = schedules.filter(s => s.day_of_week === currentDayOfWeek);
     const todaySubjects = todaySchedules.map(s => s.subject);
-    const total = todaySchedules.length;
     
-    const present = attendance.filter(
-      a => a.date === today && 
-           todaySubjects.includes(a.subject) && 
-           (a.status === 'present' || a.status === 'late')
-    ).length;
+    // Calculate total: lab = 2, theory = 1
+    const total = todaySchedules.reduce((sum, s) => sum + (s.class_type === 'lab' ? 2 : 1), 0);
+    
+    // Calculate present: lab = 2, theory = 1
+    const present = attendance
+      .filter(a => a.date === today && todaySubjects.includes(a.subject) && (a.status === 'present' || a.status === 'late'))
+      .reduce((sum, a) => sum + (a.class_type === 'lab' ? 2 : 1), 0);
 
     const percentage = total > 0 ? Math.round((present / total) * 100) : 0;
 
@@ -78,8 +79,13 @@ export const AttendancePage = () => {
   const calculateOverallStats = () => {
     if (!attendance || attendance.length === 0) return { percentage: 0, present: 0, total: 0 };
 
-    const present = attendance.filter(a => a.status === 'present' || a.status === 'late').length;
-    const total = attendance.length;
+    // Calculate weighted attendance: lab = 2, theory = 1
+    const present = attendance
+      .filter(a => a.status === 'present' || a.status === 'late')
+      .reduce((sum, a) => sum + (a.class_type === 'lab' ? 2 : 1), 0);
+    
+    const total = attendance.reduce((sum, a) => sum + (a.class_type === 'lab' ? 2 : 1), 0);
+    
     const percentage = total > 0 ? Math.round((present / total) * 100) : 0;
 
     return { percentage, present, total };
