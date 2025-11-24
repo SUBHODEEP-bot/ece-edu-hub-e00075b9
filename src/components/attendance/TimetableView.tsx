@@ -2,10 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState } from 'react';
-import { format } from 'date-fns';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -28,15 +27,13 @@ const WEEKDAYS = [
 
 export const TimetableView = ({ semester }: TimetableViewProps) => {
   const { user } = useAuth();
-  const currentDayOfWeek = format(new Date(), 'EEEE').toLowerCase();
-  const [selectedDay, setSelectedDay] = useState<string>(currentDayOfWeek);
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [selectedDay, setSelectedDay] = useState<string>('');
   const [newSubject, setNewSubject] = useState('');
   const [classType, setClassType] = useState<'theory' | 'lab'>('theory');
-  const [weeklyClasses, setWeeklyClasses] = useState('1');
 
   const { data: schedules, refetch } = useQuery({
-    queryKey: ['subject-schedules', user?.id, semester, selectedDay],
+    queryKey: ['subject-schedules-all', user?.id, semester],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('subject_schedules')
@@ -44,11 +41,11 @@ export const TimetableView = ({ semester }: TimetableViewProps) => {
         .eq('student_id', user?.id)
         .eq('semester', semester)
         .eq('is_active', true)
-        .eq('day_of_week', selectedDay);
+        .order('created_at', { ascending: true });
       if (error) throw error;
       return data;
     },
-    enabled: !!user && !!semester && !!selectedDay,
+    enabled: !!user && !!semester,
   });
 
   const handleAddSubject = async () => {
@@ -65,13 +62,13 @@ export const TimetableView = ({ semester }: TimetableViewProps) => {
           subject: newSubject.trim(),
           semester,
           class_type: classType,
-          weekly_classes: parseInt(weeklyClasses),
+          weekly_classes: 1,
           day_of_week: selectedDay,
         });
 
       if (error) throw error;
 
-      toast.success(`Subject added to ${selectedDayInfo?.fullName}`);
+      toast.success('Subject added');
       setNewSubject('');
       setShowAddDialog(false);
       refetch();
@@ -81,71 +78,97 @@ export const TimetableView = ({ semester }: TimetableViewProps) => {
     }
   };
 
-  const selectedDayInfo = WEEKDAYS.find(d => d.id === selectedDay);
+  const handleDeleteSubject = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('subject_schedules')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast.success('Subject deleted');
+      refetch();
+    } catch (error) {
+      console.error('Error deleting subject:', error);
+      toast.error('Failed to delete subject');
+    }
+  };
+
+  const getSubjectsForDay = (dayId: string) => {
+    return schedules?.filter(s => s.day_of_week === dayId) || [];
+  };
 
   return (
     <div className="space-y-4 pb-20">
-      <div className="flex gap-2 overflow-x-auto pb-2">
-        {WEEKDAYS.map((day) => {
-          const isToday = currentDayOfWeek === day.id;
-          const isSelected = selectedDay === day.id;
-
-          return (
-            <Button
-              key={day.id}
-              variant={isSelected ? 'default' : 'outline'}
-              onClick={() => setSelectedDay(day.id)}
-              className={`flex-shrink-0 min-w-[70px] ${isToday ? 'border-primary border-2' : ''}`}
-            >
-              <div className="text-center">
-                <div className="text-xs">{day.label}</div>
-                {isToday && <div className="text-xs font-normal mt-0.5">{format(new Date(), 'd')}</div>}
-              </div>
-            </Button>
-          );
-        })}
+      <div className="text-center py-4">
+        <h3 className="text-lg font-bold text-foreground">Weekly Timetable</h3>
+        <p className="text-sm text-muted-foreground">Add subjects to each day</p>
       </div>
 
       <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h3 className="font-semibold text-foreground">
-            {selectedDayInfo?.fullName}
-          </h3>
-          <Button size="sm" onClick={() => setShowAddDialog(true)}>
-            <Plus className="w-4 h-4 mr-1" />
-            Add Subject
-          </Button>
-        </div>
+        {WEEKDAYS.map((day) => {
+          const daySubjects = getSubjectsForDay(day.id);
 
-        {schedules && schedules.length > 0 ? (
-          <div className="space-y-2">
-            {schedules.map((schedule) => (
-              <Card key={schedule.id} className="p-3 bg-card border-border">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="font-semibold text-foreground">{schedule.subject}</h4>
-                    <p className="text-xs text-muted-foreground capitalize">
-                      {schedule.class_type} • {schedule.weekly_classes}x per week
-                    </p>
-                  </div>
+          return (
+            <Card key={day.id} className="p-4 bg-card border-border">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="font-semibold text-foreground">{day.fullName}</h4>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setSelectedDay(day.id);
+                    setShowAddDialog(true);
+                  }}
+                >
+                  <Plus className="w-4 h-4 mr-1" />
+                  Add
+                </Button>
+              </div>
+
+              {daySubjects.length > 0 ? (
+                <div className="space-y-2">
+                  {daySubjects.map((schedule) => (
+                    <div
+                      key={schedule.id}
+                      className="flex items-center justify-between bg-muted/50 rounded-md p-2"
+                    >
+                      <div>
+                        <p className="text-sm font-medium text-foreground">
+                          {schedule.subject}
+                        </p>
+                        <p className="text-xs text-muted-foreground capitalize">
+                          {schedule.class_type}
+                        </p>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleDeleteSubject(schedule.id)}
+                        className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
                 </div>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-8">
-            <p className="text-muted-foreground text-sm">No subjects for this day</p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Tap "Add Subject" to add a class
-            </p>
-          </div>
-        )}
+              ) : (
+                <p className="text-xs text-muted-foreground text-center py-2">
+                  No subjects added
+                </p>
+              )}
+            </Card>
+          );
+        })}
       </div>
 
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add Subject to {selectedDayInfo?.fullName}</DialogTitle>
+            <DialogTitle>
+              Add Subject to {WEEKDAYS.find(d => d.id === selectedDay)?.fullName}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
@@ -154,7 +177,7 @@ export const TimetableView = ({ semester }: TimetableViewProps) => {
                 id="subject"
                 value={newSubject}
                 onChange={(e) => setNewSubject(e.target.value)}
-                placeholder="e.g., Electronic Devices"
+                placeholder="e.g., Network, Signal, DSA"
               />
             </div>
             <div>
@@ -169,20 +192,8 @@ export const TimetableView = ({ semester }: TimetableViewProps) => {
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <Label htmlFor="weekly">Classes This Day</Label>
-              <Input
-                id="weekly"
-                type="number"
-                min="1"
-                max="10"
-                value={weeklyClasses}
-                onChange={(e) => setWeeklyClasses(e.target.value)}
-                placeholder="How many classes on this day?"
-              />
-            </div>
             <Button onClick={handleAddSubject} className="w-full">
-              Add to {selectedDayInfo?.label}
+              Add Subject
             </Button>
           </div>
         </DialogContent>
