@@ -19,6 +19,8 @@ export const ProfilePage = () => {
       return data;
     },
     enabled: !!user,
+    refetchOnMount: 'always',
+    staleTime: 0,
   });
 
   if (isLoading) {
