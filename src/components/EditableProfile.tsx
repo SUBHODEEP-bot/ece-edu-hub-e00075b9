@@ -119,7 +119,7 @@ export const EditableProfile = ({ profile }: EditableProfileProps) => {
       if (updateError) throw updateError;
 
       setAvatarUrl(publicUrl);
-      queryClient.invalidateQueries({ queryKey: ['profile'] });
+      queryClient.invalidateQueries({ queryKey: ['profile', profile.id] });
       toast.success('Profile picture updated successfully');
     } catch (error) {
       console.error('Error uploading avatar:', error);
@@ -142,7 +142,7 @@ export const EditableProfile = ({ profile }: EditableProfileProps) => {
 
       if (error) throw error;
 
-      queryClient.invalidateQueries({ queryKey: ['profile'] });
+      queryClient.invalidateQueries({ queryKey: ['profile', profile.id] });
       toast.success('Profile updated successfully');
       setIsEditing(false);
     } catch (error) {
