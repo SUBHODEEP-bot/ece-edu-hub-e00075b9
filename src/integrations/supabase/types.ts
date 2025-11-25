@@ -197,6 +197,7 @@ export type Database = {
           description: string | null
           file_name: string
           file_url: string
+          folder_id: string | null
           id: string
           semester: string
           subject: string
@@ -209,6 +210,7 @@ export type Database = {
           description?: string | null
           file_name: string
           file_url: string
+          folder_id?: string | null
           id?: string
           semester: string
           subject: string
@@ -221,12 +223,48 @@ export type Database = {
           description?: string | null
           file_name?: string
           file_url?: string
+          folder_id?: string | null
           id?: string
           semester?: string
           subject?: string
           title?: string
           updated_at?: string
           uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notes_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "notes_folders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notes_folders: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          semester: string
+          subject_name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          semester: string
+          subject_name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          semester?: string
+          subject_name?: string
+          updated_at?: string
         }
         Relationships: []
       }
