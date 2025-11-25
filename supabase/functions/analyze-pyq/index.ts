@@ -69,6 +69,8 @@ serve(async (req) => {
       throw new Error('GEMINI_API_KEY is not configured');
     }
 
+    console.log('API Key exists, length:', GEMINI_API_KEY.length);
+
     const systemPrompt = `You are an AI exam intelligence system for Electronics & Communication Engineering.
 Analyze the given Previous Year Questions and return ONLY valid JSON with:
 
@@ -81,10 +83,10 @@ Analyze the given Previous Year Questions and return ONLY valid JSON with:
 
 Return ONLY JSON. No explanations.`;
 
-    console.log('Calling Gemini API with model: gemini-pro');
+    console.log('Calling Gemini API...');
     
-    // Use gemini-pro which is the basic model available with standard API keys
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
+    // Try the correct v1beta endpoint with gemini-1.5-flash-latest
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
     
     const response = await fetch(apiUrl, {
       method: 'POST',
@@ -109,7 +111,7 @@ Return ONLY JSON. No explanations.`;
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Gemini API error:', response.status, errorText);
-      console.error('API URL used:', apiUrl.replace(GEMINI_API_KEY, 'REDACTED'));
+      console.error('Please verify your GEMINI_API_KEY is valid at: https://aistudio.google.com/app/apikey');
       throw new Error(`Gemini API error: ${response.status} - ${errorText}`);
     }
 
