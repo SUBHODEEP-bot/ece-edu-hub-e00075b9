@@ -7,19 +7,40 @@ const corsHeaders = {
 };
 
 async function extractTextFromPDFBase64(base64Data: string): Promise<string> {
-  // Decode base64 to ArrayBuffer
-  const binaryString = atob(base64Data);
-  const len = binaryString.length;
-  const bytes = new Uint8Array(len);
-  for (let i = 0; i < len; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
+  try {
+    // Decode base64 to Uint8Array
+    const binaryString = atob(base64Data);
+    const len = binaryString.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    
+    console.log('PDF bytes length:', bytes.length);
+    
+    // Use a simple regex-based text extraction for PDFs
+    // This extracts visible text from PDF structure
+    const text = new TextDecoder().decode(bytes);
+    
+    // Extract text between stream objects and filter out binary data
+    const textMatches = text.match(/\((.*?)\)/g) || [];
+    const extractedText = textMatches
+      .map(match => match.slice(1, -1))
+      .filter(text => text.length > 2 && /[a-zA-Z0-9]/.test(text))
+      .join(' ')
+      .replace(/\\n/g, '\n')
+      .replace(/\s+/g, ' ')
+      .trim();
+    
+    if (extractedText.length < 50) {
+      throw new Error('Insufficient text extracted from PDF. Please ensure the PDF contains readable text.');
+    }
+    
+    return extractedText;
+  } catch (error) {
+    console.error('PDF extraction error:', error);
+    throw new Error(`Failed to extract text from PDF: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
-  
-  // Use pdf-parse from esm.sh CDN
-  const pdfParse = await import('https://esm.sh/pdf-parse@1.1.1');
-  const data = await pdfParse.default(bytes.buffer);
-  
-  return data.text;
 }
 
 serve(async (req) => {
