@@ -27,8 +27,8 @@ const folderSchema = z.object({
 const noteSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().optional(),
-  file_url: z.string().url('Must be a valid URL'),
-  file_name: z.string().min(1, 'File name is required'),
+  file_url: z.string().optional(),
+  file_name: z.string().optional(),
   folder_id: z.string().min(1, 'Please select a folder'),
 });
 
@@ -44,6 +44,9 @@ const NotesManager = ({ selectedSemester }: NotesManagerProps) => {
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
+  const [uploadMode, setUploadMode] = useState<'upload' | 'url'>('upload');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const folderForm = useForm<FolderFormValues>({
     resolver: zodResolver(folderSchema),
@@ -134,13 +137,74 @@ const NotesManager = ({ selectedSemester }: NotesManagerProps) => {
     }
   };
 
+  const handleFileUpload = async () => {
+    if (!selectedFile) return null;
+
+    setUploading(true);
+    try {
+      const fileExt = selectedFile.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+      const filePath = `notes/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('documents')
+        .upload(filePath, selectedFile);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('documents')
+        .getPublicUrl(filePath);
+
+      return { url: publicUrl, name: selectedFile.name };
+    } catch (error: any) {
+      toast.error(error.message || 'Upload failed');
+      return null;
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSaveNote = async (values: NoteFormValues) => {
     setLoading(true);
     try {
+      let fileUrl = values.file_url;
+      let fileName = values.file_name;
+
+      // Handle file upload if in upload mode
+      if (uploadMode === 'upload' && selectedFile && !editingNoteId) {
+        const uploadResult = await handleFileUpload();
+        if (!uploadResult) {
+          setLoading(false);
+          return;
+        }
+        fileUrl = uploadResult.url;
+        fileName = uploadResult.name;
+      }
+
+      // Validate we have file info
+      if (!fileUrl || !fileName) {
+        toast.error('Please provide a file or URL');
+        setLoading(false);
+        return;
+      }
+
       if (editingNoteId) {
+        const updateData: any = {
+          title: values.title,
+          description: values.description,
+          folder_id: values.folder_id,
+        };
+        
+        // Only update file info if provided
+        if (values.file_url) {
+          updateData.file_url = values.file_url;
+          updateData.file_name = values.file_name;
+        }
+
         const { error } = await supabase
           .from('notes')
-          .update(values)
+          .update(updateData)
           .eq('id', editingNoteId);
         if (error) throw error;
         toast.success('Note updated successfully');
@@ -153,8 +217,8 @@ const NotesManager = ({ selectedSemester }: NotesManagerProps) => {
             subject: folder?.subject_name || '',
             semester: folder?.semester || selectedSemester,
             description: values.description,
-            file_url: values.file_url,
-            file_name: values.file_name,
+            file_url: fileUrl,
+            file_name: fileName,
             folder_id: values.folder_id,
             uploaded_by: user?.id 
           }]);
@@ -166,6 +230,7 @@ const NotesManager = ({ selectedSemester }: NotesManagerProps) => {
       setIsNoteDialogOpen(false);
       noteForm.reset();
       setEditingNoteId(null);
+      setSelectedFile(null);
     } catch (error: any) {
       toast.error(error.message || 'Operation failed');
     } finally {
@@ -294,9 +359,9 @@ const NotesManager = ({ selectedSemester }: NotesManagerProps) => {
                     )}
                   />
                   <DialogFooter>
-                    <Button type="submit" className="gradient-primary text-white" disabled={loading}>
-                      {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      Save
+                    <Button type="submit" className="gradient-primary text-white" disabled={loading || uploading}>
+                      {(loading || uploading) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      {uploading ? 'Uploading...' : 'Save'}
                     </Button>
                   </DialogFooter>
                 </form>
@@ -306,7 +371,12 @@ const NotesManager = ({ selectedSemester }: NotesManagerProps) => {
 
           <Dialog open={isNoteDialogOpen} onOpenChange={setIsNoteDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" className="gap-2" onClick={() => { setEditingNoteId(null); noteForm.reset(); }}>
+              <Button variant="outline" className="gap-2" onClick={() => { 
+                setEditingNoteId(null); 
+                noteForm.reset(); 
+                setSelectedFile(null);
+                setUploadMode('upload');
+              }}>
                 <Plus className="w-4 h-4" />
                 Add Note
               </Button>
@@ -368,32 +438,106 @@ const NotesManager = ({ selectedSemester }: NotesManagerProps) => {
                       </FormItem>
                     )}
                   />
-                  <FormField
-                    control={noteForm.control}
-                    name="file_url"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>File URL</FormLabel>
-                        <FormControl>
-                          <Input placeholder="https://..." {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={noteForm.control}
-                    name="file_name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>File Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="notes-chapter1.pdf" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+
+                  {!editingNoteId && (
+                    <div className="space-y-4">
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          variant={uploadMode === 'upload' ? 'default' : 'outline'}
+                          onClick={() => setUploadMode('upload')}
+                          className="flex-1"
+                        >
+                          Upload PDF
+                        </Button>
+                        <Button
+                          type="button"
+                          variant={uploadMode === 'url' ? 'default' : 'outline'}
+                          onClick={() => setUploadMode('url')}
+                          className="flex-1"
+                        >
+                          Provide URL
+                        </Button>
+                      </div>
+
+                      {uploadMode === 'upload' ? (
+                        <div className="space-y-2">
+                          <FormLabel>Upload PDF File</FormLabel>
+                          <Input
+                            type="file"
+                            accept=".pdf"
+                            onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                            disabled={uploading}
+                          />
+                          {selectedFile && (
+                            <p className="text-sm text-muted-foreground">
+                              Selected: {selectedFile.name}
+                            </p>
+                          )}
+                        </div>
+                      ) : (
+                        <>
+                          <FormField
+                            control={noteForm.control}
+                            name="file_url"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>File URL</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="https://..." {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={noteForm.control}
+                            name="file_name"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>File Name</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="notes-chapter1.pdf" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </>
+                      )}
+                    </div>
+                  )}
+
+                  {editingNoteId && (
+                    <>
+                      <FormField
+                        control={noteForm.control}
+                        name="file_url"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>File URL (Optional - leave empty to keep current)</FormLabel>
+                            <FormControl>
+                              <Input placeholder="https://..." {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={noteForm.control}
+                        name="file_name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>File Name (Optional)</FormLabel>
+                            <FormControl>
+                              <Input placeholder="notes-chapter1.pdf" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </>
+                  )}
                   <DialogFooter>
                     <Button type="submit" className="gradient-primary text-white" disabled={loading}>
                       {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
