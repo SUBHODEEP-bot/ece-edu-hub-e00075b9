@@ -81,10 +81,10 @@ Analyze the given Previous Year Questions and return ONLY valid JSON with:
 
 Return ONLY JSON. No explanations.`;
 
-    console.log('Calling Gemini API with model: gemini-1.5-flash-latest');
+    console.log('Calling Gemini API with model: gemini-1.5-flash');
     
-    // Correct Gemini API endpoint - use v1 instead of v1beta and add -latest suffix
-    const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
+    // Correct Gemini API endpoint - use v1 with gemini-1.5-flash model
+    const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
     
     const response = await fetch(apiUrl, {
       method: 'POST',
