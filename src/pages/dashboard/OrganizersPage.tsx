@@ -64,8 +64,7 @@ export default function OrganizersPage() {
   };
 
   const handleOpenLink = (linkUrl: string) => {
-    // Use location.assign to navigate directly
-    window.location.assign(linkUrl);
+    window.open(linkUrl, '_blank');
   };
 
   if (isLoading) {
