@@ -373,11 +373,20 @@ const SyllabusManager = ({ selectedSemester }: SyllabusManagerProps) => {
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
         {syllabus?.map((item) => (
-          <Card key={item.id} className="hover:shadow-lg transition-smooth">
+          <Card 
+            key={item.id} 
+            className={`hover:shadow-lg transition-smooth ${
+              item.type === 'lab' 
+                ? 'border-purple-500/50 bg-purple-50 dark:bg-purple-950/20' 
+                : 'border-blue-500/50 bg-blue-50 dark:bg-blue-950/20'
+            }`}
+          >
             <CardHeader>
-              <CardTitle className="text-lg">{item.title}</CardTitle>
+              <CardTitle className="text-lg flex items-center gap-2">
+                {item.type === 'lab' ? '🧪' : '📚'} {item.title}
+              </CardTitle>
               <p className="text-sm text-muted-foreground">
-                {item.semester} • {item.academic_year} • {item.type === 'lab' ? '🧪 Lab' : '📚 Theory'}
+                {item.semester} • {item.academic_year} • {item.type === 'lab' ? 'Lab' : 'Theory'}
               </p>
             </CardHeader>
             <CardContent className="space-y-3">
