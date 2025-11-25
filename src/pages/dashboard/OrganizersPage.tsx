@@ -64,7 +64,14 @@ export default function OrganizersPage() {
   };
 
   const handleOpenLink = (linkUrl: string) => {
-    window.open(linkUrl, "_blank");
+    // Create a temporary anchor element to force direct navigation
+    const a = document.createElement('a');
+    a.href = linkUrl;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   };
 
   if (isLoading) {
