@@ -23,6 +23,7 @@ const syllabusSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   semester: z.string().min(1, 'Semester is required'),
   academic_year: z.string().min(1, 'Academic year is required'),
+  type: z.enum(['theory', 'lab']),
   description: z.string().optional(),
   file_url: z.string().optional(),
   file_name: z.string().optional(),
@@ -45,6 +46,7 @@ const SyllabusManager = ({ selectedSemester }: SyllabusManagerProps) => {
       title: '',
       semester: selectedSemester,
       academic_year: '',
+      type: 'theory',
       description: '',
       file_url: '',
       file_name: '',
@@ -131,6 +133,7 @@ const SyllabusManager = ({ selectedSemester }: SyllabusManagerProps) => {
             title: values.title,
             semester: values.semester,
             academic_year: values.academic_year,
+            type: values.type,
             description: values.description,
             file_url: fileUrl,
             file_name: fileName,
@@ -159,6 +162,7 @@ const SyllabusManager = ({ selectedSemester }: SyllabusManagerProps) => {
       title: item.title,
       semester: item.semester,
       academic_year: item.academic_year,
+      type: item.type || 'theory',
       description: item.description || '',
       file_url: item.file_url,
       file_name: item.file_name,
@@ -259,6 +263,27 @@ const SyllabusManager = ({ selectedSemester }: SyllabusManagerProps) => {
                 />
                 <FormField
                   control={form.control}
+                  name="type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Syllabus Type</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="theory">Theory</SelectItem>
+                          <SelectItem value="lab">Lab</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
                   name="description"
                   render={({ field }) => (
                     <FormItem>
@@ -352,7 +377,7 @@ const SyllabusManager = ({ selectedSemester }: SyllabusManagerProps) => {
             <CardHeader>
               <CardTitle className="text-lg">{item.title}</CardTitle>
               <p className="text-sm text-muted-foreground">
-                {item.semester} • {item.academic_year}
+                {item.semester} • {item.academic_year} • {item.type === 'lab' ? '🧪 Lab' : '📚 Theory'}
               </p>
             </CardHeader>
             <CardContent className="space-y-3">

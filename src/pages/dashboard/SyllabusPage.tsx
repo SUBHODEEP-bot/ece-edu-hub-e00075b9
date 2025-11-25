@@ -81,11 +81,20 @@ export const SyllabusPage = () => {
       <h2 className="text-xl sm:text-2xl font-bold text-foreground">Course Syllabus</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         {syllabus?.map((item) => (
-          <Card key={item.id} className="hover:shadow-lg transition-smooth hover:border-primary/30">
+          <Card 
+            key={item.id} 
+            className={`hover:shadow-lg transition-smooth ${
+              item.type === 'lab' 
+                ? 'border-purple-500/50 bg-purple-50/50 dark:bg-purple-950/20' 
+                : 'border-blue-500/50 bg-blue-50/50 dark:bg-blue-950/20'
+            }`}
+          >
             <CardHeader className="p-4 sm:p-6">
-              <CardTitle className="text-base sm:text-lg">{item.title}</CardTitle>
+              <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                {item.type === 'lab' ? '🧪' : '📚'} {item.title}
+              </CardTitle>
               <CardDescription className="text-xs sm:text-sm">
-                {item.semester} • {item.academic_year}
+                {item.semester} • {item.academic_year} • {item.type === 'lab' ? 'Lab' : 'Theory'}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3 p-4 sm:p-6 pt-0">
