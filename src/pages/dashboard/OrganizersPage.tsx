@@ -64,12 +64,8 @@ export default function OrganizersPage() {
   };
 
   const handleOpenLink = (linkUrl: string) => {
-    // Use window.top to break out of iframe restrictions
-    if (window.top) {
-      window.top.location.href = linkUrl;
-    } else {
-      window.location.href = linkUrl;
-    }
+    // Use location.assign to navigate directly
+    window.location.assign(linkUrl);
   };
 
   if (isLoading) {
