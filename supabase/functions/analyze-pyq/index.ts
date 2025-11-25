@@ -83,8 +83,8 @@ Return ONLY JSON. No explanations.`;
 
     console.log('Calling Gemini API with model: gemini-1.5-flash');
     
-    // Correct Gemini API endpoint - use v1 with gemini-1.5-flash model
-    const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+    // Correct Gemini API endpoint - use v1beta with gemini-1.5-flash model
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
     
     const response = await fetch(apiUrl, {
       method: 'POST',
