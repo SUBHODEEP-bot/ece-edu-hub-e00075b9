@@ -1,18 +1,11 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Upload, FileText, Loader2, Brain, TrendingUp, Target, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import * as pdfjsLib from 'pdfjs-dist';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-
-// Set up PDF.js worker from npm package
-pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.min.mjs',
-  import.meta.url
-).toString();
 
 interface Question {
   question: string;
@@ -44,35 +37,10 @@ interface AnalysisResult {
 export const PYQAnalyzerPage = () => {
   const [file, setFile] = useState<File | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
-  const [extracting, setExtracting] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
-
-  const extractTextFromPDF = async (file: File): Promise<string> => {
-    setExtracting(true);
-    try {
-      const arrayBuffer = await file.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-      let fullText = '';
-
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
-        const textContent = await page.getTextContent();
-        const pageText = textContent.items
-          .map((item: any) => item.str)
-          .join(' ');
-        fullText += pageText + '\n\n';
-      }
-
-      return fullText.trim();
-    } catch (error) {
-      console.error('PDF extraction error:', error);
-      throw new Error('Failed to extract text from PDF');
-    } finally {
-      setExtracting(false);
-    }
-  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -94,27 +62,78 @@ export const PYQAnalyzerPage = () => {
     if (!file) return;
 
     setAnalyzing(true);
+    setUploadProgress(10);
+    
     try {
-      let extractedText = '';
+      let textContent = '';
 
-      if (file.type === 'application/pdf') {
-        extractedText = await extractTextFromPDF(file);
+      if (file.type === 'text/plain') {
+        // For text files, read directly
+        textContent = await file.text();
+        setUploadProgress(50);
       } else {
-        extractedText = await file.text();
+        // For PDFs, upload to Supabase storage first
+        const fileName = `pyq-${Date.now()}-${file.name}`;
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('documents')
+          .upload(fileName, file, {
+            cacheControl: '3600',
+            upsert: false
+          });
+
+        if (uploadError) throw uploadError;
+        setUploadProgress(40);
+
+        // Get public URL
+        const { data: { publicUrl } } = supabase.storage
+          .from('documents')
+          .getPublicUrl(fileName);
+
+        // Send PDF URL to backend for extraction and analysis
+        const { data, error } = await supabase.functions.invoke('analyze-pyq', {
+          body: { 
+            pdfUrl: publicUrl,
+            isPdf: true
+          },
+        });
+
+        if (error) throw error;
+
+        // Clean up the uploaded file
+        await supabase.storage.from('documents').remove([fileName]);
+
+        if (data?.analysis) {
+          setAnalysis(data.analysis);
+          setUploadProgress(100);
+          toast({
+            title: 'Analysis Complete',
+            description: 'PYQ analysis successful!',
+          });
+        } else {
+          throw new Error('No analysis data received');
+        }
+        return;
       }
 
-      if (!extractedText || extractedText.trim().length < 50) {
-        throw new Error('Insufficient text content extracted from file');
+      setUploadProgress(60);
+
+      if (!textContent || textContent.trim().length < 50) {
+        throw new Error('Insufficient text content in file');
       }
 
+      // For text files, send directly
       const { data, error } = await supabase.functions.invoke('analyze-pyq', {
-        body: { extractedText },
+        body: { 
+          extractedText: textContent,
+          isPdf: false
+        },
       });
 
       if (error) throw error;
 
       if (data?.analysis) {
         setAnalysis(data.analysis);
+        setUploadProgress(100);
         toast({
           title: 'Analysis Complete',
           description: 'PYQ analysis successful!',
@@ -129,6 +148,7 @@ export const PYQAnalyzerPage = () => {
         description: error instanceof Error ? error.message : 'Failed to analyze document',
         variant: 'destructive',
       });
+      setUploadProgress(0);
     } finally {
       setAnalyzing(false);
     }
@@ -201,17 +221,21 @@ export const PYQAnalyzerPage = () => {
               </div>
             )}
 
+            {analyzing && uploadProgress > 0 && (
+              <div className="space-y-2">
+                <Progress value={uploadProgress} className="h-2" />
+                <p className="text-xs text-center text-muted-foreground">
+                  {uploadProgress < 50 ? 'Uploading...' : uploadProgress < 80 ? 'Analyzing...' : 'Finalizing...'}
+                </p>
+              </div>
+            )}
+
             <Button
               onClick={analyzeDocument}
-              disabled={!file || analyzing || extracting}
+              disabled={!file || analyzing}
               className="w-full h-11 sm:h-10 text-sm sm:text-base"
             >
-              {extracting ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Extracting Text...
-                </>
-              ) : analyzing ? (
+              {analyzing ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   Analyzing with AI...

@@ -6,16 +6,40 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+async function extractTextFromPDF(pdfUrl: string): Promise<string> {
+  const response = await fetch(pdfUrl);
+  if (!response.ok) {
+    throw new Error('Failed to fetch PDF');
+  }
+  
+  const arrayBuffer = await response.arrayBuffer();
+  
+  // Use pdf-parse from esm.sh CDN
+  const pdfParse = await import('https://esm.sh/pdf-parse@1.1.1');
+  const data = await pdfParse.default(arrayBuffer);
+  
+  return data.text;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { extractedText } = await req.json();
+    const { extractedText, pdfUrl, isPdf } = await req.json();
     
-    if (!extractedText || extractedText.trim().length === 0) {
-      throw new Error('No text content provided for analysis');
+    let textToAnalyze = extractedText;
+
+    // If it's a PDF, extract text from URL
+    if (isPdf && pdfUrl) {
+      console.log('Fetching and extracting PDF from URL:', pdfUrl);
+      textToAnalyze = await extractTextFromPDF(pdfUrl);
+      console.log('Extracted text length:', textToAnalyze.length);
+    }
+    
+    if (!textToAnalyze || textToAnalyze.trim().length === 0) {
+      throw new Error('No text content extracted from document');
     }
 
     const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
@@ -35,6 +59,7 @@ Analyze the given Previous Year Questions and return ONLY valid JSON with:
 
 Return ONLY JSON. No explanations.`;
 
+    console.log('Calling Gemini API...');
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
       method: 'POST',
       headers: {
@@ -43,7 +68,7 @@ Return ONLY JSON. No explanations.`;
       body: JSON.stringify({
         contents: [{
           parts: [{
-            text: `${systemPrompt}\n\nPrevious Year Questions to analyze:\n\n${extractedText}`
+            text: `${systemPrompt}\n\nPrevious Year Questions to analyze:\n\n${textToAnalyze}`
           }]
         }],
         generationConfig: {
@@ -67,6 +92,8 @@ Return ONLY JSON. No explanations.`;
     if (!generatedText) {
       throw new Error('No response from Gemini API');
     }
+
+    console.log('Gemini response received');
 
     // Extract JSON from response (removing markdown code blocks if present)
     let jsonText = generatedText.trim();
