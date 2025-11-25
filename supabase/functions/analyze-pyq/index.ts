@@ -125,10 +125,10 @@ Rules:
 - 8-12 predicted questions
 - Return ONLY valid JSON`;
 
-    console.log('Calling Gemini API with model: gemini-1.5-pro-002 (most powerful)');
+    console.log('Calling Gemini API with model: gemini-1.5-pro (most powerful)');
     
-    // Use gemini-1.5-pro-002 - the most powerful Gemini model for deep analysis
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-002:generateContent?key=${GEMINI_API_KEY}`;
+    // Use gemini-1.5-pro - the most powerful stable Gemini model
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${GEMINI_API_KEY}`;
     
     const response = await fetch(apiUrl, {
       method: 'POST',
