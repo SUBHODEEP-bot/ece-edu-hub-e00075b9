@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Bell } from "lucide-react";
+import { Bell, X } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -15,6 +15,17 @@ import { useAuth } from "@/contexts/AuthContext";
 export function NotificationBell() {
   const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+  const [dismissedNotifications, setDismissedNotifications] = useState<string[]>([]);
+
+  // Load dismissed notifications from localStorage
+  useEffect(() => {
+    if (user) {
+      const dismissed = localStorage.getItem(`dismissed_notifications_${user.id}`);
+      if (dismissed) {
+        setDismissedNotifications(JSON.parse(dismissed));
+      }
+    }
+  }, [user]);
 
   const { data: profile } = useQuery({
     queryKey: ["profile", user?.id],
@@ -51,7 +62,19 @@ export function NotificationBell() {
     enabled: !!profile?.semester,
   });
 
-  const unreadCount = notifications?.length || 0;
+  const handleDismissNotification = (notificationId: string) => {
+    const updated = [...dismissedNotifications, notificationId];
+    setDismissedNotifications(updated);
+    if (user) {
+      localStorage.setItem(`dismissed_notifications_${user.id}`, JSON.stringify(updated));
+    }
+  };
+
+  const visibleNotifications = notifications?.filter(
+    (n) => !dismissedNotifications.includes(n.id)
+  ) || [];
+
+  const unreadCount = visibleNotifications.length;
 
   const getTypeColor = (type: string) => {
     switch (type) {
@@ -91,14 +114,22 @@ export function NotificationBell() {
           )}
         </div>
         <ScrollArea className="h-[400px]">
-          {notifications && notifications.length > 0 ? (
+          {visibleNotifications.length > 0 ? (
             <div className="p-2 space-y-2">
-              {notifications.map((notification) => (
+              {visibleNotifications.map((notification) => (
                 <div
                   key={notification.id}
-                  className={`p-3 rounded-lg ${getTypeColor(notification.type)}`}
+                  className={`p-3 rounded-lg ${getTypeColor(notification.type)} relative`}
                 >
-                  <div className="font-semibold text-sm mb-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-2 right-2 h-6 w-6 hover:bg-background/20"
+                    onClick={() => handleDismissNotification(notification.id)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                  <div className="font-semibold text-sm mb-1 pr-8">
                     {notification.title}
                   </div>
                   <p className="text-xs text-muted-foreground mb-2">
