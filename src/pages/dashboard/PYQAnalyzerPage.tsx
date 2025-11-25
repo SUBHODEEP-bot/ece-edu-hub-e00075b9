@@ -27,6 +27,7 @@ interface PredictedQuestion {
 }
 
 interface AnalysisResult {
+  subjectName?: string;
   questions?: Question[];
   topicWeightage?: TopicWeightage[];
   difficulty?: string;
@@ -154,7 +155,7 @@ export const PYQAnalyzerPage = () => {
           Smart PYQ Analyzer
         </h2>
         <p className="text-sm sm:text-base text-muted-foreground mt-1 sm:mt-2">
-          Upload Previous Year Question Papers and get AI-powered exam insights
+          Upload any PYQ and get AI-powered analysis with most important questions and topics
         </p>
       </div>
 
@@ -231,6 +232,20 @@ export const PYQAnalyzerPage = () => {
       {/* Analysis Results */}
       {analysis && (
         <div className="space-y-4 sm:space-y-6">
+          {/* Subject Name */}
+          {analysis.subjectName && (
+            <Card className="bg-gradient-to-r from-primary/10 to-primary/5">
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex items-center gap-3">
+                  <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                  <div>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Detected Subject</p>
+                    <h3 className="text-lg sm:text-xl font-bold text-foreground">{analysis.subjectName}</h3>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
           {/* Difficulty & Overview */}
           {analysis.difficulty && (
             <Card>
@@ -255,8 +270,11 @@ export const PYQAnalyzerPage = () => {
               <CardHeader className="p-4 sm:p-6">
                 <CardTitle className="text-base sm:text-lg flex items-center gap-2">
                   <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />
-                  Topic Weightage
+                  Most Important Topics (Highest Weightage)
                 </CardTitle>
+                <CardDescription className="text-xs sm:text-sm">
+                  Focus on these topics for maximum marks
+                </CardDescription>
               </CardHeader>
               <CardContent className="p-4 sm:p-6 pt-0 space-y-3 sm:space-y-4">
                 {analysis.topicWeightage.map((item, idx) => (
@@ -280,7 +298,7 @@ export const PYQAnalyzerPage = () => {
               <CardHeader className="p-4 sm:p-6 bg-primary/5">
                 <CardTitle className="text-base sm:text-lg flex items-center gap-2 text-primary">
                   <Target className="w-5 h-5 sm:w-6 sm:h-6" />
-                  ⭐ Most Important Questions to Study
+                  ⭐ Top {analysis.repeatedQuestions.length} Most Important Questions
                 </CardTitle>
                 <CardDescription className="text-xs sm:text-sm">
                   High-priority questions with high importance scores - Focus on these!
