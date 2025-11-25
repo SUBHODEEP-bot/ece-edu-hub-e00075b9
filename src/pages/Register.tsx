@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { GraduationCap, ArrowLeft, Loader2, Mail, Lock, User, Phone, Sparkles, CheckCircle2 } from 'lucide-react';
+import { GraduationCap, ArrowLeft, Loader2, Mail, Lock, User, Phone, Sparkles, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -27,6 +27,8 @@ const registerSchema = z.object({
 type RegisterFormValues = z.infer<typeof registerSchema>;
 const Register = () => {
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
@@ -211,7 +213,20 @@ const Register = () => {
                     <FormControl>
                       <div className="relative">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
-                        <Input type="password" placeholder="••••••••" className="pl-10 md:pl-11 h-11 md:h-12 border-2 focus:border-gold transition-colors text-sm md:text-base" {...field} />
+                        <Input type={showPassword ? "text" : "password"} placeholder="••••••••" className="pl-10 md:pl-11 pr-11 md:pr-12 h-11 md:h-12 border-2 focus:border-gold transition-colors text-sm md:text-base" {...field} />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 md:h-9 md:w-9 p-0 hover:bg-transparent"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4 text-muted-foreground" />
+                          ) : (
+                            <Eye className="h-4 w-4 text-muted-foreground" />
+                          )}
+                        </Button>
                       </div>
                     </FormControl>
                     <FormMessage />
@@ -224,7 +239,20 @@ const Register = () => {
                     <FormControl>
                       <div className="relative">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
-                        <Input type="password" placeholder="••••••••" className="pl-10 md:pl-11 h-11 md:h-12 border-2 focus:border-gold transition-colors text-sm md:text-base" {...field} />
+                        <Input type={showConfirmPassword ? "text" : "password"} placeholder="••••••••" className="pl-10 md:pl-11 pr-11 md:pr-12 h-11 md:h-12 border-2 focus:border-gold transition-colors text-sm md:text-base" {...field} />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 md:h-9 md:w-9 p-0 hover:bg-transparent"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        >
+                          {showConfirmPassword ? (
+                            <EyeOff className="h-4 w-4 text-muted-foreground" />
+                          ) : (
+                            <Eye className="h-4 w-4 text-muted-foreground" />
+                          )}
+                        </Button>
                       </div>
                     </FormControl>
                     <FormMessage />
