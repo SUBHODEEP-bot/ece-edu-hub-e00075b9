@@ -27,8 +27,6 @@ interface PredictedQuestion {
 }
 
 interface AnalysisResult {
-  subjectName?: string;
-  questions?: Question[];
   topicWeightage?: TopicWeightage[];
   difficulty?: string;
   predictedQuestions?: PredictedQuestion[];
@@ -232,20 +230,6 @@ export const PYQAnalyzerPage = () => {
       {/* Analysis Results */}
       {analysis && (
         <div className="space-y-4 sm:space-y-6">
-          {/* Subject Name */}
-          {analysis.subjectName && (
-            <Card className="bg-gradient-to-r from-primary/10 to-primary/5">
-              <CardContent className="p-4 sm:p-6">
-                <div className="flex items-center gap-3">
-                  <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
-                  <div>
-                    <p className="text-xs sm:text-sm text-muted-foreground">Detected Subject</p>
-                    <h3 className="text-lg sm:text-xl font-bold text-foreground">{analysis.subjectName}</h3>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
           {/* Difficulty & Overview */}
           {analysis.difficulty && (
             <Card>
