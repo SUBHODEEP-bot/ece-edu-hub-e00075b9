@@ -75,14 +75,19 @@ serve(async (req) => {
 Analyze the given Previous Year Questions and return ONLY valid JSON with this EXACT structure:
 
 {
-  "questions": [{"question": "text", "topic": "category", "importance": 0.8}],
-  "topicWeightage": [{"topic": "name", "count": 5, "percentage": 25.0}],
-  "difficulty": "medium",
-  "repeatedQuestions": [{"question": "text", "topic": "category", "importance": 0.9}],
-  "predictedQuestions": [{"question": "text", "probability": 0.75, "reason": "explanation", "topic": "category"}]
+  "questions": [{"question": "full question text", "topic": "topic-name", "importance": 0.8}],
+  "topicWeightage": [{"topic": "topic-name", "count": 5, "percentage": 25.0}],
+  "difficulty": "easy|medium|hard",
+  "repeatedQuestions": [{"question": "important repeated question text", "topic": "topic-name", "importance": 0.9}],
+  "predictedQuestions": [{"question": "predicted question text", "probability": 0.75, "reason": "why this is likely", "topic": "topic-name"}]
 }
 
-CRITICAL: Return ONLY valid JSON. No explanations, no markdown, no text outside JSON. Use double quotes for strings. Ensure all JSON is properly formatted.`;
+IMPORTANT RULES:
+1. repeatedQuestions MUST contain 5-15 most important/repeated questions with importance > 0.7
+2. Include at least 8-12 predicted questions
+3. Topics: network-theory, signal-system, analog-electronics, digital-electronics, communication-system, electromagnetics, microprocessor, control-systems, etc.
+4. Return ONLY valid JSON with proper double quotes and no trailing commas
+5. NO explanations, NO markdown, ONLY the JSON object`;
 
     console.log('Calling Gemini API with model: gemini-2.0-flash');
     

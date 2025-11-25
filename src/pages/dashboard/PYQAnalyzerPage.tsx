@@ -274,22 +274,25 @@ export const PYQAnalyzerPage = () => {
             </Card>
           )}
 
-          {/* Repeated Important Questions */}
+          {/* Important Repeated Questions - Show First */}
           {analysis.repeatedQuestions && analysis.repeatedQuestions.length > 0 && (
-            <Card>
-              <CardHeader className="p-4 sm:p-6">
-                <CardTitle className="text-base sm:text-lg flex items-center gap-2">
-                  <Target className="w-4 h-4 sm:w-5 sm:h-5" />
-                  Important Repeated Questions
+            <Card className="border-2 border-primary">
+              <CardHeader className="p-4 sm:p-6 bg-primary/5">
+                <CardTitle className="text-base sm:text-lg flex items-center gap-2 text-primary">
+                  <Target className="w-5 h-5 sm:w-6 sm:h-6" />
+                  ⭐ Most Important Questions to Study
                 </CardTitle>
                 <CardDescription className="text-xs sm:text-sm">
-                  Questions with high importance scores
+                  High-priority questions with high importance scores - Focus on these!
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-4 sm:p-6 pt-0 space-y-2 sm:space-y-3">
                 {analysis.repeatedQuestions.map((q, idx) => (
-                  <div key={idx} className="p-3 sm:p-4 border rounded-lg space-y-2">
-                    <p className="text-xs sm:text-sm font-medium">{q.question}</p>
+                  <div key={idx} className="p-3 sm:p-4 border-2 border-primary/20 rounded-lg space-y-2 bg-primary/5">
+                    <div className="flex items-start gap-2">
+                      <span className="text-lg font-bold text-primary shrink-0">#{idx + 1}</span>
+                      <p className="text-xs sm:text-sm font-medium flex-1">{q.question}</p>
+                    </div>
                     <div className="flex flex-wrap gap-2 items-center">
                       <Badge variant="secondary" className="text-xs capitalize">
                         {q.topic.replace(/-/g, ' ')}
@@ -297,7 +300,7 @@ export const PYQAnalyzerPage = () => {
                       <div className="flex items-center gap-1">
                         <span className="text-xs text-muted-foreground">Importance:</span>
                         <Progress value={q.importance * 100} className="w-16 sm:w-20 h-1.5" />
-                        <span className="text-xs font-medium">{(q.importance * 100).toFixed(0)}%</span>
+                        <span className="text-xs font-bold text-primary">{(q.importance * 100).toFixed(0)}%</span>
                       </div>
                     </div>
                   </div>
