@@ -1,4 +1,4 @@
-import { FileText, BookOpen, GraduationCap, Calendar, User, ClipboardCheck, LifeBuoy, FolderKanban } from 'lucide-react';
+import { FileText, BookOpen, GraduationCap, Calendar, User, ClipboardCheck, LifeBuoy, FolderKanban, CalendarDays } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useLocation } from 'react-router-dom';
 import {
@@ -21,6 +21,7 @@ const menuItems = [
   { title: 'Organizers', url: '/dashboard/organizers', icon: FolderKanban },
   { title: 'Mar Support', url: '/dashboard/mar-support', icon: LifeBuoy },
   { title: 'Attendance', url: '/dashboard/attendance', icon: ClipboardCheck },
+  { title: 'Study Timetable', url: '/dashboard/timetable', icon: CalendarDays },
 ];
 
 export function StudentSidebar() {
