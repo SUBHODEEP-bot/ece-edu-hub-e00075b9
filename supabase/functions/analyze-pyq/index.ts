@@ -96,63 +96,34 @@ serve(async (req) => {
 
     console.log('API Key exists, length:', GEMINI_API_KEY.length);
 
-    const systemPrompt = `You are an expert educational analyst analyzing a Previous Year Question Paper.
+    const systemPrompt = `You are analyzing a Previous Year Question Paper. The content below is extracted from the PDF.
 
-CRITICAL INSTRUCTIONS - FOCUS ON QUALITY OVER QUANTITY:
+CRITICAL INSTRUCTIONS:
+1. Read the ACTUAL questions from the text provided below
+2. Extract the REAL question text word-for-word from the paper
+3. Identify ACTUAL topics mentioned in the questions (e.g., "Transistor Biasing", "Diode Circuits", "Amplifiers", etc.)
+4. Analyze patterns and identify which questions/topics are most important
+5. Create predictions based on the ACTUAL content
 
-1. ANALYZE THE ENTIRE PAPER THOROUGHLY
-   - Read every question carefully
-   - Identify the actual topics and concepts tested
-   - Determine difficulty based on question complexity
+NEVER use placeholder text like "Full important question text 1" or "Unidentified Topic 1"
+ALWAYS use the REAL questions and topics from the paper
 
-2. EXTRACT ONLY THE MOST CRITICAL INFORMATION:
-   
-   a) TOP 5-7 MOST IMPORTANT TOPICS ONLY
-      - Focus on topics with highest weightage
-      - Include actual topic names from the paper (e.g., "Transistor Biasing", "Op-Amp Circuits", "Digital Logic Gates")
-      - Calculate accurate percentage weightage
-   
-   b) TOP 10-12 MOST IMPORTANT QUESTIONS
-      - Select only questions with importance score > 0.8
-      - Include FULL question text word-for-word
-      - Prioritize frequently asked or complex questions
-      - Mark each with actual topic name
-   
-   c) 5-8 HIGHEST PROBABILITY PREDICTIONS
-      - Predict questions most likely to appear in next exam
-      - Base predictions on actual patterns from the paper
-      - Each prediction must have probability > 0.75
-      - Provide specific reason based on paper analysis
-
-3. STRICT OUTPUT FORMAT (JSON ONLY):
+Return ONLY this JSON:
 
 {
-  "topicWeightage": [
-    {"topic": "Actual Topic Name", "count": 12, "percentage": 28.5}
-  ],
+  "topicWeightage": [{"topic": "Actual Topic Name from Paper", "count": 15, "percentage": 35.0}],
   "difficulty": "easy|medium|hard",
-  "repeatedQuestions": [
-    {
-      "question": "Complete actual question text from paper",
-      "topic": "actual-topic-name",
-      "importance": 0.85
-    }
-  ],
-  "predictedQuestions": [
-    {
-      "question": "Specific predicted question based on patterns",
-      "probability": 0.82,
-      "reason": "Appears in multiple sections and covers core concept",
-      "topic": "actual-topic"
-    }
-  ]
+  "repeatedQuestions": [{"question": "Actual full question text from the paper", "topic": "actual-topic-name", "importance": 0.95}],
+  "predictedQuestions": [{"question": "Predicted question based on actual patterns", "probability": 0.85, "reason": "Specific reason from paper analysis", "topic": "actual-topic"}]
 }
 
-QUALITY RULES:
-- Use REAL questions and topics from the paper ONLY
-- NO placeholder text or generic questions
-- Focus on HIGH-IMPACT information only
-- Return ONLY valid JSON, no markdown or extra text`;
+Rules:
+- Use REAL questions from the paper, not placeholders
+- Extract ACTUAL topic names from questions
+- Minimum 10 important questions in repeatedQuestions
+- Top 5-8 topics in topicWeightage
+- 8-12 predicted questions
+- Return ONLY valid JSON`;
 
     console.log('Calling Gemini API with optimized settings for deep analysis');
     
