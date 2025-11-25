@@ -12,6 +12,7 @@ import { ProfilePage } from './dashboard/ProfilePage';
 import { QuestionPapersPage } from './dashboard/QuestionPapersPage';
 import { NotesPage } from './dashboard/NotesPage';
 import { SyllabusPage } from './dashboard/SyllabusPage';
+import LabManualsPage from './dashboard/LabManualsPage';
 import { EventsPage } from './dashboard/EventsPage';
 import { AttendancePage } from './dashboard/AttendancePage';
 import OrganizersPage from './dashboard/OrganizersPage';
@@ -84,13 +85,14 @@ const StudentDashboard = () => {
               <Route path="papers" element={<QuestionPapersPage />} />
               <Route path="notes" element={<NotesPage />} />
               <Route path="syllabus" element={<SyllabusPage />} />
+              <Route path="lab-manuals" element={<LabManualsPage />} />
               <Route path="events" element={<EventsPage />} />
               <Route path="organizers" element={<OrganizersPage />} />
               <Route path="mar-support" element={<MarSupportPage />} />
               <Route path="attendance" element={<AttendancePage />} />
-            <Route path="timetable" element={<TimetablePage />} />
-            <Route path="pyq-analyzer" element={<PYQAnalyzerPage />} />
-          </Routes>
+              <Route path="timetable" element={<TimetablePage />} />
+              <Route path="pyq-analyzer" element={<PYQAnalyzerPage />} />
+            </Routes>
           </div>
         </main>
       </div>

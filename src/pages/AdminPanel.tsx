@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { FileText, BookOpen, GraduationCap, Calendar, Users, LogOut, BarChart3, Filter, LifeBuoy, FolderKanban, Bell } from 'lucide-react';
+import { FileText, BookOpen, GraduationCap, Calendar, Users, LogOut, BarChart3, Filter, LifeBuoy, FolderKanban, Bell, FlaskConical } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import QuestionPapersManager from '@/components/admin/QuestionPapersManager';
@@ -15,6 +15,7 @@ import UsersManager from '@/components/admin/UsersManager';
 import MarSupportManager from '@/components/admin/MarSupportManager';
 import { OrganizersManager } from '@/components/admin/OrganizersManager';
 import { NotificationsManager } from '@/components/admin/NotificationsManager';
+import LabManualsManager from '@/components/admin/LabManualsManager';
 
 const AdminPanel = () => {
   const { signOut } = useAuth();
@@ -33,6 +34,7 @@ const AdminPanel = () => {
         { count: eventsCount },
         { count: organizersCount },
         { count: notificationsCount },
+        { count: labManualsCount },
       ] = await Promise.all([
         supabase.from('profiles').select('*', { count: 'exact', head: true }),
         supabase.from('question_papers').select('*', { count: 'exact', head: true }),
@@ -41,6 +43,7 @@ const AdminPanel = () => {
         supabase.from('events').select('*', { count: 'exact', head: true }),
         supabase.from('organizers').select('*', { count: 'exact', head: true }),
         supabase.from('notifications').select('*', { count: 'exact', head: true }),
+        supabase.from('lab_manuals').select('*', { count: 'exact', head: true }),
       ]);
 
       return {
@@ -51,6 +54,7 @@ const AdminPanel = () => {
         events: eventsCount || 0,
         organizers: organizersCount || 0,
         notifications: notificationsCount || 0,
+        labManuals: labManualsCount || 0,
       };
     },
   });
@@ -112,7 +116,7 @@ const AdminPanel = () => {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-9 h-auto gap-2 bg-muted/50 p-2 rounded-xl">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-10 h-auto gap-2 bg-muted/50 p-2 rounded-xl">
             <TabsTrigger value="dashboard" className="gap-2 data-[state=active]:gradient-primary data-[state=active]:text-white">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline">Dashboard</span>
@@ -128,6 +132,10 @@ const AdminPanel = () => {
             <TabsTrigger value="syllabus" className="gap-2 data-[state=active]:gradient-primary data-[state=active]:text-white">
               <GraduationCap className="w-4 h-4" />
               <span className="hidden sm:inline">Syllabus</span>
+            </TabsTrigger>
+            <TabsTrigger value="lab-manuals" className="gap-2 data-[state=active]:gradient-primary data-[state=active]:text-white">
+              <FlaskConical className="w-4 h-4" />
+              <span className="hidden sm:inline">Lab Manuals</span>
             </TabsTrigger>
             <TabsTrigger value="events" className="gap-2 data-[state=active]:gradient-primary data-[state=active]:text-white">
               <Calendar className="w-4 h-4" />
@@ -249,13 +257,26 @@ const AdminPanel = () => {
               <Card className="hover:shadow-lg transition-smooth border-2 hover:border-primary/30">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium text-muted-foreground">
+                    Lab Manuals
+                  </CardTitle>
+                  <FlaskConical className="w-5 h-5 text-accent" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-foreground">{stats?.labManuals || 0}</div>
+                  <p className="text-xs text-muted-foreground mt-1">Available lab manuals</p>
+                </CardContent>
+              </Card>
+
+              <Card className="hover:shadow-lg transition-smooth border-2 hover:border-primary/30">
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
                     Total Resources
                   </CardTitle>
-                  <BarChart3 className="w-5 h-5 text-accent" />
+                  <BarChart3 className="w-5 h-5 text-primary" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-bold text-foreground">
-                    {(stats?.papers || 0) + (stats?.notes || 0) + (stats?.syllabus || 0)}
+                    {(stats?.papers || 0) + (stats?.notes || 0) + (stats?.syllabus || 0) + (stats?.labManuals || 0)}
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">Academic materials</p>
                 </CardContent>
@@ -276,6 +297,11 @@ const AdminPanel = () => {
           {/* Syllabus Tab */}
           <TabsContent value="syllabus" className="animate-fade-in">
             <SyllabusManager selectedSemester={selectedSemester} />
+          </TabsContent>
+
+          {/* Lab Manuals Tab */}
+          <TabsContent value="lab-manuals" className="animate-fade-in">
+            <LabManualsManager selectedSemester={selectedSemester} />
           </TabsContent>
 
           {/* Events Tab */}
