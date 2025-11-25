@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { FileText, Download, ExternalLink, Loader2, Link as LinkIcon } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -51,12 +50,8 @@ const LabManualsPage = () => {
     enabled: !!profile?.semester,
   });
 
-  const handleDownload = async (manual: LabManual) => {
-    if (manual.file_url) {
-      window.open(manual.file_url, '_blank');
-    } else if (manual.link_url) {
-      window.open(manual.link_url, '_blank');
-    }
+  const getManualUrl = (manual: LabManual) => {
+    return manual.file_url || manual.link_url || '#';
   };
 
   if (isLoading) {
@@ -114,23 +109,24 @@ const LabManualsPage = () => {
                 )}
               </CardHeader>
               <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
-                <Button
-                  onClick={() => handleDownload(manual)}
-                  className="w-full text-sm sm:text-base"
-                  variant="default"
-                >
-                  {manual.link_url ? (
-                    <>
-                      <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-2" />
-                      Open Link
-                    </>
-                  ) : (
-                    <>
-                      <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-2" />
-                      View PDF
-                    </>
-                  )}
-                </Button>
+              <a
+                href={getManualUrl(manual)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
+              >
+                {manual.link_url ? (
+                  <>
+                    <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-2" />
+                    Open Link
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-2" />
+                    View PDF
+                  </>
+                )}
+              </a>
                 {manual.file_name && (
                   <p className="text-xs text-muted-foreground mt-2 truncate" title={manual.file_name}>
                     {manual.file_name}

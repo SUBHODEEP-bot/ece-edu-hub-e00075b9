@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { ExternalLink } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -51,14 +50,15 @@ export const MarSupportPage = () => {
               )}
             </CardHeader>
             <CardContent className="space-y-3 p-4 sm:p-6 pt-0">
-              <Button
-                onClick={() => window.open(item.link_url, '_blank')}
-                className="w-full gradient-primary text-white text-xs sm:text-sm"
-                size="sm"
+              <a
+                href={item.link_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-gradient-to-r from-primary to-primary-glow text-white hover:opacity-90 h-9 px-4 w-full"
               >
                 <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
                 Open Link
-              </Button>
+              </a>
             </CardContent>
           </Card>
         ))}
