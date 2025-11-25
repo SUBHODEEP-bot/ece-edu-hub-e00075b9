@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +9,9 @@ import { Plus, Trash2, Calendar, Download, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+import { toast } from 'sonner';
 
 type Difficulty = 'easy' | 'medium' | 'hard';
 
@@ -101,6 +104,7 @@ export function TimetablePage() {
   const [currentDifficulty, setCurrentDifficulty] = useState<Difficulty>('medium');
   const [studyDays, setStudyDays] = useState<number>(5);
   const [generatedTimetable, setGeneratedTimetable] = useState<TimetableDay[]>([]);
+  const timetableRef = useRef<HTMLDivElement>(null);
 
   const { data: profile } = useQuery({
     queryKey: ['profile'],
@@ -145,9 +149,38 @@ export function TimetablePage() {
     setStudyDays(5);
   };
 
-  const handleDownloadPDF = () => {
-    // Create a printable version
-    window.print();
+  const handleDownloadPDF = async () => {
+    if (!timetableRef.current) return;
+    
+    try {
+      toast.loading('Generating PDF...');
+      
+      // Capture the timetable as canvas
+      const canvas = await html2canvas(timetableRef.current, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+      });
+      
+      // Calculate dimensions for PDF
+      const imgWidth = 210; // A4 width in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      
+      // Create PDF
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgData = canvas.toDataURL('image/png');
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      pdf.save(`study-timetable-${new Date().toISOString().split('T')[0]}.pdf`);
+      
+      toast.dismiss();
+      toast.success('PDF downloaded successfully!');
+    } catch (error) {
+      toast.dismiss();
+      toast.error('Failed to generate PDF');
+      console.error('PDF generation error:', error);
+    }
   };
 
   return (
@@ -277,82 +310,141 @@ export function TimetablePage() {
 
       {/* Generated Timetable */}
       {generatedTimetable.length > 0 && (
-        <Card className="border-2 border-success/20 shadow-lg animate-scale-in print:shadow-none">
-          <CardHeader className="gradient-secondary text-white print:bg-none print:text-black p-4 sm:p-6">
+        <Card className="border-2 border-success/20 shadow-lg animate-scale-in">
+          <CardHeader className="gradient-secondary text-white p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div className="min-w-0 flex-1">
-                <CardTitle className="text-lg sm:text-xl md:text-2xl break-words">Your Weekly Study Timetable</CardTitle>
-                <CardDescription className="text-blue-100 print:text-gray-600 text-xs sm:text-sm">
+                <CardTitle className="text-lg sm:text-xl md:text-2xl break-words">Your Weekly Study Routine</CardTitle>
+                <CardDescription className="text-blue-100 text-xs sm:text-sm">
                   Studying {studyDays} days/week • {subjects.length} subjects
                 </CardDescription>
               </div>
               <Button
                 onClick={handleDownloadPDF}
-                variant="outline"
-                size="sm"
-                className="bg-white/10 hover:bg-white/20 text-white border-white/20 print:hidden h-10 sm:h-9 flex-shrink-0"
+                className="gradient-primary h-10 sm:h-9 flex-shrink-0"
               >
                 <Download className="w-4 h-4 sm:mr-2" />
-                <span className="hidden sm:inline">Print/PDF</span>
+                <span className="hidden sm:inline">Download PDF</span>
+                <span className="sm:hidden">PDF</span>
               </Button>
             </div>
           </CardHeader>
           <CardContent className="p-4 sm:p-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-              {generatedTimetable.map((day, index) => (
-                <Card
-                  key={day.day}
-                  className="border-2 hover:shadow-lg transition-smooth animate-scale-in print:break-inside-avoid"
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
-                  <CardHeader className="pb-3 bg-muted/30 p-3 sm:p-4">
-                    <CardTitle className="text-base sm:text-lg flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0"></div>
-                      {day.day}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="pt-3 sm:pt-4 p-3 sm:p-4 space-y-2 sm:space-y-3">
-                    {day.subjects.length > 0 ? (
-                      day.subjects.map((subject, idx) => (
-                        <div
-                          key={`${subject.id}-${idx}`}
-                          className="p-2.5 sm:p-3 bg-card border-l-4 rounded-r-lg transition-smooth hover:shadow-md"
-                          style={{
-                            borderColor: subject.difficulty === 'hard' ? 'hsl(var(--destructive))' :
-                                       subject.difficulty === 'medium' ? 'hsl(var(--primary))' :
-                                       'hsl(var(--success))'
-                          }}
-                        >
-                          <p className="font-semibold text-foreground text-sm sm:text-base break-words">{subject.name}</p>
-                          <Badge className={`mt-2 ${getDifficultyColor(subject.difficulty)} text-xs`} variant="secondary">
-                            {subject.difficulty}
-                          </Badge>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-xs sm:text-sm text-muted-foreground italic">No classes scheduled</p>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            {/* Timetable View for PDF */}
+            <div ref={timetableRef} className="bg-white p-6 rounded-lg">
+              {/* Header */}
+              <div className="text-center mb-6 pb-4 border-b-2 border-primary">
+                <h1 className="text-2xl sm:text-3xl font-bold text-navy mb-2">
+                  Weekly Study Timetable
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  Student: {profile?.name} | Semester: {profile?.semester}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Generated on {new Date().toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                  })}
+                </p>
+              </div>
 
-            {/* Legend */}
-            <div className="mt-6 sm:mt-8 p-3 sm:p-4 bg-muted/30 rounded-lg print:mt-6">
-              <p className="text-xs sm:text-sm font-semibold mb-3 text-foreground">Difficulty Legend:</p>
-              <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-4">
-                <div className="flex items-center gap-2">
-                  <Badge className="bg-success text-success-foreground text-xs">Easy</Badge>
-                  <span className="text-xs sm:text-sm text-muted-foreground">1x per week</span>
+              {/* Routine Table */}
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="bg-secondary">
+                      <th className="border-2 border-border p-3 text-left text-white font-semibold w-32">
+                        Day
+                      </th>
+                      <th className="border-2 border-border p-3 text-left text-white font-semibold">
+                        Study Sessions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {generatedTimetable.map((day, index) => (
+                      <tr 
+                        key={day.day}
+                        className={index % 2 === 0 ? 'bg-muted/30' : 'bg-white'}
+                      >
+                        <td className="border-2 border-border p-3 font-semibold text-foreground">
+                          {day.day}
+                        </td>
+                        <td className="border-2 border-border p-3">
+                          {day.subjects.length > 0 ? (
+                            <div className="flex flex-col gap-2">
+                              {day.subjects.map((subject, idx) => (
+                                <div
+                                  key={`${subject.id}-${idx}`}
+                                  className="flex items-center gap-3 p-2 rounded border-l-4"
+                                  style={{
+                                    borderColor: subject.difficulty === 'hard' ? '#ef4444' :
+                                               subject.difficulty === 'medium' ? '#f59e0b' :
+                                               '#22c55e',
+                                    backgroundColor: subject.difficulty === 'hard' ? '#fef2f2' :
+                                                   subject.difficulty === 'medium' ? '#fffbeb' :
+                                                   '#f0fdf4'
+                                  }}
+                                >
+                                  <span className="font-medium text-foreground flex-1">
+                                    {subject.name}
+                                  </span>
+                                  <span 
+                                    className="text-xs px-2 py-1 rounded font-semibold"
+                                    style={{
+                                      backgroundColor: subject.difficulty === 'hard' ? '#ef4444' :
+                                                     subject.difficulty === 'medium' ? '#f59e0b' :
+                                                     '#22c55e',
+                                      color: 'white'
+                                    }}
+                                  >
+                                    {subject.difficulty.toUpperCase()}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground italic text-sm">No classes scheduled</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Legend */}
+              <div className="mt-6 p-4 bg-muted/20 rounded-lg border-2 border-border">
+                <p className="text-sm font-semibold mb-3 text-foreground">Difficulty Level Guide:</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="flex items-center gap-2 p-2 bg-white rounded border-l-4 border-success">
+                    <div className="w-3 h-3 rounded-full bg-success"></div>
+                    <div>
+                      <p className="font-semibold text-foreground text-sm">Easy</p>
+                      <p className="text-xs text-muted-foreground">1 session per week</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 p-2 bg-white rounded border-l-4 border-primary">
+                    <div className="w-3 h-3 rounded-full bg-primary"></div>
+                    <div>
+                      <p className="font-semibold text-foreground text-sm">Medium</p>
+                      <p className="text-xs text-muted-foreground">2 sessions per week</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 p-2 bg-white rounded border-l-4 border-destructive">
+                    <div className="w-3 h-3 rounded-full bg-destructive"></div>
+                    <div>
+                      <p className="font-semibold text-foreground text-sm">Hard</p>
+                      <p className="text-xs text-muted-foreground">3 sessions per week</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Badge className="bg-primary text-primary-foreground text-xs">Medium</Badge>
-                  <span className="text-xs sm:text-sm text-muted-foreground">2x per week</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge className="bg-destructive text-destructive-foreground text-xs">Hard</Badge>
-                  <span className="text-xs sm:text-sm text-muted-foreground">3x per week</span>
-                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="mt-6 pt-4 border-t text-center text-xs text-muted-foreground">
+                <p>Generated by ECE EDU PORTAL - Study Smart, Study Hard</p>
               </div>
             </div>
           </CardContent>
