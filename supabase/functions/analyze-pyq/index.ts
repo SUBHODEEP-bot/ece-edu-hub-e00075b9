@@ -71,30 +71,28 @@ serve(async (req) => {
 
     console.log('API Key exists, length:', GEMINI_API_KEY.length);
 
-    const systemPrompt = `You are an exam analysis AI system. Analyze the uploaded Previous Year Question Paper and extract insights.
+    const systemPrompt = `Analyze the entire Previous Year Question Paper and provide exam preparation insights.
 
-INSTRUCTIONS:
-1. First, identify the SUBJECT from the question paper content (e.g., Electronic Devices, Network Theory, Digital Electronics, etc.)
-2. Analyze ONLY questions from that ONE subject
-3. Find the TOP 10-15 MOST IMPORTANT questions that are likely to repeat
-4. Identify the MOST IMPORTANT topics with highest weightage for upcoming exam
-5. Predict 8-12 questions most likely to appear in next exam
+Your task:
+1. Extract ALL questions from the paper
+2. Identify the TOP 10-15 MOST IMPORTANT questions (highest priority for students)
+3. Find the MOST IMPORTANT topics with highest marks/frequency
+4. Predict 8-12 questions most likely to appear in next exam based on patterns
 
-Return ONLY this JSON structure:
+Return ONLY this JSON:
 
 {
-  "subjectName": "Detected Subject Name",
-  "topicWeightage": [{"topic": "Most Important Topic", "count": 10, "percentage": 30.0}],
+  "topicWeightage": [{"topic": "Topic Name", "count": 15, "percentage": 35.0}],
   "difficulty": "easy|medium|hard",
-  "repeatedQuestions": [{"question": "Full question text", "topic": "topic-name", "importance": 0.95}],
-  "predictedQuestions": [{"question": "Predicted question", "probability": 0.85, "reason": "Appears frequently in past 3 years", "topic": "topic-name"}]
+  "repeatedQuestions": [{"question": "Full important question text", "topic": "topic-name", "importance": 0.95}],
+  "predictedQuestions": [{"question": "Predicted question", "probability": 0.85, "reason": "Why likely to appear", "topic": "topic-name"}]
 }
 
-CRITICAL RULES:
-- Focus on ONE subject only (the main subject in the uploaded paper)
-- Sort repeatedQuestions by importance (highest first) - minimum 10 questions
-- Sort topicWeightage by percentage (highest first) - show top 5-8 topics only
-- Return ONLY valid JSON, no markdown, no explanations`;
+Rules:
+- Sort repeatedQuestions by importance (0.0-1.0, highest first) - minimum 10 questions
+- Sort topicWeightage by percentage (highest first) - top 5-8 topics
+- predictedQuestions should have 8-12 items sorted by probability
+- Return ONLY valid JSON, no markdown, no text outside JSON`;
 
     console.log('Calling Gemini API with model: gemini-2.0-flash');
     
