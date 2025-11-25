@@ -72,16 +72,17 @@ serve(async (req) => {
     console.log('API Key exists, length:', GEMINI_API_KEY.length);
 
     const systemPrompt = `You are an AI exam intelligence system for Electronics & Communication Engineering.
-Analyze the given Previous Year Questions and return ONLY valid JSON with:
+Analyze the given Previous Year Questions and return ONLY valid JSON with this EXACT structure:
 
-1. A cleaned canonical version of each question
-2. Topic tags for each (network-theory, signal-system, analog-electronics, digital-electronics, communication-system, electromagnetics, microprocessor, etc.)
-3. An importance score (0.0–1.0)
-4. Topic frequency and weightage
-5. Overall difficulty estimate (easy/medium/hard)
-6. Predict 5–12 most likely questions for next year with probability and reason.
+{
+  "questions": [{"question": "text", "topic": "category", "importance": 0.8}],
+  "topicWeightage": [{"topic": "name", "count": 5, "percentage": 25.0}],
+  "difficulty": "medium",
+  "repeatedQuestions": [{"question": "text", "topic": "category", "importance": 0.9}],
+  "predictedQuestions": [{"question": "text", "probability": 0.75, "reason": "explanation", "topic": "category"}]
+}
 
-Return ONLY JSON. No explanations.`;
+CRITICAL: Return ONLY valid JSON. No explanations, no markdown, no text outside JSON. Use double quotes for strings. Ensure all JSON is properly formatted.`;
 
     console.log('Calling Gemini API with model: gemini-2.0-flash');
     
@@ -132,7 +133,27 @@ Return ONLY JSON. No explanations.`;
       jsonText = jsonText.replace(/```\n?/g, '');
     }
 
-    const analysisResult = JSON.parse(jsonText);
+    let analysisResult;
+    try {
+      analysisResult = JSON.parse(jsonText);
+    } catch (parseError) {
+      console.error('JSON parse error:', parseError);
+      console.error('Failed JSON text (first 500 chars):', jsonText.substring(0, 500));
+      console.error('Failed JSON text (last 500 chars):', jsonText.substring(jsonText.length - 500));
+      
+      // Try to fix common JSON issues
+      try {
+        // Remove trailing commas before closing braces/brackets
+        const fixedJson = jsonText
+          .replace(/,(\s*[}\]])/g, '$1')
+          .replace(/(['"])?([a-zA-Z0-9_]+)(['"])?:/g, '"$2":'); // Fix unquoted keys
+        
+        analysisResult = JSON.parse(fixedJson);
+        console.log('Successfully parsed JSON after fixes');
+      } catch (secondError) {
+        throw new Error('Failed to parse AI response as valid JSON. Please try again with a different document or smaller file.');
+      }
+    }
 
     return new Response(JSON.stringify({ analysis: analysisResult }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
