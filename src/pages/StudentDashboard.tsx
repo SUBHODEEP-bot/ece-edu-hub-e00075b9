@@ -7,6 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { StudentSidebar } from '@/components/StudentSidebar';
+import { NotificationBell } from '@/components/NotificationBell';
 import { ProfilePage } from './dashboard/ProfilePage';
 import { QuestionPapersPage } from './dashboard/QuestionPapersPage';
 import { NotesPage } from './dashboard/NotesPage';
@@ -49,10 +50,13 @@ const StudentDashboard = () => {
                 <p className="text-[10px] sm:text-xs text-muted-foreground">Student Dashboard</p>
               </div>
             </div>
-            <Button onClick={signOut} variant="outline" size="sm" className="gap-1 sm:gap-2 text-xs sm:text-sm">
-              <LogOut className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">Logout</span>
-            </Button>
+            <div className="flex items-center gap-2">
+              <NotificationBell />
+              <Button onClick={signOut} variant="outline" size="sm" className="gap-1 sm:gap-2 text-xs sm:text-sm">
+                <LogOut className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">Logout</span>
+              </Button>
+            </div>
           </div>
         </header>
 
