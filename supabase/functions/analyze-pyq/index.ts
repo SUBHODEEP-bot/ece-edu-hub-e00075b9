@@ -18,22 +18,47 @@ async function extractTextFromPDFBase64(base64Data: string): Promise<string> {
     
     console.log('PDF bytes length:', bytes.length);
     
-    // Use a simple regex-based text extraction for PDFs
-    // This extracts visible text from PDF structure
-    const text = new TextDecoder().decode(bytes);
+    // Convert to text
+    const text = new TextDecoder('utf-8', { fatal: false }).decode(bytes);
     
-    // Extract text between stream objects and filter out binary data
-    const textMatches = text.match(/\((.*?)\)/g) || [];
-    const extractedText = textMatches
-      .map(match => match.slice(1, -1))
-      .filter(text => text.length > 2 && /[a-zA-Z0-9]/.test(text))
+    // More aggressive text extraction from PDF structure
+    // Extract text between parentheses and brackets commonly used in PDFs
+    const patterns = [
+      /\(((?:[^()\\]|\\.)*)\)/g,  // Text in parentheses
+      /\[((?:[^\[\]\\]|\\.)*)\]/g, // Text in brackets
+      />([^<>]+)</g,               // Text between angle brackets
+    ];
+    
+    let extractedParts: string[] = [];
+    
+    for (const pattern of patterns) {
+      const matches = text.matchAll(pattern);
+      for (const match of matches) {
+        if (match[1] && match[1].length > 3) {
+          const cleaned = match[1]
+            .replace(/\\n/g, '\n')
+            .replace(/\\r/g, '')
+            .replace(/\\t/g, ' ')
+            .replace(/\\/g, '')
+            .trim();
+          
+          if (cleaned && /[a-zA-Z]/.test(cleaned)) {
+            extractedParts.push(cleaned);
+          }
+        }
+      }
+    }
+    
+    const extractedText = extractedParts
       .join(' ')
-      .replace(/\\n/g, '\n')
       .replace(/\s+/g, ' ')
       .trim();
     
-    if (extractedText.length < 50) {
-      throw new Error('Insufficient text extracted from PDF. Please ensure the PDF contains readable text.');
+    console.log('Extracted text sample (first 200 chars):', extractedText.substring(0, 200));
+    console.log('Extracted text sample (last 200 chars):', extractedText.substring(Math.max(0, extractedText.length - 200)));
+    
+    if (extractedText.length < 100) {
+      throw new Error('Could not extract sufficient text from PDF. The PDF might be image-based or encrypted. Please try a text-based PDF or convert to TXT file.');
     }
     
     return extractedText;
@@ -71,28 +96,34 @@ serve(async (req) => {
 
     console.log('API Key exists, length:', GEMINI_API_KEY.length);
 
-    const systemPrompt = `Analyze the entire Previous Year Question Paper and provide exam preparation insights.
+    const systemPrompt = `You are analyzing a Previous Year Question Paper. The content below is extracted from the PDF.
 
-Your task:
-1. Extract ALL questions from the paper
-2. Identify the TOP 10-15 MOST IMPORTANT questions (highest priority for students)
-3. Find the MOST IMPORTANT topics with highest marks/frequency
-4. Predict 8-12 questions most likely to appear in next exam based on patterns
+CRITICAL INSTRUCTIONS:
+1. Read the ACTUAL questions from the text provided below
+2. Extract the REAL question text word-for-word from the paper
+3. Identify ACTUAL topics mentioned in the questions (e.g., "Transistor Biasing", "Diode Circuits", "Amplifiers", etc.)
+4. Analyze patterns and identify which questions/topics are most important
+5. Create predictions based on the ACTUAL content
+
+NEVER use placeholder text like "Full important question text 1" or "Unidentified Topic 1"
+ALWAYS use the REAL questions and topics from the paper
 
 Return ONLY this JSON:
 
 {
-  "topicWeightage": [{"topic": "Topic Name", "count": 15, "percentage": 35.0}],
+  "topicWeightage": [{"topic": "Actual Topic Name from Paper", "count": 15, "percentage": 35.0}],
   "difficulty": "easy|medium|hard",
-  "repeatedQuestions": [{"question": "Full important question text", "topic": "topic-name", "importance": 0.95}],
-  "predictedQuestions": [{"question": "Predicted question", "probability": 0.85, "reason": "Why likely to appear", "topic": "topic-name"}]
+  "repeatedQuestions": [{"question": "Actual full question text from the paper", "topic": "actual-topic-name", "importance": 0.95}],
+  "predictedQuestions": [{"question": "Predicted question based on actual patterns", "probability": 0.85, "reason": "Specific reason from paper analysis", "topic": "actual-topic"}]
 }
 
 Rules:
-- Sort repeatedQuestions by importance (0.0-1.0, highest first) - minimum 10 questions
-- Sort topicWeightage by percentage (highest first) - top 5-8 topics
-- predictedQuestions should have 8-12 items sorted by probability
-- Return ONLY valid JSON, no markdown, no text outside JSON`;
+- Use REAL questions from the paper, not placeholders
+- Extract ACTUAL topic names from questions
+- Minimum 10 important questions in repeatedQuestions
+- Top 5-8 topics in topicWeightage
+- 8-12 predicted questions
+- Return ONLY valid JSON`;
 
     console.log('Calling Gemini API with model: gemini-2.0-flash');
     
