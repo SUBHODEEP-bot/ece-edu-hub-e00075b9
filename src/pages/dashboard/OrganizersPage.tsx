@@ -64,7 +64,7 @@ export default function OrganizersPage() {
   };
 
   const handleOpenLink = (linkUrl: string) => {
-    window.open(linkUrl, "_blank", "noopener,noreferrer");
+    window.open(linkUrl, "_blank");
   };
 
   if (isLoading) {
