@@ -341,11 +341,39 @@ export type Database = {
         }
         Relationships: []
       }
+      pyq_folders: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          semester: string
+          subject_name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          semester: string
+          subject_name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          semester?: string
+          subject_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       question_papers: {
         Row: {
           created_at: string
           file_name: string
           file_url: string
+          folder_id: string | null
           id: string
           semester: string
           subject: string
@@ -358,6 +386,7 @@ export type Database = {
           created_at?: string
           file_name: string
           file_url: string
+          folder_id?: string | null
           id?: string
           semester: string
           subject: string
@@ -370,6 +399,7 @@ export type Database = {
           created_at?: string
           file_name?: string
           file_url?: string
+          folder_id?: string | null
           id?: string
           semester?: string
           subject?: string
@@ -378,7 +408,15 @@ export type Database = {
           uploaded_by?: string | null
           year?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "question_papers_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "pyq_folders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       subject_schedules: {
         Row: {

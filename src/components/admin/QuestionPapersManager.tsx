@@ -11,40 +11,68 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { toast } from 'sonner';
-import { Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Loader2, Folder, FileText } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface QuestionPapersManagerProps {
   selectedSemester: string;
 }
 
-const paperSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  subject: z.string().min(1, 'Subject is required'),
-  year: z.string().min(4, 'Year is required'),
+const folderSchema = z.object({
+  subject_name: z.string().min(1, 'Subject name is required'),
   semester: z.string().min(1, 'Semester is required'),
-  file_url: z.string().url('Must be a valid URL'),
-  file_name: z.string().min(1, 'File name is required'),
 });
 
+const paperSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  year: z.string().min(4, 'Year is required'),
+  file_url: z.string().url('Must be a valid URL'),
+  file_name: z.string().min(1, 'File name is required'),
+  folder_id: z.string().min(1, 'Please select a folder'),
+});
+
+type FolderFormValues = z.infer<typeof folderSchema>;
 type PaperFormValues = z.infer<typeof paperSchema>;
 
 const QuestionPapersManager = ({ selectedSemester }: QuestionPapersManagerProps) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [isFolderDialogOpen, setIsFolderDialogOpen] = useState(false);
+  const [isPaperDialogOpen, setIsPaperDialogOpen] = useState(false);
+  const [editingFolderId, setEditingFolderId] = useState<string | null>(null);
+  const [editingPaperId, setEditingPaperId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
 
-  const form = useForm<PaperFormValues>({
+  const folderForm = useForm<FolderFormValues>({
+    resolver: zodResolver(folderSchema),
+    defaultValues: {
+      subject_name: '',
+      semester: selectedSemester,
+    },
+  });
+
+  const paperForm = useForm<PaperFormValues>({
     resolver: zodResolver(paperSchema),
     defaultValues: {
       title: '',
-      subject: '',
       year: '',
-      semester: selectedSemester,
       file_url: '',
       file_name: '',
+      folder_id: '',
+    },
+  });
+
+  const { data: folders } = useQuery({
+    queryKey: ['pyq_folders', selectedSemester],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('pyq_folders')
+        .select('*')
+        .eq('semester', selectedSemester)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data;
     },
   });
 
@@ -54,44 +82,50 @@ const QuestionPapersManager = ({ selectedSemester }: QuestionPapersManagerProps)
       const { data, error } = await supabase
         .from('question_papers')
         .select('*')
-        .eq('semester', selectedSemester)
         .order('created_at', { ascending: false });
       if (error) throw error;
       return data;
     },
   });
 
-  const handleSave = async (values: PaperFormValues) => {
+  const toggleFolder = (folderId: string) => {
+    setExpandedFolders(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(folderId)) {
+        newSet.delete(folderId);
+      } else {
+        newSet.add(folderId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleSaveFolder = async (values: FolderFormValues) => {
     setLoading(true);
     try {
-      if (editingId) {
+      if (editingFolderId) {
         const { error } = await supabase
-          .from('question_papers')
+          .from('pyq_folders')
           .update(values)
-          .eq('id', editingId);
+          .eq('id', editingFolderId);
         if (error) throw error;
-        toast.success('Question paper updated successfully');
+        toast.success('Folder updated successfully');
       } else {
         const { error } = await supabase
-          .from('question_papers')
+          .from('pyq_folders')
           .insert([{ 
-            title: values.title,
-            subject: values.subject,
-            year: values.year,
+            subject_name: values.subject_name,
             semester: values.semester,
-            file_url: values.file_url,
-            file_name: values.file_name,
-            uploaded_by: user?.id 
+            created_by: user?.id 
           }]);
         if (error) throw error;
-        toast.success('Question paper added successfully');
+        toast.success('Folder created successfully');
       }
       
-      queryClient.invalidateQueries({ queryKey: ['question_papers', selectedSemester] });
-      queryClient.invalidateQueries({ queryKey: ['question_papers'] });
-      setIsDialogOpen(false);
-      form.reset();
-      setEditingId(null);
+      queryClient.invalidateQueries({ queryKey: ['pyq_folders'] });
+      setIsFolderDialogOpen(false);
+      folderForm.reset();
+      setEditingFolderId(null);
     } catch (error: any) {
       toast.error(error.message || 'Operation failed');
     } finally {
@@ -99,21 +133,85 @@ const QuestionPapersManager = ({ selectedSemester }: QuestionPapersManagerProps)
     }
   };
 
-  const handleEdit = (paper: any) => {
-    setEditingId(paper.id);
-    form.reset({
-      title: paper.title,
-      subject: paper.subject,
-      year: paper.year,
-      semester: paper.semester,
-      file_url: paper.file_url,
-      file_name: paper.file_name,
-    });
-    setIsDialogOpen(true);
+  const handleSavePaper = async (values: PaperFormValues) => {
+    setLoading(true);
+    try {
+      if (editingPaperId) {
+        const { error } = await supabase
+          .from('question_papers')
+          .update(values)
+          .eq('id', editingPaperId);
+        if (error) throw error;
+        toast.success('Paper updated successfully');
+      } else {
+        const folder = folders?.find(f => f.id === values.folder_id);
+        const { error } = await supabase
+          .from('question_papers')
+          .insert([{ 
+            title: values.title,
+            subject: folder?.subject_name || '',
+            year: values.year,
+            semester: folder?.semester || selectedSemester,
+            file_url: values.file_url,
+            file_name: values.file_name,
+            folder_id: values.folder_id,
+            uploaded_by: user?.id 
+          }]);
+        if (error) throw error;
+        toast.success('Paper added successfully');
+      }
+      
+      queryClient.invalidateQueries({ queryKey: ['question_papers'] });
+      setIsPaperDialogOpen(false);
+      paperForm.reset();
+      setEditingPaperId(null);
+    } catch (error: any) {
+      toast.error(error.message || 'Operation failed');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this question paper?')) return;
+  const handleEditFolder = (folder: any) => {
+    setEditingFolderId(folder.id);
+    folderForm.reset({
+      subject_name: folder.subject_name,
+      semester: folder.semester,
+    });
+    setIsFolderDialogOpen(true);
+  };
+
+  const handleEditPaper = (paper: any) => {
+    setEditingPaperId(paper.id);
+    paperForm.reset({
+      title: paper.title,
+      year: paper.year,
+      file_url: paper.file_url,
+      file_name: paper.file_name,
+      folder_id: paper.folder_id,
+    });
+    setIsPaperDialogOpen(true);
+  };
+
+  const handleDeleteFolder = async (id: string) => {
+    if (!confirm('Are you sure? This will delete the folder and all papers inside it.')) return;
+    
+    try {
+      const { error } = await supabase
+        .from('pyq_folders')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+      toast.success('Folder deleted successfully');
+      queryClient.invalidateQueries({ queryKey: ['pyq_folders'] });
+      queryClient.invalidateQueries({ queryKey: ['question_papers'] });
+    } catch (error: any) {
+      toast.error(error.message || 'Delete failed');
+    }
+  };
+
+  const handleDeletePaper = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this paper?')) return;
     
     try {
       const { error } = await supabase
@@ -121,12 +219,15 @@ const QuestionPapersManager = ({ selectedSemester }: QuestionPapersManagerProps)
         .delete()
         .eq('id', id);
       if (error) throw error;
-      toast.success('Question paper deleted successfully');
-      queryClient.invalidateQueries({ queryKey: ['question_papers', selectedSemester] });
+      toast.success('Paper deleted successfully');
       queryClient.invalidateQueries({ queryKey: ['question_papers'] });
     } catch (error: any) {
       toast.error(error.message || 'Delete failed');
     }
+  };
+
+  const getPapersByFolder = (folderId: string) => {
+    return papers?.filter(p => p.folder_id === folderId) || [];
   };
 
   return (
@@ -134,148 +235,249 @@ const QuestionPapersManager = ({ selectedSemester }: QuestionPapersManagerProps)
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">Manage Question Papers</h2>
-          <p className="text-sm text-muted-foreground mt-1">Viewing: {selectedSemester} Semester</p>
+          <p className="text-sm text-muted-foreground mt-1">Viewing: {selectedSemester}</p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="gradient-primary text-white gap-2" onClick={() => { setEditingId(null); form.reset({ semester: selectedSemester }); }}>
-              <Plus className="w-4 h-4" />
-              Add Question Paper
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{editingId ? 'Edit' : 'Add'} Question Paper</DialogTitle>
-              <DialogDescription>Fill in the details below</DialogDescription>
-            </DialogHeader>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(handleSave)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Title</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g., Digital Electronics - May 2024" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="subject"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Subject</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g., Digital Electronics" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="year"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Year</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g., 2024" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="semester"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Semester</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+        <div className="flex gap-2">
+          <Dialog open={isFolderDialogOpen} onOpenChange={setIsFolderDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="gradient-primary text-white gap-2" onClick={() => { setEditingFolderId(null); folderForm.reset({ semester: selectedSemester }); }}>
+                <Folder className="w-4 h-4" />
+                Create Folder
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>{editingFolderId ? 'Edit' : 'Create'} Folder</DialogTitle>
+                <DialogDescription>Create a subject folder to organize papers</DialogDescription>
+              </DialogHeader>
+              <Form {...folderForm}>
+                <form onSubmit={folderForm.handleSubmit(handleSaveFolder)} className="space-y-4">
+                  <FormField
+                    control={folderForm.control}
+                    name="subject_name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Subject Name</FormLabel>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select semester" />
-                          </SelectTrigger>
+                          <Input placeholder="e.g., Digital Electronics" {...field} />
                         </FormControl>
-                        <SelectContent>
-                          <SelectItem value="1st">1st Semester</SelectItem>
-                          <SelectItem value="2nd">2nd Semester</SelectItem>
-                          <SelectItem value="3rd">3rd Semester</SelectItem>
-                          <SelectItem value="4th">4th Semester</SelectItem>
-                          <SelectItem value="5th">5th Semester</SelectItem>
-                          <SelectItem value="6th">6th Semester</SelectItem>
-                          <SelectItem value="7th">7th Semester</SelectItem>
-                          <SelectItem value="8th">8th Semester</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="file_url"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>File URL</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://..." {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="file_name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>File Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="digital-electronics-2024.pdf" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <DialogFooter>
-                  <Button type="submit" className="gradient-primary text-white" disabled={loading}>
-                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Save
-                  </Button>
-                </DialogFooter>
-              </form>
-            </Form>
-          </DialogContent>
-        </Dialog>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={folderForm.control}
+                    name="semester"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Semester</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select semester" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="1st">1st Semester</SelectItem>
+                            <SelectItem value="2nd">2nd Semester</SelectItem>
+                            <SelectItem value="3rd">3rd Semester</SelectItem>
+                            <SelectItem value="4th">4th Semester</SelectItem>
+                            <SelectItem value="5th">5th Semester</SelectItem>
+                            <SelectItem value="6th">6th Semester</SelectItem>
+                            <SelectItem value="7th">7th Semester</SelectItem>
+                            <SelectItem value="8th">8th Semester</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <DialogFooter>
+                    <Button type="submit" className="gradient-primary text-white" disabled={loading}>
+                      {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      Save
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </Form>
+            </DialogContent>
+          </Dialog>
+
+          <Dialog open={isPaperDialogOpen} onOpenChange={setIsPaperDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="gap-2" onClick={() => { setEditingPaperId(null); paperForm.reset(); }}>
+                <Plus className="w-4 h-4" />
+                Add Paper
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>{editingPaperId ? 'Edit' : 'Add'} Question Paper</DialogTitle>
+                <DialogDescription>Add a paper to a subject folder</DialogDescription>
+              </DialogHeader>
+              <Form {...paperForm}>
+                <form onSubmit={paperForm.handleSubmit(handleSavePaper)} className="space-y-4">
+                  <FormField
+                    control={paperForm.control}
+                    name="folder_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Subject Folder</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select folder" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {folders?.map(folder => (
+                              <SelectItem key={folder.id} value={folder.id}>
+                                {folder.subject_name} ({folder.semester})
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={paperForm.control}
+                    name="title"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Title</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g., May 2024 Paper" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={paperForm.control}
+                    name="year"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Year</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g., 2024" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={paperForm.control}
+                    name="file_url"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>File URL</FormLabel>
+                        <FormControl>
+                          <Input placeholder="https://..." {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={paperForm.control}
+                    name="file_name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>File Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="paper-2024.pdf" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <DialogFooter>
+                    <Button type="submit" className="gradient-primary text-white" disabled={loading}>
+                      {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      Save
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </Form>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {papers?.map((paper) => (
-          <Card key={paper.id} className="hover:shadow-lg transition-smooth">
-            <CardHeader>
-              <CardTitle className="text-lg">{paper.title}</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                {paper.subject} • {paper.semester} • {paper.year}
-              </p>
-            </CardHeader>
-            <CardContent>
-              <div className="flex gap-2">
-                <Button size="sm" variant="outline" onClick={() => handleEdit(paper)} className="flex-1">
-                  <Pencil className="w-4 h-4 mr-2" />
-                  Edit
-                </Button>
-                <Button size="sm" variant="destructive" onClick={() => handleDelete(paper.id)}>
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </div>
+      <div className="space-y-4">
+        {folders?.map((folder) => {
+          const folderPapers = getPapersByFolder(folder.id);
+          const isExpanded = expandedFolders.has(folder.id);
+          
+          return (
+            <Card key={folder.id} className="overflow-hidden">
+              <CardHeader className="bg-muted/30 cursor-pointer" onClick={() => toggleFolder(folder.id)}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Folder className="w-5 h-5 text-primary" />
+                    <div>
+                      <CardTitle className="text-lg">{folder.subject_name}</CardTitle>
+                      <p className="text-sm text-muted-foreground">{folderPapers.length} papers</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); handleEditFolder(folder); }}>
+                      <Pencil className="w-4 h-4" />
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); handleDeleteFolder(folder.id); }}>
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              
+              {isExpanded && (
+                <CardContent className="pt-4">
+                  {folderPapers.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-4">No papers in this folder yet</p>
+                  ) : (
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {folderPapers.map((paper) => (
+                        <Card key={paper.id} className="border-border/50">
+                          <CardHeader className="p-4">
+                            <div className="flex items-start gap-2">
+                              <FileText className="w-4 h-4 mt-1 text-primary" />
+                              <div className="flex-1">
+                                <CardTitle className="text-sm">{paper.title}</CardTitle>
+                                <p className="text-xs text-muted-foreground">{paper.year}</p>
+                              </div>
+                            </div>
+                          </CardHeader>
+                          <CardContent className="p-4 pt-0">
+                            <div className="flex gap-2">
+                              <Button size="sm" variant="outline" onClick={() => handleEditPaper(paper)} className="flex-1">
+                                <Pencil className="w-3 h-3 mr-1" />
+                                Edit
+                              </Button>
+                              <Button size="sm" variant="destructive" onClick={() => handleDeletePaper(paper.id)}>
+                                <Trash2 className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              )}
+            </Card>
+          );
+        })}
+
+        {(!folders || folders.length === 0) && (
+          <Card>
+            <CardContent className="py-8 text-center text-muted-foreground">
+              No folders created yet. Click "Create Folder" to get started.
             </CardContent>
           </Card>
-        ))}
+        )}
       </div>
     </div>
   );
