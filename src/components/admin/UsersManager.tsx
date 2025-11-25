@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
-import { Users, Mail, Phone, Calendar } from 'lucide-react';
+import { Users, Mail, Phone, Calendar, GraduationCap } from 'lucide-react';
 
 const UsersManager = () => {
   const queryClient = useQueryClient();
@@ -71,6 +71,10 @@ const UsersManager = () => {
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Phone className="w-4 h-4" />
                   <span>{user.mobile_number}</span>
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <GraduationCap className="w-4 h-4" />
+                  <span>{user.semester} Semester</span>
                 </div>
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Calendar className="w-4 h-4" />
