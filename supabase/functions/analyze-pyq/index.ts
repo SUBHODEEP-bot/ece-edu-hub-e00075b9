@@ -125,10 +125,10 @@ Rules:
 - 8-12 predicted questions
 - Return ONLY valid JSON`;
 
-    console.log('Calling Gemini API with model: gemini-2.0-flash');
+    console.log('Calling Gemini API with model: gemini-1.5-pro-002 (most powerful)');
     
-    // Use gemini-2.0-flash model with v1beta endpoint
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
+    // Use gemini-1.5-pro-002 - the most powerful Gemini model for deep analysis
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-002:generateContent?key=${GEMINI_API_KEY}`;
     
     const response = await fetch(apiUrl, {
       method: 'POST',
@@ -142,10 +142,10 @@ Rules:
           }]
         }],
         generationConfig: {
-          temperature: 0.2,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 8192,
+          temperature: 0.1,  // Lower for more focused, deterministic analysis
+          topK: 64,          // Higher for better token selection
+          topP: 0.98,        // Higher for more comprehensive responses
+          maxOutputTokens: 16384,  // Double the tokens for more detailed analysis
         }
       }),
     });
