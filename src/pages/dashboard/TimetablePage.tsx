@@ -151,31 +151,31 @@ export function TimetablePage() {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-4 sm:space-y-6 animate-fade-in">
       <Card className="border-2 border-primary/20 shadow-lg">
-        <CardHeader className="gradient-primary text-white">
-          <div className="flex items-center gap-3">
-            <Calendar className="w-8 h-8" />
-            <div>
-              <CardTitle className="text-2xl md:text-3xl">Study Timetable Generator</CardTitle>
-              <CardDescription className="text-blue-50">
-                Create your personalized weekly study schedule based on subject difficulty
+        <CardHeader className="gradient-primary text-white p-4 sm:p-6">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Calendar className="w-6 h-6 sm:w-8 sm:h-8 flex-shrink-0" />
+            <div className="min-w-0">
+              <CardTitle className="text-lg sm:text-xl md:text-2xl break-words">Study Timetable Generator</CardTitle>
+              <CardDescription className="text-blue-50 text-xs sm:text-sm">
+                Create your personalized weekly study schedule
               </CardDescription>
             </div>
           </div>
         </CardHeader>
-        <CardContent className="p-6 space-y-6">
+        <CardContent className="p-4 sm:p-6 space-y-4 sm:space-y-6">
           {/* Student Info */}
-          <div className="p-4 bg-muted/50 rounded-lg">
-            <p className="text-sm text-muted-foreground">Student Name</p>
-            <p className="text-lg font-semibold text-foreground">{profile?.name || 'Loading...'}</p>
+          <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
+            <p className="text-xs sm:text-sm text-muted-foreground">Student Name</p>
+            <p className="text-base sm:text-lg font-semibold text-foreground">{profile?.name || 'Loading...'}</p>
           </div>
 
           {/* Study Days Selection */}
           <div className="space-y-2">
-            <Label htmlFor="studyDays">Number of Study Days per Week</Label>
+            <Label htmlFor="studyDays" className="text-sm sm:text-base">Number of Study Days per Week</Label>
             <Select value={studyDays.toString()} onValueChange={(v) => setStudyDays(parseInt(v))}>
-              <SelectTrigger id="studyDays">
+              <SelectTrigger id="studyDays" className="h-11 sm:h-10">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -189,58 +189,61 @@ export function TimetablePage() {
           </div>
 
           {/* Add Subject */}
-          <div className="space-y-4">
-            <Label>Add Subjects</Label>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="flex-1">
-                <Input
-                  placeholder="Subject name (e.g., Network Theory)"
-                  value={currentSubject}
-                  onChange={(e) => setCurrentSubject(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && addSubject()}
-                />
+          <div className="space-y-3 sm:space-y-4">
+            <Label className="text-sm sm:text-base">Add Subjects</Label>
+            <div className="flex flex-col gap-3">
+              <Input
+                placeholder="Subject name (e.g., Network Theory)"
+                value={currentSubject}
+                onChange={(e) => setCurrentSubject(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && addSubject()}
+                className="h-11 sm:h-10 text-base sm:text-sm"
+              />
+              <div className="flex gap-2 sm:gap-3">
+                <Select value={currentDifficulty} onValueChange={(v) => setCurrentDifficulty(v as Difficulty)}>
+                  <SelectTrigger className="flex-1 h-11 sm:h-10">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="easy">Easy (1x/week)</SelectItem>
+                    <SelectItem value="medium">Medium (2x/week)</SelectItem>
+                    <SelectItem value="hard">Hard (3x/week)</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button onClick={addSubject} className="gradient-primary h-11 sm:h-10 px-4 sm:px-6">
+                  <Plus className="w-4 h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Add</span>
+                </Button>
               </div>
-              <Select value={currentDifficulty} onValueChange={(v) => setCurrentDifficulty(v as Difficulty)}>
-                <SelectTrigger className="w-full sm:w-40">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="easy">Easy</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="hard">Hard</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button onClick={addSubject} className="gradient-primary">
-                <Plus className="w-4 h-4 mr-2" />
-                Add
-              </Button>
             </div>
           </div>
 
           {/* Subjects List */}
           {subjects.length > 0 && (
             <div className="space-y-3">
-              <Label>Your Subjects ({subjects.length})</Label>
+              <Label className="text-sm sm:text-base">Your Subjects ({subjects.length})</Label>
               <div className="space-y-2">
                 {subjects.map(subject => (
                   <div
                     key={subject.id}
-                    className="flex items-center justify-between p-3 bg-card border rounded-lg hover:shadow-md transition-smooth"
+                    className="flex items-start sm:items-center justify-between p-3 bg-card border rounded-lg hover:shadow-md transition-smooth gap-2"
                   >
-                    <div className="flex items-center gap-3 flex-1">
-                      <span className="font-medium text-foreground">{subject.name}</span>
-                      <Badge className={getDifficultyColor(subject.difficulty)}>
-                        {subject.difficulty}
-                      </Badge>
-                      <span className="text-xs text-muted-foreground">
-                        ({getDifficultyFrequency(subject.difficulty)}x per week)
-                      </span>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 flex-1 min-w-0">
+                      <span className="font-medium text-foreground text-sm sm:text-base break-words">{subject.name}</span>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Badge className={`${getDifficultyColor(subject.difficulty)} text-xs`}>
+                          {subject.difficulty}
+                        </Badge>
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">
+                          ({getDifficultyFrequency(subject.difficulty)}x/week)
+                        </span>
+                      </div>
                     </div>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => removeSubject(subject.id)}
-                      className="text-destructive hover:text-destructive"
+                      className="text-destructive hover:text-destructive flex-shrink-0 h-8 w-8 p-0"
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>
@@ -255,8 +258,7 @@ export function TimetablePage() {
             <Button
               onClick={handleGenerateTimetable}
               disabled={subjects.length === 0}
-              className="gradient-primary flex-1"
-              size="lg"
+              className="gradient-primary flex-1 h-12 sm:h-11 text-base sm:text-sm"
             >
               <Calendar className="w-5 h-5 mr-2" />
               Generate Timetable
@@ -264,7 +266,7 @@ export function TimetablePage() {
             <Button
               onClick={handleReset}
               variant="outline"
-              size="lg"
+              className="h-12 sm:h-11 text-base sm:text-sm"
             >
               <RefreshCw className="w-5 h-5 mr-2" />
               Reset
@@ -276,59 +278,59 @@ export function TimetablePage() {
       {/* Generated Timetable */}
       {generatedTimetable.length > 0 && (
         <Card className="border-2 border-success/20 shadow-lg animate-scale-in print:shadow-none">
-          <CardHeader className="gradient-secondary text-white print:bg-none print:text-black">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-xl md:text-2xl">Your Weekly Study Timetable</CardTitle>
-                <CardDescription className="text-blue-100 print:text-gray-600">
-                  Studying {studyDays} days per week • {subjects.length} subjects
+          <CardHeader className="gradient-secondary text-white print:bg-none print:text-black p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <CardTitle className="text-lg sm:text-xl md:text-2xl break-words">Your Weekly Study Timetable</CardTitle>
+                <CardDescription className="text-blue-100 print:text-gray-600 text-xs sm:text-sm">
+                  Studying {studyDays} days/week • {subjects.length} subjects
                 </CardDescription>
               </div>
               <Button
                 onClick={handleDownloadPDF}
                 variant="outline"
                 size="sm"
-                className="bg-white/10 hover:bg-white/20 text-white border-white/20 print:hidden"
+                className="bg-white/10 hover:bg-white/20 text-white border-white/20 print:hidden h-10 sm:h-9 flex-shrink-0"
               >
-                <Download className="w-4 h-4 mr-2" />
-                Print/PDF
+                <Download className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Print/PDF</span>
               </Button>
             </div>
           </CardHeader>
-          <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <CardContent className="p-4 sm:p-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {generatedTimetable.map((day, index) => (
                 <Card
                   key={day.day}
                   className="border-2 hover:shadow-lg transition-smooth animate-scale-in print:break-inside-avoid"
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
-                  <CardHeader className="pb-3 bg-muted/30">
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-primary"></div>
+                  <CardHeader className="pb-3 bg-muted/30 p-3 sm:p-4">
+                    <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0"></div>
                       {day.day}
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="pt-4 space-y-3">
+                  <CardContent className="pt-3 sm:pt-4 p-3 sm:p-4 space-y-2 sm:space-y-3">
                     {day.subjects.length > 0 ? (
                       day.subjects.map((subject, idx) => (
                         <div
                           key={`${subject.id}-${idx}`}
-                          className="p-3 bg-card border-l-4 rounded-r-lg transition-smooth hover:shadow-md"
+                          className="p-2.5 sm:p-3 bg-card border-l-4 rounded-r-lg transition-smooth hover:shadow-md"
                           style={{
                             borderColor: subject.difficulty === 'hard' ? 'hsl(var(--destructive))' :
                                        subject.difficulty === 'medium' ? 'hsl(var(--primary))' :
                                        'hsl(var(--success))'
                           }}
                         >
-                          <p className="font-semibold text-foreground">{subject.name}</p>
-                          <Badge className={`mt-2 ${getDifficultyColor(subject.difficulty)}`} variant="secondary">
+                          <p className="font-semibold text-foreground text-sm sm:text-base break-words">{subject.name}</p>
+                          <Badge className={`mt-2 ${getDifficultyColor(subject.difficulty)} text-xs`} variant="secondary">
                             {subject.difficulty}
                           </Badge>
                         </div>
                       ))
                     ) : (
-                      <p className="text-sm text-muted-foreground italic">No classes scheduled</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground italic">No classes scheduled</p>
                     )}
                   </CardContent>
                 </Card>
@@ -336,20 +338,20 @@ export function TimetablePage() {
             </div>
 
             {/* Legend */}
-            <div className="mt-8 p-4 bg-muted/30 rounded-lg print:mt-6">
-              <p className="text-sm font-semibold mb-3 text-foreground">Difficulty Legend:</p>
-              <div className="flex flex-wrap gap-4">
+            <div className="mt-6 sm:mt-8 p-3 sm:p-4 bg-muted/30 rounded-lg print:mt-6">
+              <p className="text-xs sm:text-sm font-semibold mb-3 text-foreground">Difficulty Legend:</p>
+              <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-4">
                 <div className="flex items-center gap-2">
-                  <Badge className="bg-success text-success-foreground">Easy</Badge>
-                  <span className="text-sm text-muted-foreground">1x per week</span>
+                  <Badge className="bg-success text-success-foreground text-xs">Easy</Badge>
+                  <span className="text-xs sm:text-sm text-muted-foreground">1x per week</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge className="bg-primary text-primary-foreground">Medium</Badge>
-                  <span className="text-sm text-muted-foreground">2x per week</span>
+                  <Badge className="bg-primary text-primary-foreground text-xs">Medium</Badge>
+                  <span className="text-xs sm:text-sm text-muted-foreground">2x per week</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge className="bg-destructive text-destructive-foreground">Hard</Badge>
-                  <span className="text-sm text-muted-foreground">3x per week</span>
+                  <Badge className="bg-destructive text-destructive-foreground text-xs">Hard</Badge>
+                  <span className="text-xs sm:text-sm text-muted-foreground">3x per week</span>
                 </div>
               </div>
             </div>
