@@ -116,7 +116,7 @@ const HelpChatbot = () => {
       {/* Floating Chat Button */}
       <Button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 left-6 h-14 w-14 rounded-full shadow-gold gradient-gold hover:shadow-glow-hover transition-smooth z-50"
+        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-gold gradient-gold hover:shadow-glow-hover transition-smooth z-50"
         size="icon"
       >
         {isOpen ? (
@@ -128,7 +128,7 @@ const HelpChatbot = () => {
 
       {/* Chat Window */}
       {isOpen && (
-        <Card className="fixed bottom-24 left-6 w-[90vw] sm:w-96 h-[500px] shadow-xl border-2 border-gold/30 z-50 flex flex-col">
+        <Card className="fixed bottom-24 right-6 w-[90vw] sm:w-96 h-[500px] shadow-xl border-2 border-gold/30 z-50 flex flex-col">
           <CardHeader className="gradient-gold border-b-2 border-gold/30 flex-shrink-0">
             <CardTitle className="text-navy flex items-center gap-2">
               <MessageCircle className="h-5 w-5" />
