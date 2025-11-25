@@ -104,7 +104,7 @@ const Login = () => {
           </div>
           
           <div>
-            <CardTitle className="text-3xl md:text-4xl font-heading font-bold mb-2 gradient-gold bg-clip-text text-transparent">
+            <CardTitle className="text-3xl md:text-4xl font-heading font-bold mb-2 text-navy">
               Welcome Back
             </CardTitle>
             <CardDescription className="text-sm md:text-base text-muted-foreground px-2">
