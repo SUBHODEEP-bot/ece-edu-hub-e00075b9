@@ -17,6 +17,7 @@ import { AttendancePage } from './dashboard/AttendancePage';
 import OrganizersPage from './dashboard/OrganizersPage';
 import { MarSupportPage } from './dashboard/MarSupportPage';
 import { TimetablePage } from './dashboard/TimetablePage';
+import { PYQAnalyzerPage } from './dashboard/PYQAnalyzerPage';
 
 const StudentDashboard = () => {
   const { user, signOut } = useAuth();
@@ -87,8 +88,9 @@ const StudentDashboard = () => {
               <Route path="organizers" element={<OrganizersPage />} />
               <Route path="mar-support" element={<MarSupportPage />} />
               <Route path="attendance" element={<AttendancePage />} />
-              <Route path="timetable" element={<TimetablePage />} />
-            </Routes>
+            <Route path="timetable" element={<TimetablePage />} />
+            <Route path="pyq-analyzer" element={<PYQAnalyzerPage />} />
+          </Routes>
           </div>
         </main>
       </div>
