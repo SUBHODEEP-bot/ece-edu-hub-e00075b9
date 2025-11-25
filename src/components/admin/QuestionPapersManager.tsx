@@ -26,8 +26,8 @@ const folderSchema = z.object({
 const paperSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   year: z.string().min(4, 'Year is required'),
-  file_url: z.string().url('Must be a valid URL'),
-  file_name: z.string().min(1, 'File name is required'),
+  file_url: z.string().optional(),
+  file_name: z.string().optional(),
   folder_id: z.string().min(1, 'Please select a folder'),
 });
 
@@ -43,6 +43,9 @@ const QuestionPapersManager = ({ selectedSemester }: QuestionPapersManagerProps)
   const [editingPaperId, setEditingPaperId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
+  const [uploadMode, setUploadMode] = useState<'upload' | 'url'>('upload');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const folderForm = useForm<FolderFormValues>({
     resolver: zodResolver(folderSchema),
@@ -133,13 +136,74 @@ const QuestionPapersManager = ({ selectedSemester }: QuestionPapersManagerProps)
     }
   };
 
+  const handleFileUpload = async () => {
+    if (!selectedFile) return null;
+
+    setUploading(true);
+    try {
+      const fileExt = selectedFile.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+      const filePath = `question-papers/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('documents')
+        .upload(filePath, selectedFile);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('documents')
+        .getPublicUrl(filePath);
+
+      return { url: publicUrl, name: selectedFile.name };
+    } catch (error: any) {
+      toast.error(error.message || 'Upload failed');
+      return null;
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSavePaper = async (values: PaperFormValues) => {
     setLoading(true);
     try {
+      let fileUrl = values.file_url;
+      let fileName = values.file_name;
+
+      // Handle file upload if in upload mode
+      if (uploadMode === 'upload' && selectedFile && !editingPaperId) {
+        const uploadResult = await handleFileUpload();
+        if (!uploadResult) {
+          setLoading(false);
+          return;
+        }
+        fileUrl = uploadResult.url;
+        fileName = uploadResult.name;
+      }
+
+      // Validate we have file info
+      if (!fileUrl || !fileName) {
+        toast.error('Please provide a file or URL');
+        setLoading(false);
+        return;
+      }
+
       if (editingPaperId) {
+        const updateData: any = {
+          title: values.title,
+          year: values.year,
+          folder_id: values.folder_id,
+        };
+        
+        // Only update file info if provided
+        if (values.file_url) {
+          updateData.file_url = values.file_url;
+          updateData.file_name = values.file_name;
+        }
+
         const { error } = await supabase
           .from('question_papers')
-          .update(values)
+          .update(updateData)
           .eq('id', editingPaperId);
         if (error) throw error;
         toast.success('Paper updated successfully');
@@ -152,8 +216,8 @@ const QuestionPapersManager = ({ selectedSemester }: QuestionPapersManagerProps)
             subject: folder?.subject_name || '',
             year: values.year,
             semester: folder?.semester || selectedSemester,
-            file_url: values.file_url,
-            file_name: values.file_name,
+            file_url: fileUrl,
+            file_name: fileName,
             folder_id: values.folder_id,
             uploaded_by: user?.id 
           }]);
@@ -165,6 +229,7 @@ const QuestionPapersManager = ({ selectedSemester }: QuestionPapersManagerProps)
       setIsPaperDialogOpen(false);
       paperForm.reset();
       setEditingPaperId(null);
+      setSelectedFile(null);
     } catch (error: any) {
       toast.error(error.message || 'Operation failed');
     } finally {
@@ -293,9 +358,9 @@ const QuestionPapersManager = ({ selectedSemester }: QuestionPapersManagerProps)
                     )}
                   />
                   <DialogFooter>
-                    <Button type="submit" className="gradient-primary text-white" disabled={loading}>
-                      {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      Save
+                    <Button type="submit" className="gradient-primary text-white" disabled={loading || uploading}>
+                      {(loading || uploading) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      {uploading ? 'Uploading...' : 'Save'}
                     </Button>
                   </DialogFooter>
                 </form>
@@ -305,7 +370,12 @@ const QuestionPapersManager = ({ selectedSemester }: QuestionPapersManagerProps)
 
           <Dialog open={isPaperDialogOpen} onOpenChange={setIsPaperDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" className="gap-2" onClick={() => { setEditingPaperId(null); paperForm.reset(); }}>
+              <Button variant="outline" className="gap-2" onClick={() => { 
+                setEditingPaperId(null); 
+                paperForm.reset(); 
+                setSelectedFile(null);
+                setUploadMode('upload');
+              }}>
                 <Plus className="w-4 h-4" />
                 Add Paper
               </Button>
@@ -367,32 +437,106 @@ const QuestionPapersManager = ({ selectedSemester }: QuestionPapersManagerProps)
                       </FormItem>
                     )}
                   />
-                  <FormField
-                    control={paperForm.control}
-                    name="file_url"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>File URL</FormLabel>
-                        <FormControl>
-                          <Input placeholder="https://..." {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={paperForm.control}
-                    name="file_name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>File Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="paper-2024.pdf" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+
+                  {!editingPaperId && (
+                    <div className="space-y-4">
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          variant={uploadMode === 'upload' ? 'default' : 'outline'}
+                          onClick={() => setUploadMode('upload')}
+                          className="flex-1"
+                        >
+                          Upload PDF
+                        </Button>
+                        <Button
+                          type="button"
+                          variant={uploadMode === 'url' ? 'default' : 'outline'}
+                          onClick={() => setUploadMode('url')}
+                          className="flex-1"
+                        >
+                          Provide URL
+                        </Button>
+                      </div>
+
+                      {uploadMode === 'upload' ? (
+                        <div className="space-y-2">
+                          <FormLabel>Upload PDF File</FormLabel>
+                          <Input
+                            type="file"
+                            accept=".pdf"
+                            onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                            disabled={uploading}
+                          />
+                          {selectedFile && (
+                            <p className="text-sm text-muted-foreground">
+                              Selected: {selectedFile.name}
+                            </p>
+                          )}
+                        </div>
+                      ) : (
+                        <>
+                          <FormField
+                            control={paperForm.control}
+                            name="file_url"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>File URL</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="https://..." {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={paperForm.control}
+                            name="file_name"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>File Name</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="paper-2024.pdf" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </>
+                      )}
+                    </div>
+                  )}
+
+                  {editingPaperId && (
+                    <>
+                      <FormField
+                        control={paperForm.control}
+                        name="file_url"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>File URL (Optional - leave empty to keep current)</FormLabel>
+                            <FormControl>
+                              <Input placeholder="https://..." {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={paperForm.control}
+                        name="file_name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>File Name (Optional)</FormLabel>
+                            <FormControl>
+                              <Input placeholder="paper-2024.pdf" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </>
+                  )}
                   <DialogFooter>
                     <Button type="submit" className="gradient-primary text-white" disabled={loading}>
                       {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
