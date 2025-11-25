@@ -155,23 +155,48 @@ export function TimetablePage() {
     try {
       toast.loading('Generating PDF...');
       
-      // Capture the timetable as canvas
+      // Capture the timetable as canvas with higher quality
       const canvas = await html2canvas(timetableRef.current, {
-        scale: 2,
+        scale: 3,
         useCORS: true,
         logging: false,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        windowWidth: 1200,
+        windowHeight: timetableRef.current.scrollHeight
       });
       
       // Calculate dimensions for PDF
       const imgWidth = 210; // A4 width in mm
+      const pageHeight = 297; // A4 height in mm
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       
-      // Create PDF
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const imgData = canvas.toDataURL('image/png');
+      // Create PDF with proper orientation
+      const pdf = new jsPDF({
+        orientation: imgHeight > pageHeight ? 'portrait' : 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
       
-      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      const imgData = canvas.toDataURL('image/png', 1.0);
+      
+      // If content is longer than one page, add multiple pages
+      if (imgHeight > pageHeight) {
+        let heightLeft = imgHeight;
+        let position = 0;
+        
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+        
+        while (heightLeft > 0) {
+          position = heightLeft - imgHeight;
+          pdf.addPage();
+          pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+          heightLeft -= pageHeight;
+        }
+      } else {
+        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      }
+      
       pdf.save(`study-timetable-${new Date().toISOString().split('T')[0]}.pdf`);
       
       toast.dismiss();
@@ -184,31 +209,31 @@ export function TimetablePage() {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6 animate-fade-in">
+    <div className="space-y-3 sm:space-y-4 md:space-y-6 animate-fade-in px-2 sm:px-0">
       <Card className="border-2 border-primary/20 shadow-lg">
-        <CardHeader className="gradient-primary text-white p-4 sm:p-6">
+        <CardHeader className="gradient-primary text-white p-3 sm:p-4 md:p-6">
           <div className="flex items-center gap-2 sm:gap-3">
-            <Calendar className="w-6 h-6 sm:w-8 sm:h-8 flex-shrink-0" />
+            <Calendar className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 flex-shrink-0" />
             <div className="min-w-0">
-              <CardTitle className="text-lg sm:text-xl md:text-2xl break-words">Study Timetable Generator</CardTitle>
+              <CardTitle className="text-base sm:text-lg md:text-xl lg:text-2xl break-words">Study Timetable Generator</CardTitle>
               <CardDescription className="text-blue-50 text-xs sm:text-sm">
                 Create your personalized weekly study schedule
               </CardDescription>
             </div>
           </div>
         </CardHeader>
-        <CardContent className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+        <CardContent className="p-3 sm:p-4 md:p-6 space-y-3 sm:space-y-4 md:space-y-6">
           {/* Student Info */}
-          <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
-            <p className="text-xs sm:text-sm text-muted-foreground">Student Name</p>
-            <p className="text-base sm:text-lg font-semibold text-foreground">{profile?.name || 'Loading...'}</p>
+          <div className="p-2 sm:p-3 md:p-4 bg-muted/50 rounded-lg">
+            <p className="text-xs text-muted-foreground">Student Name</p>
+            <p className="text-sm sm:text-base md:text-lg font-semibold text-foreground">{profile?.name || 'Loading...'}</p>
           </div>
 
           {/* Study Days Selection */}
           <div className="space-y-2">
-            <Label htmlFor="studyDays" className="text-sm sm:text-base">Number of Study Days per Week</Label>
+            <Label htmlFor="studyDays" className="text-xs sm:text-sm md:text-base">Number of Study Days per Week</Label>
             <Select value={studyDays.toString()} onValueChange={(v) => setStudyDays(parseInt(v))}>
-              <SelectTrigger id="studyDays" className="h-11 sm:h-10">
+              <SelectTrigger id="studyDays" className="h-10 sm:h-10 text-sm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -222,19 +247,19 @@ export function TimetablePage() {
           </div>
 
           {/* Add Subject */}
-          <div className="space-y-3 sm:space-y-4">
-            <Label className="text-sm sm:text-base">Add Subjects</Label>
-            <div className="flex flex-col gap-3">
+          <div className="space-y-2 sm:space-y-3">
+            <Label className="text-xs sm:text-sm md:text-base">Add Subjects</Label>
+            <div className="flex flex-col gap-2 sm:gap-3">
               <Input
                 placeholder="Subject name (e.g., Network Theory)"
                 value={currentSubject}
                 onChange={(e) => setCurrentSubject(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && addSubject()}
-                className="h-11 sm:h-10 text-base sm:text-sm"
+                className="h-10 text-sm"
               />
-              <div className="flex gap-2 sm:gap-3">
+              <div className="flex gap-2">
                 <Select value={currentDifficulty} onValueChange={(v) => setCurrentDifficulty(v as Difficulty)}>
-                  <SelectTrigger className="flex-1 h-11 sm:h-10">
+                  <SelectTrigger className="flex-1 h-10 text-sm">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -243,7 +268,7 @@ export function TimetablePage() {
                     <SelectItem value="hard">Hard (3x/week)</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button onClick={addSubject} className="gradient-primary h-11 sm:h-10 px-4 sm:px-6">
+                <Button onClick={addSubject} className="gradient-primary h-10 px-3 sm:px-6">
                   <Plus className="w-4 h-4 sm:mr-2" />
                   <span className="hidden sm:inline">Add</span>
                 </Button>
@@ -253,17 +278,17 @@ export function TimetablePage() {
 
           {/* Subjects List */}
           {subjects.length > 0 && (
-            <div className="space-y-3">
-              <Label className="text-sm sm:text-base">Your Subjects ({subjects.length})</Label>
+            <div className="space-y-2">
+              <Label className="text-xs sm:text-sm md:text-base">Your Subjects ({subjects.length})</Label>
               <div className="space-y-2">
                 {subjects.map(subject => (
                   <div
                     key={subject.id}
-                    className="flex items-start sm:items-center justify-between p-3 bg-card border rounded-lg hover:shadow-md transition-smooth gap-2"
+                    className="flex items-start sm:items-center justify-between p-2 sm:p-3 bg-card border rounded-lg hover:shadow-md transition-smooth gap-2"
                   >
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 flex-1 min-w-0">
-                      <span className="font-medium text-foreground text-sm sm:text-base break-words">{subject.name}</span>
-                      <div className="flex items-center gap-2 flex-wrap">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 flex-1 min-w-0">
+                      <span className="font-medium text-foreground text-xs sm:text-sm md:text-base break-words">{subject.name}</span>
+                      <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
                         <Badge className={`${getDifficultyColor(subject.difficulty)} text-xs`}>
                           {subject.difficulty}
                         </Badge>
@@ -276,9 +301,9 @@ export function TimetablePage() {
                       variant="ghost"
                       size="sm"
                       onClick={() => removeSubject(subject.id)}
-                      className="text-destructive hover:text-destructive flex-shrink-0 h-8 w-8 p-0"
+                      className="text-destructive hover:text-destructive flex-shrink-0 h-7 w-7 sm:h-8 sm:w-8 p-0"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
                     </Button>
                   </div>
                 ))}
@@ -287,21 +312,21 @@ export function TimetablePage() {
           )}
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-3 sm:pt-4 border-t">
             <Button
               onClick={handleGenerateTimetable}
               disabled={subjects.length === 0}
-              className="gradient-primary flex-1 h-12 sm:h-11 text-base sm:text-sm"
+              className="gradient-primary flex-1 h-10 sm:h-11 text-sm"
             >
-              <Calendar className="w-5 h-5 mr-2" />
+              <Calendar className="w-4 h-4 mr-2" />
               Generate Timetable
             </Button>
             <Button
               onClick={handleReset}
               variant="outline"
-              className="h-12 sm:h-11 text-base sm:text-sm"
+              className="h-10 sm:h-11 text-sm"
             >
-              <RefreshCw className="w-5 h-5 mr-2" />
+              <RefreshCw className="w-4 h-4 mr-2" />
               Reset
             </Button>
           </div>
@@ -311,33 +336,33 @@ export function TimetablePage() {
       {/* Generated Timetable */}
       {generatedTimetable.length > 0 && (
         <Card className="border-2 border-success/20 shadow-lg animate-scale-in">
-          <CardHeader className="gradient-secondary text-white p-4 sm:p-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <CardHeader className="gradient-secondary text-white p-3 sm:p-4 md:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
               <div className="min-w-0 flex-1">
-                <CardTitle className="text-lg sm:text-xl md:text-2xl break-words">Your Weekly Study Routine</CardTitle>
+                <CardTitle className="text-base sm:text-lg md:text-xl lg:text-2xl break-words">Your Weekly Study Routine</CardTitle>
                 <CardDescription className="text-blue-100 text-xs sm:text-sm">
                   Studying {studyDays} days/week • {subjects.length} subjects
                 </CardDescription>
               </div>
               <Button
                 onClick={handleDownloadPDF}
-                className="gradient-primary h-10 sm:h-9 flex-shrink-0"
+                className="gradient-primary h-9 sm:h-9 flex-shrink-0 text-xs sm:text-sm"
               >
-                <Download className="w-4 h-4 sm:mr-2" />
+                <Download className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+                <span className="sm:hidden">Download PDF</span>
                 <span className="hidden sm:inline">Download PDF</span>
-                <span className="sm:hidden">PDF</span>
               </Button>
             </div>
           </CardHeader>
-          <CardContent className="p-4 sm:p-6">
+          <CardContent className="p-3 sm:p-4 md:p-6">
             {/* Timetable View for PDF */}
-            <div ref={timetableRef} className="bg-white p-6 rounded-lg">
+            <div ref={timetableRef} className="bg-white p-4 sm:p-6 rounded-lg">
               {/* Header */}
-              <div className="text-center mb-6 pb-4 border-b-2 border-primary">
-                <h1 className="text-2xl sm:text-3xl font-bold text-navy mb-2">
+              <div className="text-center mb-4 sm:mb-6 pb-3 sm:pb-4 border-b-2 border-primary">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-navy mb-2">
                   Weekly Study Timetable
                 </h1>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   Student: {profile?.name} | Semester: {profile?.semester}
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
@@ -350,14 +375,14 @@ export function TimetablePage() {
               </div>
 
               {/* Routine Table */}
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse">
+              <div className="overflow-x-auto -mx-3 sm:mx-0">
+                <table className="w-full border-collapse min-w-[280px]">
                   <thead>
                     <tr className="bg-secondary">
-                      <th className="border-2 border-border p-3 text-left text-white font-semibold w-32">
+                      <th className="border-2 border-border p-2 sm:p-3 text-left text-white font-semibold text-xs sm:text-sm w-20 sm:w-32">
                         Day
                       </th>
-                      <th className="border-2 border-border p-3 text-left text-white font-semibold">
+                      <th className="border-2 border-border p-2 sm:p-3 text-left text-white font-semibold text-xs sm:text-sm">
                         Study Sessions
                       </th>
                     </tr>
@@ -368,16 +393,16 @@ export function TimetablePage() {
                         key={day.day}
                         className={index % 2 === 0 ? 'bg-muted/30' : 'bg-white'}
                       >
-                        <td className="border-2 border-border p-3 font-semibold text-foreground">
+                        <td className="border-2 border-border p-2 sm:p-3 font-semibold text-foreground text-xs sm:text-sm">
                           {day.day}
                         </td>
-                        <td className="border-2 border-border p-3">
+                        <td className="border-2 border-border p-2 sm:p-3">
                           {day.subjects.length > 0 ? (
-                            <div className="flex flex-col gap-2">
+                            <div className="flex flex-col gap-1.5 sm:gap-2">
                               {day.subjects.map((subject, idx) => (
                                 <div
                                   key={`${subject.id}-${idx}`}
-                                  className="flex items-center gap-3 p-2 rounded border-l-4"
+                                  className="flex items-center gap-2 sm:gap-3 p-1.5 sm:p-2 rounded border-l-4"
                                   style={{
                                     borderColor: subject.difficulty === 'hard' ? '#ef4444' :
                                                subject.difficulty === 'medium' ? '#f59e0b' :
@@ -387,11 +412,11 @@ export function TimetablePage() {
                                                    '#f0fdf4'
                                   }}
                                 >
-                                  <span className="font-medium text-foreground flex-1">
+                                  <span className="font-medium text-foreground flex-1 text-xs sm:text-sm break-words">
                                     {subject.name}
                                   </span>
                                   <span 
-                                    className="text-xs px-2 py-1 rounded font-semibold"
+                                    className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded font-semibold whitespace-nowrap flex-shrink-0"
                                     style={{
                                       backgroundColor: subject.difficulty === 'hard' ? '#ef4444' :
                                                      subject.difficulty === 'medium' ? '#f59e0b' :
@@ -405,7 +430,7 @@ export function TimetablePage() {
                               ))}
                             </div>
                           ) : (
-                            <span className="text-muted-foreground italic text-sm">No classes scheduled</span>
+                            <span className="text-muted-foreground italic text-xs sm:text-sm">No classes scheduled</span>
                           )}
                         </td>
                       </tr>
@@ -415,35 +440,35 @@ export function TimetablePage() {
               </div>
 
               {/* Legend */}
-              <div className="mt-6 p-4 bg-muted/20 rounded-lg border-2 border-border">
-                <p className="text-sm font-semibold mb-3 text-foreground">Difficulty Level Guide:</p>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-muted/20 rounded-lg border-2 border-border">
+                <p className="text-xs sm:text-sm font-semibold mb-2 sm:mb-3 text-foreground">Difficulty Level Guide:</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
                   <div className="flex items-center gap-2 p-2 bg-white rounded border-l-4 border-success">
-                    <div className="w-3 h-3 rounded-full bg-success"></div>
-                    <div>
-                      <p className="font-semibold text-foreground text-sm">Easy</p>
-                      <p className="text-xs text-muted-foreground">1 session per week</p>
+                    <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-success flex-shrink-0"></div>
+                    <div className="min-w-0">
+                      <p className="font-semibold text-foreground text-xs sm:text-sm">Easy</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground">1 session per week</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 p-2 bg-white rounded border-l-4 border-primary">
-                    <div className="w-3 h-3 rounded-full bg-primary"></div>
-                    <div>
-                      <p className="font-semibold text-foreground text-sm">Medium</p>
-                      <p className="text-xs text-muted-foreground">2 sessions per week</p>
+                    <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-primary flex-shrink-0"></div>
+                    <div className="min-w-0">
+                      <p className="font-semibold text-foreground text-xs sm:text-sm">Medium</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground">2 sessions per week</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 p-2 bg-white rounded border-l-4 border-destructive">
-                    <div className="w-3 h-3 rounded-full bg-destructive"></div>
-                    <div>
-                      <p className="font-semibold text-foreground text-sm">Hard</p>
-                      <p className="text-xs text-muted-foreground">3 sessions per week</p>
+                    <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-destructive flex-shrink-0"></div>
+                    <div className="min-w-0">
+                      <p className="font-semibold text-foreground text-xs sm:text-sm">Hard</p>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground">3 sessions per week</p>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Footer */}
-              <div className="mt-6 pt-4 border-t text-center text-xs text-muted-foreground">
+              <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t text-center text-[10px] sm:text-xs text-muted-foreground">
                 <p>Generated by ECE EDU PORTAL - Study Smart, Study Hard</p>
               </div>
             </div>
