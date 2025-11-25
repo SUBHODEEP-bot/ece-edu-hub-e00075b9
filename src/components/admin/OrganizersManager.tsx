@@ -26,8 +26,9 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const semesters = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"];
 
-export function OrganizersManager() {
+export function OrganizersManager({ selectedSemester }: { selectedSemester: string }) {
   const queryClient = useQueryClient();
+  const [viewSemester, setViewSemester] = useState<string>("all");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [title, setTitle] = useState("");
@@ -38,13 +39,18 @@ export function OrganizersManager() {
   const [file, setFile] = useState<File | null>(null);
 
   const { data: organizers, isLoading } = useQuery({
-    queryKey: ["organizers"],
+    queryKey: ["organizers", viewSemester],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("organizers")
         .select("*")
         .order("created_at", { ascending: false });
 
+      if (viewSemester !== "all") {
+        query = query.eq("semester", viewSemester);
+      }
+
+      const { data, error } = await query;
       if (error) throw error;
       return data;
     },
@@ -201,9 +207,23 @@ export function OrganizersManager() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h2 className="text-2xl font-bold">Organizers</h2>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <div className="flex gap-2 w-full sm:w-auto">
+          <Select value={viewSemester} onValueChange={setViewSemester}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter by semester" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Semesters</SelectItem>
+              {semesters.map((sem) => (
+                <SelectItem key={sem} value={sem}>
+                  {sem} Semester
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button onClick={resetForm}>
               <Plus className="mr-2 h-4 w-4" />
@@ -303,6 +323,7 @@ export function OrganizersManager() {
             </form>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       <div className="grid gap-4">

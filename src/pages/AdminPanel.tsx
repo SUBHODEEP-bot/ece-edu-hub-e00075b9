@@ -311,7 +311,7 @@ const AdminPanel = () => {
 
           {/* Organizers Tab */}
           <TabsContent value="organizers" className="animate-fade-in">
-            <OrganizersManager />
+            <OrganizersManager selectedSemester={selectedSemester} />
           </TabsContent>
 
           {/* Notifications Tab */}
