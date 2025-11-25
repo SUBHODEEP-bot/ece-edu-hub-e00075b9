@@ -26,6 +26,7 @@ interface LabManual {
 const LabManualsManager = ({ selectedSemester }: { selectedSemester: string }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingManual, setEditingManual] = useState<LabManual | null>(null);
+  const [viewSemester, setViewSemester] = useState<string>("all");
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [semester, setSemester] = useState('');
@@ -36,15 +37,15 @@ const LabManualsManager = ({ selectedSemester }: { selectedSemester: string }) =
   const queryClient = useQueryClient();
 
   const { data: labManuals, isLoading } = useQuery({
-    queryKey: ['lab-manuals', selectedSemester],
+    queryKey: ['lab-manuals', viewSemester],
     queryFn: async () => {
       let query = supabase
         .from('lab_manuals')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (selectedSemester !== 'all') {
-        query = query.or(`semester.eq.${selectedSemester},semester.eq.ALL`);
+      if (viewSemester !== 'all') {
+        query = query.eq('semester', viewSemester);
       }
 
       const { data, error } = await query;
@@ -174,12 +175,30 @@ const LabManualsManager = ({ selectedSemester }: { selectedSemester: string }) =
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-2xl font-bold">Lab Manuals</h2>
           <p className="text-muted-foreground">Manage lab manual documents and links</p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <div className="flex gap-2 w-full sm:w-auto">
+          <Select value={viewSemester} onValueChange={setViewSemester}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter by semester" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Semesters</SelectItem>
+              <SelectItem value="1st">1st Semester</SelectItem>
+              <SelectItem value="2nd">2nd Semester</SelectItem>
+              <SelectItem value="3rd">3rd Semester</SelectItem>
+              <SelectItem value="4th">4th Semester</SelectItem>
+              <SelectItem value="5th">5th Semester</SelectItem>
+              <SelectItem value="6th">6th Semester</SelectItem>
+              <SelectItem value="7th">7th Semester</SelectItem>
+              <SelectItem value="8th">8th Semester</SelectItem>
+              <SelectItem value="ALL">All Semesters (Global)</SelectItem>
+            </SelectContent>
+          </Select>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button onClick={() => resetForm()}>
               <Upload className="w-4 h-4 mr-2" />
@@ -284,6 +303,7 @@ const LabManualsManager = ({ selectedSemester }: { selectedSemester: string }) =
             </form>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       <div className="grid gap-4">
