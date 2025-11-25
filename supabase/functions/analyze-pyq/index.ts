@@ -6,17 +6,18 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-async function extractTextFromPDF(pdfUrl: string): Promise<string> {
-  const response = await fetch(pdfUrl);
-  if (!response.ok) {
-    throw new Error('Failed to fetch PDF');
+async function extractTextFromPDFBase64(base64Data: string): Promise<string> {
+  // Decode base64 to ArrayBuffer
+  const binaryString = atob(base64Data);
+  const len = binaryString.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
   }
-  
-  const arrayBuffer = await response.arrayBuffer();
   
   // Use pdf-parse from esm.sh CDN
   const pdfParse = await import('https://esm.sh/pdf-parse@1.1.1');
-  const data = await pdfParse.default(arrayBuffer);
+  const data = await pdfParse.default(bytes.buffer);
   
   return data.text;
 }
@@ -27,14 +28,14 @@ serve(async (req) => {
   }
 
   try {
-    const { extractedText, pdfUrl, isPdf } = await req.json();
+    const { extractedText, pdfBase64, isPdf } = await req.json();
     
     let textToAnalyze = extractedText;
 
-    // If it's a PDF, extract text from URL
-    if (isPdf && pdfUrl) {
-      console.log('Fetching and extracting PDF from URL:', pdfUrl);
-      textToAnalyze = await extractTextFromPDF(pdfUrl);
+    // If it's a PDF, extract text from base64
+    if (isPdf && pdfBase64) {
+      console.log('Extracting text from PDF base64...');
+      textToAnalyze = await extractTextFromPDFBase64(pdfBase64);
       console.log('Extracted text length:', textToAnalyze.length);
     }
     

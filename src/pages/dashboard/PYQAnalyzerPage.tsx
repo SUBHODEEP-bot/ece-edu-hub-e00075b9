@@ -58,6 +58,18 @@ export const PYQAnalyzerPage = () => {
     }
   };
 
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        const base64String = (reader.result as string).split(',')[1];
+        resolve(base64String);
+      };
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
   const analyzeDocument = async () => {
     if (!file) return;
 
@@ -65,71 +77,36 @@ export const PYQAnalyzerPage = () => {
     setUploadProgress(10);
     
     try {
-      let textContent = '';
+      let payload: any = {};
 
       if (file.type === 'text/plain') {
         // For text files, read directly
-        textContent = await file.text();
-        setUploadProgress(50);
-      } else {
-        // For PDFs, upload to Supabase storage first
-        const fileName = `pyq-${Date.now()}-${file.name}`;
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('documents')
-          .upload(fileName, file, {
-            cacheControl: '3600',
-            upsert: false
-          });
-
-        if (uploadError) throw uploadError;
-        setUploadProgress(40);
-
-        // Get public URL
-        const { data: { publicUrl } } = supabase.storage
-          .from('documents')
-          .getPublicUrl(fileName);
-
-        // Send PDF URL to backend for extraction and analysis
-        const { data, error } = await supabase.functions.invoke('analyze-pyq', {
-          body: { 
-            pdfUrl: publicUrl,
-            isPdf: true
-          },
-        });
-
-        if (error) throw error;
-
-        // Clean up the uploaded file
-        await supabase.storage.from('documents').remove([fileName]);
-
-        if (data?.analysis) {
-          setAnalysis(data.analysis);
-          setUploadProgress(100);
-          toast({
-            title: 'Analysis Complete',
-            description: 'PYQ analysis successful!',
-          });
-        } else {
-          throw new Error('No analysis data received');
-        }
-        return;
-      }
-
-      setUploadProgress(60);
-
-      if (!textContent || textContent.trim().length < 50) {
-        throw new Error('Insufficient text content in file');
-      }
-
-      // For text files, send directly
-      const { data, error } = await supabase.functions.invoke('analyze-pyq', {
-        body: { 
+        const textContent = await file.text();
+        setUploadProgress(30);
+        payload = { 
           extractedText: textContent,
           isPdf: false
-        },
+        };
+      } else {
+        // For PDFs, convert to base64
+        const base64Data = await fileToBase64(file);
+        setUploadProgress(30);
+        payload = {
+          pdfBase64: base64Data,
+          isPdf: true
+        };
+      }
+
+      setUploadProgress(50);
+
+      // Send to backend for analysis
+      const { data, error } = await supabase.functions.invoke('analyze-pyq', {
+        body: payload,
       });
 
       if (error) throw error;
+
+      setUploadProgress(80);
 
       if (data?.analysis) {
         setAnalysis(data.analysis);
@@ -225,7 +202,7 @@ export const PYQAnalyzerPage = () => {
               <div className="space-y-2">
                 <Progress value={uploadProgress} className="h-2" />
                 <p className="text-xs text-center text-muted-foreground">
-                  {uploadProgress < 50 ? 'Uploading...' : uploadProgress < 80 ? 'Analyzing...' : 'Finalizing...'}
+                  {uploadProgress < 40 ? 'Processing file...' : uploadProgress < 70 ? 'Analyzing with AI...' : 'Finalizing...'}
                 </p>
               </div>
             )}
