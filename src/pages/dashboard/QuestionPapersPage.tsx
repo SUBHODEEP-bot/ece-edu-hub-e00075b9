@@ -117,32 +117,18 @@ export const QuestionPapersPage = () => {
                             </div>
                           </CardHeader>
                           <CardContent className="p-3 sm:p-4 pt-0">
-                            {paper.file_url ? (
-                              <a
-                                href={paper.file_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                download={paper.file_name || 'question-paper.pdf'}
-                                className="block"
-                              >
-                                <Button
-                                  className="w-full gradient-primary text-white text-xs sm:text-sm"
-                                  size="sm"
-                                >
-                                  <Download className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-                                  Download PDF
-                                </Button>
-                              </a>
-                            ) : (
-                              <Button
-                                className="w-full text-xs sm:text-sm"
-                                size="sm"
-                                variant="outline"
-                                disabled
-                              >
-                                File not available
-                              </Button>
-                            )}
+                            <Button
+                              onClick={() => {
+                                if (!paper.file_url) return;
+                                window.location.href = paper.file_url;
+                              }}
+                              className="w-full gradient-primary text-white text-xs sm:text-sm"
+                              size="sm"
+                              disabled={!paper.file_url}
+                            >
+                              <Download className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+                              Download PDF
+                            </Button>
                           </CardContent>
                         </Card>
                       ))}
