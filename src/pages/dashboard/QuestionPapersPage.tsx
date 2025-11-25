@@ -68,8 +68,21 @@ export const QuestionPapersPage = () => {
     return papers?.filter(p => p.folder_id === folderId) || [];
   };
 
-  const handleDownload = (fileUrl: string) => {
-    window.open(fileUrl, '_blank', 'noopener,noreferrer');
+  const handleDownload = (fileUrl: string | null | undefined, fileName: string) => {
+    if (!fileUrl) {
+      console.error('No file URL available for download');
+      return;
+    }
+    
+    // Create a temporary anchor element to trigger download
+    const link = document.createElement('a');
+    link.href = fileUrl;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.download = fileName || 'question-paper.pdf';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -122,9 +135,10 @@ export const QuestionPapersPage = () => {
                           </CardHeader>
                           <CardContent className="p-3 sm:p-4 pt-0">
                             <Button
-                              onClick={() => handleDownload(paper.file_url)}
+                              onClick={() => handleDownload(paper.file_url, paper.file_name)}
                               className="w-full gradient-primary text-white text-xs sm:text-sm"
                               size="sm"
+                              disabled={!paper.file_url}
                             >
                               <Download className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
                               Download PDF
