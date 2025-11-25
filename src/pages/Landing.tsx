@@ -3,6 +3,7 @@ import { BookOpen, FileText, Calendar, GraduationCap, Users, ArrowRight, Sparkle
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import HelpChatbot from '@/components/HelpChatbot';
 
 const Landing = () => {
   const features = [
@@ -283,6 +284,9 @@ const Landing = () => {
           </div>
         </div>
       </footer>
+
+      {/* Help Chatbot */}
+      <HelpChatbot />
     </div>
   );
 };
