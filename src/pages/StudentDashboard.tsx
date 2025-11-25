@@ -13,6 +13,7 @@ import { NotesPage } from './dashboard/NotesPage';
 import { SyllabusPage } from './dashboard/SyllabusPage';
 import { EventsPage } from './dashboard/EventsPage';
 import { AttendancePage } from './dashboard/AttendancePage';
+import OrganizersPage from './dashboard/OrganizersPage';
 import { MarSupportPage } from './dashboard/MarSupportPage';
 
 const StudentDashboard = () => {
@@ -78,6 +79,7 @@ const StudentDashboard = () => {
               <Route path="notes" element={<NotesPage />} />
               <Route path="syllabus" element={<SyllabusPage />} />
               <Route path="events" element={<EventsPage />} />
+              <Route path="organizers" element={<OrganizersPage />} />
               <Route path="mar-support" element={<MarSupportPage />} />
               <Route path="attendance" element={<AttendancePage />} />
             </Routes>

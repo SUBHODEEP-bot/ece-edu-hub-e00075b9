@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { FileText, BookOpen, GraduationCap, Calendar, Users, LogOut, BarChart3, Filter, LifeBuoy } from 'lucide-react';
+import { FileText, BookOpen, GraduationCap, Calendar, Users, LogOut, BarChart3, Filter, LifeBuoy, FolderKanban } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import QuestionPapersManager from '@/components/admin/QuestionPapersManager';
@@ -13,6 +13,7 @@ import SyllabusManager from '@/components/admin/SyllabusManager';
 import EventsManager from '@/components/admin/EventsManager';
 import UsersManager from '@/components/admin/UsersManager';
 import MarSupportManager from '@/components/admin/MarSupportManager';
+import { OrganizersManager } from '@/components/admin/OrganizersManager';
 
 const AdminPanel = () => {
   const { signOut } = useAuth();
@@ -29,12 +30,14 @@ const AdminPanel = () => {
         { count: notesCount },
         { count: syllabusCount },
         { count: eventsCount },
+        { count: organizersCount },
       ] = await Promise.all([
         supabase.from('profiles').select('*', { count: 'exact', head: true }),
         supabase.from('question_papers').select('*', { count: 'exact', head: true }),
         supabase.from('notes').select('*', { count: 'exact', head: true }),
         supabase.from('syllabus').select('*', { count: 'exact', head: true }),
         supabase.from('events').select('*', { count: 'exact', head: true }),
+        supabase.from('organizers').select('*', { count: 'exact', head: true }),
       ]);
 
       return {
@@ -43,6 +46,7 @@ const AdminPanel = () => {
         notes: notesCount || 0,
         syllabus: syllabusCount || 0,
         events: eventsCount || 0,
+        organizers: organizersCount || 0,
       };
     },
   });
@@ -104,7 +108,7 @@ const AdminPanel = () => {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7 h-auto gap-2 bg-muted/50 p-2 rounded-xl">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 h-auto gap-2 bg-muted/50 p-2 rounded-xl">
             <TabsTrigger value="dashboard" className="gap-2 data-[state=active]:gradient-primary data-[state=active]:text-white">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline">Dashboard</span>
@@ -124,6 +128,10 @@ const AdminPanel = () => {
             <TabsTrigger value="events" className="gap-2 data-[state=active]:gradient-primary data-[state=active]:text-white">
               <Calendar className="w-4 h-4" />
               <span className="hidden sm:inline">Events</span>
+            </TabsTrigger>
+            <TabsTrigger value="organizers" className="gap-2 data-[state=active]:gradient-primary data-[state=active]:text-white">
+              <FolderKanban className="w-4 h-4" />
+              <span className="hidden sm:inline">Organizers</span>
             </TabsTrigger>
             <TabsTrigger value="mar-support" className="gap-2 data-[state=active]:gradient-primary data-[state=active]:text-white">
               <LifeBuoy className="w-4 h-4" />
@@ -207,6 +215,19 @@ const AdminPanel = () => {
               <Card className="hover:shadow-lg transition-smooth border-2 hover:border-primary/30">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium text-muted-foreground">
+                    Organizers
+                  </CardTitle>
+                  <FolderKanban className="w-5 h-5 text-primary" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-foreground">{stats?.organizers || 0}</div>
+                  <p className="text-xs text-muted-foreground mt-1">Available organizers</p>
+                </CardContent>
+              </Card>
+
+              <Card className="hover:shadow-lg transition-smooth border-2 hover:border-primary/30">
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
                     Total Resources
                   </CardTitle>
                   <BarChart3 className="w-5 h-5 text-accent" />
@@ -239,6 +260,11 @@ const AdminPanel = () => {
           {/* Events Tab */}
           <TabsContent value="events" className="animate-fade-in">
             <EventsManager selectedSemester={selectedSemester} />
+          </TabsContent>
+
+          {/* Organizers Tab */}
+          <TabsContent value="organizers" className="animate-fade-in">
+            <OrganizersManager />
           </TabsContent>
 
           {/* Mar Support Tab */}
