@@ -63,9 +63,6 @@ export default function OrganizersPage() {
     }
   };
 
-  const handleOpenLink = (linkUrl: string) => {
-    window.open(linkUrl, '_blank');
-  };
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -108,13 +105,15 @@ export default function OrganizersPage() {
                 )}
 
                 {organizer.link_url && (
-                  <Button
-                    onClick={() => handleOpenLink(organizer.link_url!)}
-                    className="w-full sm:w-auto"
+                  <a 
+                    href={organizer.link_url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full sm:w-auto"
                   >
                     <ExternalLink className="mr-2 h-4 w-4" />
                     Open Link
-                  </Button>
+                  </a>
                 )}
               </CardContent>
             </Card>
