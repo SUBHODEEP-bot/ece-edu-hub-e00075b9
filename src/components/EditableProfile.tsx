@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Camera, Save, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -37,6 +38,7 @@ export const EditableProfile = ({ profile }: EditableProfileProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url);
+  const [isAvatarDialogOpen, setIsAvatarDialogOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const {
@@ -177,12 +179,29 @@ export const EditableProfile = ({ profile }: EditableProfileProps) => {
         {/* Avatar Section */}
         <div className="flex flex-col items-center gap-3 sm:gap-4">
           <div className="relative">
-            <Avatar className="w-24 h-24 sm:w-32 sm:h-32 border-4 border-primary/30 shadow-xl ring-4 ring-primary/10">
-              <AvatarImage src={avatarUrl || undefined} alt={profile.name} />
-              <AvatarFallback className="text-xl sm:text-2xl font-bold bg-gradient-primary text-white">
-                {getInitials(profile.name)}
-              </AvatarFallback>
-            </Avatar>
+            <Dialog open={isAvatarDialogOpen} onOpenChange={setIsAvatarDialogOpen}>
+              <DialogTrigger asChild>
+                <div className={avatarUrl && !isEditing ? "cursor-pointer" : ""}>
+                  <Avatar className="w-24 h-24 sm:w-32 sm:h-32 border-4 border-primary/30 shadow-xl ring-4 ring-primary/10 hover:ring-primary/30 transition-all">
+                    <AvatarImage src={avatarUrl || undefined} alt={profile.name} />
+                    <AvatarFallback className="text-xl sm:text-2xl font-bold bg-gradient-primary text-white">
+                      {getInitials(profile.name)}
+                    </AvatarFallback>
+                  </Avatar>
+                </div>
+              </DialogTrigger>
+              {avatarUrl && (
+                <DialogContent className="max-w-3xl w-[95vw] h-auto p-2 sm:p-4">
+                  <div className="flex items-center justify-center w-full h-full">
+                    <img 
+                      src={avatarUrl} 
+                      alt={profile.name}
+                      className="max-w-full max-h-[85vh] object-contain rounded-lg"
+                    />
+                  </div>
+                </DialogContent>
+              )}
+            </Dialog>
             {isEditing && (
               <label
                 htmlFor="avatar-upload"
