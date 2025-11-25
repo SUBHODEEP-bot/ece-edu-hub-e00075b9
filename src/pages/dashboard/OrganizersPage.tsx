@@ -64,14 +64,12 @@ export default function OrganizersPage() {
   };
 
   const handleOpenLink = (linkUrl: string) => {
-    // Create a temporary anchor element to force direct navigation
-    const a = document.createElement('a');
-    a.href = linkUrl;
-    a.target = '_blank';
-    a.rel = 'noopener noreferrer';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    // Use window.top to break out of iframe restrictions
+    if (window.top) {
+      window.top.location.href = linkUrl;
+    } else {
+      window.location.href = linkUrl;
+    }
   };
 
   if (isLoading) {
