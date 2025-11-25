@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download, ExternalLink, FileText, Link as LinkIcon } from "lucide-react";
+import { Download, ExternalLink, FileText, Link as LinkIcon, Copy } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -63,6 +63,11 @@ export default function OrganizersPage() {
     }
   };
 
+  const handleCopyLink = (linkUrl: string) => {
+    navigator.clipboard.writeText(linkUrl);
+    toast.success("Link copied to clipboard!");
+  };
+
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -105,15 +110,25 @@ export default function OrganizersPage() {
                 )}
 
                 {organizer.link_url && (
-                  <a 
-                    href={organizer.link_url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full sm:w-auto"
-                  >
-                    <ExternalLink className="mr-2 h-4 w-4" />
-                    Open Link
-                  </a>
+                  <div className="flex gap-2 flex-col sm:flex-row">
+                    <a 
+                      href={organizer.link_url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full sm:w-auto flex-1 sm:flex-initial"
+                    >
+                      <ExternalLink className="mr-2 h-4 w-4" />
+                      Open Link
+                    </a>
+                    <Button
+                      onClick={() => handleCopyLink(organizer.link_url!)}
+                      variant="outline"
+                      className="w-full sm:w-auto"
+                    >
+                      <Copy className="mr-2 h-4 w-4" />
+                      Copy Link
+                    </Button>
+                  </div>
                 )}
               </CardContent>
             </Card>
