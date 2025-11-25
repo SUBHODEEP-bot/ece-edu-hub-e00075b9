@@ -68,23 +68,6 @@ export const NotesPage = () => {
     return notes?.filter(n => n.folder_id === folderId) || [];
   };
 
-  const handleDownload = (fileUrl: string | null | undefined, fileName: string) => {
-    if (!fileUrl) {
-      console.error('No file URL available for download');
-      return;
-    }
-    
-    // Create a temporary anchor element to trigger download
-    const link = document.createElement('a');
-    link.href = fileUrl;
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    link.download = fileName || 'note.pdf';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
   return (
     <div className="space-y-3 sm:space-y-4 animate-fade-in">
       <h2 className="text-xl sm:text-2xl font-bold text-foreground">Study Notes</h2>
@@ -136,15 +119,32 @@ export const NotesPage = () => {
                             </div>
                           </CardHeader>
                           <CardContent className="p-3 sm:p-4 pt-0">
-                            <Button
-                              onClick={() => handleDownload(note.file_url, note.file_name)}
-                              className="w-full gradient-primary text-white text-xs sm:text-sm"
-                              size="sm"
-                              disabled={!note.file_url}
-                            >
-                              <Download className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-                              Download
-                            </Button>
+                            {note.file_url ? (
+                              <a
+                                href={note.file_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                download={note.file_name || 'note.pdf'}
+                                className="block"
+                              >
+                                <Button
+                                  className="w-full gradient-primary text-white text-xs sm:text-sm"
+                                  size="sm"
+                                >
+                                  <Download className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+                                  Download
+                                </Button>
+                              </a>
+                            ) : (
+                              <Button
+                                className="w-full text-xs sm:text-sm"
+                                size="sm"
+                                variant="outline"
+                                disabled
+                              >
+                                File not available
+                              </Button>
+                            )}
                           </CardContent>
                         </Card>
                       ))}
