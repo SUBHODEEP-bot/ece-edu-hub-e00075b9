@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { GraduationCap, ArrowLeft, Loader2, Mail, Lock, User, Phone, Sparkles, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useAuth } from '@/contexts/AuthContext';
 
 const registerSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').max(100),
@@ -30,6 +31,19 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
+  const { user, userRole } = useAuth();
+  
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user && userRole) {
+      if (userRole === 'admin') {
+        navigate('/admin', { replace: true });
+      } else {
+        navigate('/dashboard', { replace: true });
+      }
+    }
+  }, [user, userRole, navigate]);
+  
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -68,9 +82,15 @@ const Register = () => {
 
       // Check if user was created and auto-confirmed
       if (data.user && data.session) {
+        // Assign student role
+        await supabase.from('user_roles').insert({
+          user_id: data.user.id,
+          role: 'student'
+        });
+        
         toast.success('Registration successful! Redirecting to dashboard...');
-        // Redirect to dashboard immediately
-        navigate('/dashboard');
+        // Redirect to dashboard immediately - will stay there until logout
+        navigate('/dashboard', { replace: true });
       } else {
         // Email confirmation required
         toast.success('Registration successful! Please check your email for verification.');
