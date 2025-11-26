@@ -219,7 +219,7 @@ export const PYQAnalyzerPage = () => {
               ) : (
                 <>
                   <Brain className="w-4 h-4 mr-2" />
-                  Analyze with Gemini AI
+                  Analyze with AI
                 </>
               )}
             </Button>
