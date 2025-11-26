@@ -69,11 +69,12 @@ async function extractTextFromPDFBase64(base64Data: string): Promise<string> {
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { status: 200, headers: corsHeaders });
   }
 
   try {
-    const { extractedText, pdfBase64, isPdf } = await req.json();
+    const body = await req.json();
+    const { extractedText, pdfBase64, isPdf } = body;
     
     let textToAnalyze = extractedText;
 
@@ -209,8 +210,12 @@ Minimum requirements:
 
   } catch (error) {
     console.error('Error in analyze-pyq function:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error('Error message:', errorMessage);
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+    
     return new Response(JSON.stringify({ 
-      error: error instanceof Error ? error.message : 'Unknown error occurred' 
+      error: errorMessage
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

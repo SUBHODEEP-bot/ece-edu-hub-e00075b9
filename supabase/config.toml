@@ -2,3 +2,4 @@ project_id = "oktjzgxmuyrdkupnselq"
 
 [functions.analyze-pyq]
 verify_jwt = false
+env = ["GEMINI_API_KEY"]
