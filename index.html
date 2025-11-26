@@ -7,8 +7,14 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-    <!-- ⭐ Added Favicon ⭐ -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <!-- ⭐ Favicons (cache-bust for testing) ⭐ -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico?v=2" />
+    <link rel="shortcut icon" href="/favicon.ico?v=2" />
+    <!-- PNG fallback and apple touch icon (use same logo file) -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/logo.png?v=2" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/logo.png?v=2" />
+    <meta name="theme-color" content="#ffffff" />
+    <!-- Remove the ?v=2 once the new icon is confirmed working to avoid long-term cache-busting -->
 
     <title>ECE EDU PORTAL - Electronics & Communication Engineering</title>
     <meta name="description" content="Comprehensive educational portal for ECE students featuring study materials, question papers, syllabus, and departmental updates." />
