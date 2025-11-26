@@ -96,6 +96,7 @@ const Landing = () => {
         
         <div className="container mx-auto max-w-7xl relative z-10">
           <div className="text-center">
+            <img src={`${import.meta.env.BASE_URL}logo.png`} alt="ECE EDU logo" className="mx-auto mb-6 h-16 w-auto" />
             {/* Top Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 md:px-6 md:py-3 rounded-full mb-6 md:mb-8 hover:scale-105 transition-smooth animate-slide-up border-2 border-gold/40 bg-gold/10 backdrop-blur-md">
               <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-gold animate-pulse-slow" />
