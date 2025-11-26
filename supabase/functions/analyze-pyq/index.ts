@@ -203,6 +203,7 @@ Minimum requirements:
     }
 
     return new Response(JSON.stringify({ analysis: analysisResult }), {
+      status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
