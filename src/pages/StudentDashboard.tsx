@@ -19,6 +19,7 @@ import OrganizersPage from './dashboard/OrganizersPage';
 import { MarSupportPage } from './dashboard/MarSupportPage';
 import { TimetablePage } from './dashboard/TimetablePage';
 import { PYQAnalyzerPage } from './dashboard/PYQAnalyzerPage';
+import MakautCalculatorPage from './dashboard/MakautCalculatorPage';
 
 const StudentDashboard = () => {
   const { user, signOut } = useAuth();
@@ -92,6 +93,7 @@ const StudentDashboard = () => {
               <Route path="attendance" element={<AttendancePage />} />
               <Route path="timetable" element={<TimetablePage />} />
               <Route path="pyq-analyzer" element={<PYQAnalyzerPage />} />
+              <Route path="makaut-calculator" element={<MakautCalculatorPage />} />
             </Routes>
           </div>
         </main>

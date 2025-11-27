@@ -1,4 +1,4 @@
-import { FileText, BookOpen, GraduationCap, Calendar, User, ClipboardCheck, LifeBuoy, FolderKanban, CalendarDays, Brain, FlaskConical } from 'lucide-react';
+import { FileText, BookOpen, GraduationCap, Calendar, User, ClipboardCheck, LifeBuoy, FolderKanban, CalendarDays, Brain, FlaskConical, Calculator } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useLocation } from 'react-router-dom';
 import {
@@ -24,6 +24,7 @@ const menuItems = [
   { title: 'Attendance', url: '/dashboard/attendance', icon: ClipboardCheck },
   { title: 'Study Timetable', url: '/dashboard/timetable', icon: CalendarDays },
   { title: 'PYQ Analyzer', url: '/dashboard/pyq-analyzer', icon: Brain },
+  { title: 'MAKAUT Calculator', url: '/dashboard/makaut-calculator', icon: Calculator },
 ];
 
 export function StudentSidebar() {
