@@ -39,7 +39,7 @@ const MakautCalculatorPage = () => {
     const totalPoints = oddPoints + evenPoints;
     const totalCredits = oddCredits + evenCredits;
     const ygpa = totalPoints / totalCredits;
-    const percentage = (ygpa - 0.5) * 10;
+    const percentage = (ygpa - 0.75) * 10;
 
     setResult({
       percentage: Math.round(percentage * 100) / 100,
